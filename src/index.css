@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'MyFontNormal';
+  src: url('../src/assets/fonts/TTNorms-Medium.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MyFontBold';
+  src: url('../src/assets/fonts/TTNorms-ExtraBoldItalic.otf') ;
+  font-weight: bold;
+  font-style: italic;
+}
+
+@theme {
+  --color-purple: #796FAB;
+  --color-secBlack: #282828;
+  --color-secWhite: #EFF6F8;
+  --color-yellow: #E5AA2D;
+  --color-pink: #E487BC;
+}
+
+*{
+  font-family: 'MyFontNormal', sans-serif;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar{
+  @apply hidden
+}
+
+input[type="number"]::-webkit-inner-spin-button{
+  @apply hidden
+}
