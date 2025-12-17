@@ -1,22 +1,21 @@
-import { assests } from '../../assets/images/assest'
+import { assests } from "../../assets/assest";
 
 const Assignment = () => {
   return (
     <>
       <div className="flex gap-5 p-4 bg-white rounded-md shadow">
-
         <div className=" grid grid-cols-2 gap-4">
           <img
             src={assests.chat}
             className="w-full h-full object-cover rounded-md"
           />
 
-           <img
+          <img
             src={assests.chat}
             className="w-full h-full object-cover rounded-md"
           />
 
-           <img
+          <img
             src={assests.chat}
             className="w-full h-full object-cover rounded-md"
           />
@@ -28,7 +27,9 @@ const Assignment = () => {
         </div>
 
         <div className="w-80  bg-white p-4 shadow rounded-md flex flex-col justify-center">
-          <h2 className="text-xl font-semibold mb-8 text-black text-center">Assignment</h2>
+          <h2 className="text-xl font-semibold mb-8 text-black text-center">
+            Assignment
+          </h2>
 
           <form className="flex flex-col gap-4">
             <label>Title :</label>
@@ -58,9 +59,8 @@ const Assignment = () => {
           </form>
         </div>
       </div>
-
     </>
-  )
-}
+  );
+};
 
-export default Assignment
+export default Assignment;

@@ -1,100 +1,99 @@
-import React from 'react'
-import { assests } from '../assets/images/assest'
+import React from "react";
+import { assests } from "../assets/assest";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
 import { MdAssignmentAdd } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
+import { GrContract, GrExpand } from "react-icons/gr";
 
-const LeftNav = ({ isOpen = false, toggleSidebar }) => {
+const LeftNav = ({ isExpanded, setIsExpanded }) => {
+  const navLinks = [
+    {
+      name: "Dashboard",
+      path: "/user/overview",
+      icon: <LuLayoutDashboard />,
+      role: "user",
+    },
+    {
+      name: "Curriculum",
+      path: "/tutor/curriculum",
+      icon: <BsFileEarmarkMedicalFill />,
+      role: "tutor",
+    },
+    {
+      name: "Attendance",
+      path: "/tutor/attendance",
+      icon: <GiNotebook />,
+      role: "tutor",
+    },
+    {
+      name: "Member",
+      path: "/tutor/student",
+      icon: <RiUserAddFill />,
+      role: "tutor",
+    },
+    {
+      name: "Assignment",
+      path: "/tutor/assignment",
+      icon: <MdAssignmentAdd />,
+      role: "tutor",
+    },
+  ];
 
-
-    const navLinks = [
-        { 
-            name: "Dashboard", 
-            path: "/user/overview", 
-            icon: <LuLayoutDashboard />, 
-            role: "user" 
-        },
-        { 
-            name: "Curriculum", 
-            path: "/tutor/curriculum", 
-            icon: <BsFileEarmarkMedicalFill />, 
-            role: "tutor" 
-        },
-        { 
-            name: "Attendance", 
-            path: "/tutor/Attendance", 
-            icon: <GiNotebook />, 
-            role: "tutor" 
-        },
-        { 
-            name: "Member", 
-            path: "/tutor/Student", 
-            icon: <RiUserAddFill />, 
-            role: "tutor" 
-        },
-        { 
-            name: "Assignment", 
-            path: "/tutor/Assignment", 
-            icon: <MdAssignmentAdd />, 
-            role: "tutor" 
-        }
-    ]
-
-    const handleNavClick = () => {
-        if (window.innerWidth < 768) {
-            toggleSidebar();
-        }
-    };
-
-    return (
-        <div className={`
-            fixed md:relative h-full w-1/5 bg-[#796FAB] text-white
-            transform transition-transform duration-300 ease-in-out z-20 rounded-r-[30px]
-            ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        `}>
-            <div className="flex flex-col h-full pt-4 px-4 lg:pt-2">
-            <div className="p-4 mb-4 border-b pe-0 border-gray-300 py-5">
-                <div className="flex items-center justify-between">
-                    <img src={assests.logo} className='' alt="Buggy Academy Logo" />
-                    <button 
-                        type='button'
-                        className='md:hidden inline-block'
-                        onClick={toggleSidebar}
-                    >
-                        <IoIosClose />
-                    </button>
-                    </div>
-            </div>
-            <nav className="flex-1 overflow-y-auto no-scrollbar">
-                <ul className="space-y-2">
-                {/* {navLinks.filter(link => link.role === user?.role).map((item) => { */}
-                {navLinks.map((navlink) => {
-                    return (
-                        <li key={navlink.path}>
-                            <NavLink
-                                to={navlink.path}
-                                end
-                                className={({ isActive }) => `
-                                    flex items-center gap-3 p-3 text-white
-                                    ${(isActive ? 'font-semibold opacity-100' : 'hover:font-bold opacity-70')}
-                                `}
-                                onClick={handleNavClick}
-                            >
-                                {navlink.icon}
-                            <span>{navlink.name}</span>
-                            </NavLink>
-                        </li>
-                    )
-                })}
-                </ul>
-            </nav>
-            </div>
+  return (
+    <div
+        className={`transition-all left-nav duration-500 left-nav relative ${
+            isExpanded ? "w-64" : "md:w-20 w-0"
+        } rounded-r-4xl bg-purple h-full pt-4 lg:pt-2 pb-8 px-2 flex items-start flex-col gap-2`}
+    >
+        <button
+            type="button"
+            className="absolute top-2 -right-4 w-8 h-8 flex justify-center items-center text-white bg-inherit border-2 rounded-full cursor-pointer shadow-lg"
+            onClick={() => setIsExpanded((prev) => !prev)}
+        >
+            {isExpanded ? <GrContract /> : <GrExpand />}
+        </button>
+        <div className="py-4 mb-4 border-b pe-0 border-gray-300">
+            {
+                isExpanded ? (
+                    <img src={assests.logo} className="" alt="Buggy Academy Logo" />
+                ) : (
+                    <img src={assests.smalllogo} className="w-1/2 mx-auto" alt="Buggy Academy Logo" />
+                )
+            }
         </div>
-    )
-}
+        <nav className="overflow-y-auto no-scrollbar w-full flex flex-col gap-2.5 border-b border-white/30 h-[calc(100%-(24px+3rem))]">
+            {/* {navLinks.filter(link => link.role === user?.role).map((item) => { */}
+            {navLinks.map((navlink) => {
+                return (
+                    <NavLink
+                        to={navlink.path}
+                        key={navlink.path}
+                        className={({ isActive }) => `
+                            nav-link flex items-center justify-center gap-3 p-3 text-white
+                            ${
+                                isActive
+                                ? "font-semibold opacity-100"
+                                : "hover:font-bold opacity-70"
+                            }
+                        `}
+                        onClick={() => setIsExpanded(false)}
+                    >
+                        {navlink.icon}
+                        <span className={`text-sm whitespace-nowrap ${
+                            isExpanded ? "" : "hidden"
+                        }`}>
+                            {navlink.name}
+                        </span>
+                    </NavLink>
+                );
+            })}
+        </nav>
+    </div>
+  );
+};
 
-export default LeftNav
+export default LeftNav;

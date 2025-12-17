@@ -19,7 +19,7 @@ function App() {
           element={ <Login />} 
         />
         <Route 
-          path="/auth/ForgotPassword"
+          path="/auth/forgotpassword"
           element={ <ForgotPassword />} 
         />
         <Route 
