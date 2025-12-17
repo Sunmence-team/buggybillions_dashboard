@@ -3,6 +3,10 @@ import { assests } from '../assets/images/assest'
 import { LuLayoutDashboard } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
 import { NavLink } from 'react-router-dom';
+import { BsFileEarmarkMedicalFill } from "react-icons/bs";
+import { RiUserAddFill } from "react-icons/ri";
+import { MdAssignmentAdd } from "react-icons/md";
+import { GiNotebook } from "react-icons/gi";
 
 const LeftNav = ({ isOpen = false, toggleSidebar }) => {
 
@@ -15,11 +19,29 @@ const LeftNav = ({ isOpen = false, toggleSidebar }) => {
             role: "user" 
         },
         { 
-            name: "Dashboard", 
-            path: "/user/overview", 
-            icon: <LuLayoutDashboard />, 
-            role: "user" 
+            name: "Curriculum", 
+            path: "/tutor/curriculum", 
+            icon: <BsFileEarmarkMedicalFill />, 
+            role: "tutor" 
         },
+        { 
+            name: "Attendance", 
+            path: "/tutor/Attendance", 
+            icon: <GiNotebook />, 
+            role: "tutor" 
+        },
+        { 
+            name: "Member", 
+            path: "/tutor/Student", 
+            icon: <RiUserAddFill />, 
+            role: "tutor" 
+        },
+        { 
+            name: "Assignment", 
+            path: "/tutor/Assignment", 
+            icon: <MdAssignmentAdd />, 
+            role: "tutor" 
+        }
     ]
 
     const handleNavClick = () => {
