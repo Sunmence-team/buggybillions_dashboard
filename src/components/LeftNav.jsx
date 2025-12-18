@@ -1,5 +1,5 @@
 import React from "react";
-import { assests } from "../assets/images/assest";
+import { assests } from "../assets/assest";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
 import { NavLink } from "react-router-dom";
