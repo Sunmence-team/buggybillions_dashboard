@@ -4,7 +4,7 @@ import { LuLayoutDashboard } from "react-icons/lu";
 import { NavLink } from "react-router-dom";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
-import { MdAssignmentAdd } from "react-icons/md";
+import { MdAssignmentAdd,MdSentimentVerySatisfied } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 
 const LeftNav = ({ isExpanded, setIsExpanded }) => {
