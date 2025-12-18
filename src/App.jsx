@@ -1,13 +1,15 @@
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import MainLayout from "./layout/MainLayout";
-import Overview from "./pages/user/Overview";
+import Overview from "./pages/students/Overview";
 import Curriculum from "./pages/tutor/Curriculum";
 import Attendance from "./pages/tutor/Attendance";
 import Student from "./pages/tutor/Student";
 import Assignment from "./pages/tutor/Assignment";
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import StudentCurriculm from "./pages/students/StudentCurriculm";
+import StudentAssignments from "./pages/students/StudentAssignments";
 
 function App() {
   return (
@@ -37,6 +39,14 @@ function App() {
         <Route
           path="/tutor/assignment"
           element={<MainLayout child={<Assignment />} />}
+        />
+        <Route
+          path="/student/Studentcurriculum"
+          element={<MainLayout child={<StudentCurriculm />} />}
+        />
+        <Route
+          path="/student/StudentAssignments"
+          element={<MainLayout child={<StudentAssignments />} />}
         />
       </Routes>
     </>
