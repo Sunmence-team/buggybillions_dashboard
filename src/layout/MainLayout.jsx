@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const MainLayout = ({ child }) => {
   const mainContentRef = useRef(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const pageVariants = {
     initial: {
       opacity: 0,

@@ -12,6 +12,8 @@ import Timetable from "./pages/student/Timetable";
 
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import StudentCurriculm from "./pages/student/StudentCurriculm";
+import StudentAssignments from "./pages/student/StudentAssignments";
 
 function App() {
   return (
@@ -19,20 +21,31 @@ function App() {
       <Toaster />
 
       <Routes>
-        {/* Redirect root to login */}
+        {/* Auth */}
         <Route path="/" element={<Navigate to="/auth/login" replace />} />
-
-        {/* Auth routes */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
-        {/* student routes */}
+        {/* Student */}
         <Route
           path="/student/overview"
           element={<MainLayout child={<Overview />} />}
         />
 
-        {/* Tutor routes */}
+        <Route
+          path="/student/studentcurriculum"
+          element={<MainLayout child={<StudentCurriculm />} />}
+        />
+        <Route
+          path="/student/studentassignments"
+          element={<MainLayout child={<StudentAssignments />} />}
+        />
+        <Route
+          path="/student/timetable"
+          element={<MainLayout child={<Timetable />} />}
+        />
+
+        {/* Tutor */}
         <Route
           path="/tutor/curriculum"
           element={<MainLayout child={<Curriculum />} />}
@@ -49,13 +62,6 @@ function App() {
           path="/tutor/assignment"
           element={<MainLayout child={<Assignment />} />}
         />
-        <Route
-          path="/student/timetable"
-          element={<MainLayout child={<Timetable />} />}
-        />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/auth/login" replace />} />
       </Routes>
     </>
   );

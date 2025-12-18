@@ -1,13 +1,11 @@
 import React from "react";
 import { assests } from "../assets/assest";
 import { LuLayoutDashboard } from "react-icons/lu";
-import { IoIosClose } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
 import { MdAssignmentAdd } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
-import { GrContract, GrExpand } from "react-icons/gr";
 
 const LeftNav = ({ isExpanded, setIsExpanded }) => {
   const navLinks = [
@@ -21,6 +19,18 @@ const LeftNav = ({ isExpanded, setIsExpanded }) => {
       name: "Timetable",
       path: "/student/Timetable",
       icon: <LuLayoutDashboard />,
+      role: "student",
+    },
+    {
+      name: "StudentCurriculum",
+      path: "/student/Studentcurriculum",
+      icon: <BsFileEarmarkMedicalFill />,
+      role: "student",
+    },
+    {
+      name: "Assignments ",
+      path: "/student/StudentAssignments ",
+      icon: <MdSentimentVerySatisfied />,
       role: "student",
     },
     {
@@ -53,15 +63,8 @@ const LeftNav = ({ isExpanded, setIsExpanded }) => {
     <div
       className={`transition-all left-nav duration-500 left-nav relative ${
         isExpanded ? "w-64" : "md:w-20 w-0"
-      } rounded-r-4xl bg-purple h-full pt-4 lg:pt-2 pb-8 px-2 flex items-start flex-col gap-2`}
+      } bg-purple h-full pt-4 lg:pt-2 pb-8 px-2 flex items-start flex-col gap-2`}
     >
-      <button
-        type="button"
-        className="absolute top-2 -right-4 w-8 h-8 flex justify-center items-center text-white bg-inherit border-2 rounded-full cursor-pointer shadow-lg"
-        onClick={() => setIsExpanded((prev) => !prev)}
-      >
-        {isExpanded ? <GrContract /> : <GrExpand />}
-      </button>
       <div className="py-4 mb-4 border-b pe-0 border-gray-300">
         {isExpanded ? (
           <img src={assests.logo} className="" alt="Buggy Academy Logo" />
