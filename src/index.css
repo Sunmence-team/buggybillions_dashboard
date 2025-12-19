@@ -26,6 +26,14 @@ html, body, #root {
   @apply hidden
 }
 
+.styled-scrollbar::-webkit-scrollbar{
+  @apply w-2 rounded-full
+}
+
+.styled-scrollbar::-webkit-scrollbar-thumb{
+  @apply bg-purple/20 rounded-full
+}
+
 input[type="number"]::-webkit-inner-spin-button{
   @apply hidden
 }

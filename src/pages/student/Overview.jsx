@@ -37,15 +37,15 @@ const Overview = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-md border border-gray-200">
-          <div className="mb-4 mt-4 flex items-center justify-between">
+        <div className="lg:col-span-2 rounded-xl bg-white p-4 shadow-md border border-gray-200">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-[25px] font-semibold">Recent Activities</h3>
-            <span className="cursor-pointer text-[18px] text-purple-600">
+            <span className="cursor-pointer text-sm text-purple-600">
               View all history
             </span>
           </div>
 
-          <ul className="space-y-4">
+          <ul className="space-y-4 max-h-[200px] styled-scrollbar overflow-y-scroll pe-2">
             {[1, 2, 3, 4].map((_, index) => (
               <li
                 key={index}
@@ -61,18 +61,18 @@ const Overview = () => {
           </ul>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-200 shadow-md">
+        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
           <h3 className="mb-4 text-lg font-semibold">Announcement</h3>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[200px] pe-2 styled-scrollbar overflow-y-scroll">
             <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 p-4">
               <small className="text-xs text-yellow-700">
                 Today • Important
               </small>
-              <h4 className="mt-1 font-medium">
+              <h4 className="mt-1 font-medium line-clamp-1">
                 Project Submission Reminder
               </h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 line-clamp-2">
                 This is to remind you all to submit your project on or before
                 12am on Friday
               </p>
@@ -84,10 +84,10 @@ const Overview = () => {
                 className="rounded-lg border p-4"
               >
                 <small className="text-xs text-gray-400">17/12/2025</small>
-                <h4 className="mt-1 font-medium">
+                <h4 className="mt-1 font-medium line-clamp-1">
                   Project Submission Reminder
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 line-clamp-2">
                   This is to remind you all to submit your project on or before
                   12am on Friday
                 </p>

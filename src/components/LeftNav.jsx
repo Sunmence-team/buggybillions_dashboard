@@ -17,19 +17,19 @@ const LeftNav = ({ isExpanded, setIsExpanded }) => {
     },
     {
       name: "Timetable",
-      path: "/student/Timetable",
+      path: "/student/timetable",
       icon: <LuLayoutDashboard />,
       role: "student",
     },
     {
       name: "Student Curriculum",
-      path: "/student/Studentcurriculum",
+      path: "/student/studentcurriculum",
       icon: <BsFileEarmarkMedicalFill />,
       role: "student",
     },
     {
       name: "Assignments ",
-      path: "/student/StudentAssignments ",
+      path: "/student/studentassignments ",
       icon: <MdSentimentVerySatisfied />,
       role: "student",
     },
