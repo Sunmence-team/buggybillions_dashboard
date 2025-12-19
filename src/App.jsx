@@ -46,8 +46,8 @@ function App() {
           element={
             <MainLayout 
               child={<StudentCurriculm />} 
-              heading={"Heading"}
-              // subText={}
+              heading={"My Curriculum"}
+              subText={"Check out your curriculum"}
             />
           }
         />
