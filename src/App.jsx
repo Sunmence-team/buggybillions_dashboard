@@ -12,6 +12,9 @@ import Timetable from "./pages/student/TimeTable";
 
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import StudentCurriculm from "./pages/student/StudentCurriculm";
+import StudentAssignments from "./pages/student/StudentAssignments";
+import Dashboard from "./pages/tutor/Dashboard";
 
 function App() {
   return (
