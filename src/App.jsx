@@ -16,6 +16,7 @@ import Curriculum from "./pages/tutor/Curriculum";
 import Attendance from "./pages/tutor/Attendance";
 import Student from "./pages/tutor/Student";
 import Assignment from "./pages/tutor/Assignment";
+import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
 
 
 function App() {
@@ -108,6 +109,16 @@ function App() {
           element={
             <MainLayout 
               child={<Student />} 
+              heading={"Heading"}
+              // subText={}
+            />
+          }
+        />
+        <Route
+          path="/tutor/tutorannouncement"
+          element={
+            <MainLayout 
+              child={<TutorAnnouncement />} 
               heading={"Heading"}
               // subText={}
             />
