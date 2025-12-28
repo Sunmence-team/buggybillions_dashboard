@@ -33,7 +33,7 @@ const StudentCurriculum = () => {
         },
       ],
     },
-    {  
+    {    
       date: "Phase4: ",
       classes: [
         {
