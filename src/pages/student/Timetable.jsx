@@ -34,7 +34,6 @@ const Timetable = () => {
           </tr>
         </thead>
 
-        {/* ===== TABLE BODY ===== */}
         <tbody>
           {days.map((day) => (
             <tr key={day} className="hover:bg-gray-50">
