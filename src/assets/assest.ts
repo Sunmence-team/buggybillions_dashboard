@@ -1,4 +1,4 @@
-import logo from './images/logo.png'
+import logo from "./images/logo.png";
 import chat from './images/chat.png'
 import smalllogo from './images/smalllogo.png'
 

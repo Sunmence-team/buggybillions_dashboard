@@ -1,26 +1,33 @@
 import React from "react";
-import { assests } from "../../assets/assest";
 import { FaUser } from "react-icons/fa";
 import { MdLock } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import { LoginValidationSchema } from "../../lib/validationschemas";
+import { assests } from "../../assets/assest";
+import api from "../../helpers/api";
 
-const Login = () => {
+const Login: React.FC = () => {
   const formik = useFormik({
     initialValues: {
-      email: "",
+      bug_id: "",
       password: "",
     },
     validationSchema: LoginValidationSchema,
     onSubmit: async (values) => {
       console.log("values", values)
+      try {
+        const response = await api.post("/api/login", values)
+        console.log("response", response)
+      } catch (error: any) {
+
+      }
     }
   })
   return (
     <div className="min-h-screen flex">
       <div
-        className="p-5 w-1/1  text-white flex text-center"
+        className="p-5 md:w-1/1 text-white md:flex hidden text-center"
         style={{
           backgroundImage:
             "linear-gradient(to bottom, rgba(121, 111, 171, 0.97), rgba(121, 111, 171, 0.96)), url('./lap.jpg')",
@@ -46,24 +53,28 @@ const Login = () => {
             </p>
           </div>
           <form onSubmit={formik.handleSubmit} className="space-y-5">
-            <div className="flex items-center h-[50px] rounded-lg bg-gray-200">
+            <div className="flex items-center gap-2 h-12.5 px-4 rounded-lg bg-gray-200">
               <FaUser />
               <input
                 type="text"
                 className="w-full h-full outline-0 border-0"
                 placeholder="Bug ID"
+                name="bug_id"
+                id="bug_id"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
             </div>
-            <div className="relative">
-              <span className="absolute left-4 top-4">
-                <MdLock />
-              </span>
+            <div className="flex items-center gap-2 h-12.5 px-4 rounded-lg bg-gray-200">
+              <MdLock />
               <input
                 type="password"
-                className="w-full px-9 py-3 rounded-lg bg-gray-200"
+                className="w-full h-full outline-0 border-0"
                 placeholder="Password"
+                name="password"
+                id="password"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
               />
             </div>
 
@@ -81,17 +92,17 @@ const Login = () => {
               Login
             </button>
 
-            <p className="text-sm text-center mt-4 text-gray-600 flex flex-col">
-              <a href="#" className="text-sm text-black">
+            <div className="text-sm text-center mt-4 text-gray-600 flex flex-col">
+              <Link to="/" className="text-sm text-black">
                 Forgot Password?
-              </a>
+              </Link>
               <div className="flex justify-center gap-1">
                 <p className="text-black"> Don’t have an account? </p>
-                <a href="#" className="text-red-500 font-semibold">
+                <Link to="/auth/register" className="text-red-500 font-semibold">
                   Sign up
-                </a>
+                </Link>
               </div>
-            </p>
+            </div>
           </form>
         </div>
       </div>
