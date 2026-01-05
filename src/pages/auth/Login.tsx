@@ -3,8 +3,20 @@ import { assests } from "../../assets/assest";
 import { FaUser } from "react-icons/fa";
 import { MdLock } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { useFormik } from "formik";
+import { LoginValidationSchema } from "../../lib/validationschemas";
 
 const Login = () => {
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: LoginValidationSchema,
+    onSubmit: async (values) => {
+      console.log("values", values)
+    }
+  })
   return (
     <div className="min-h-screen flex">
       <div
@@ -33,15 +45,15 @@ const Login = () => {
               Sign in to your account
             </p>
           </div>
-          <form className="space-y-5">
-            <div className="relative">
-              <span className="absolute left-4 top-4">
-                <FaUser />
-              </span>
+          <form onSubmit={formik.handleSubmit} className="space-y-5">
+            <div className="flex items-center h-[50px] rounded-lg bg-gray-200">
+              <FaUser />
               <input
                 type="text"
-                className="w-full px-9 py-3 rounded-lg bg-gray-200"
-                placeholder=" Tutor/Student ID"
+                className="w-full h-full outline-0 border-0"
+                placeholder="Bug ID"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
               />
             </div>
             <div className="relative">
@@ -64,7 +76,7 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#796FAB] text-white py-2 rounded-lg"
+              className="w-full bg-purple text-white py-2 rounded-lg"
             >
               Login
             </button>
