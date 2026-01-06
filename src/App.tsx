@@ -6,7 +6,7 @@ import MainLayout from "./layout/MainLayout";
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 
-import Overview from "./pages/student/Overview";
+import StudentOverview from "./pages/student/Overview";
 import Timetable from "./pages/student/Timetable";
 import StudentCurriculm from "./pages/student/StudentCurriculm";
 import StudentAssignments from "./pages/student/StudentAssignments";
@@ -17,6 +17,10 @@ import Attendance from "./pages/tutor/Attendance";
 import Student from "./pages/tutor/Student";
 import Assignment from "./pages/tutor/Assignment";
 import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
+
+import AdminOverview from "./pages/admin/Overview";
+import ManageStudents from "./pages/admin/ManageStudents";
+import ManageTutors from "./pages/admin/ManageTutors";
 
 
 function App() {
@@ -35,7 +39,7 @@ function App() {
           path="/student/overview"
           element={
             <MainLayout 
-              child={<Overview />} 
+              child={<StudentOverview />} 
               heading={"Student Dashboard"}
               subText={"Welcome Adeleke"}
             />
@@ -58,7 +62,6 @@ function App() {
             <MainLayout 
               child={<StudentAssignments />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -68,7 +71,6 @@ function App() {
             <MainLayout 
               child={<Timetable />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -80,7 +82,6 @@ function App() {
             <MainLayout 
               child={<Curriculum />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -90,7 +91,6 @@ function App() {
             <MainLayout 
               child={<Attendance />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -110,7 +110,6 @@ function App() {
             <MainLayout 
               child={<Student />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -120,7 +119,6 @@ function App() {
             <MainLayout 
               child={<TutorAnnouncement />} 
               heading={"Heading"}
-              // subText={}
             />
           }
         />
@@ -130,7 +128,35 @@ function App() {
             <MainLayout 
               child={<Assignment />} 
               heading={"Heading"}
-              // subText={}
+            />
+          }
+        />
+
+
+        <Route
+          path="/admin/overview"
+          element={
+            <MainLayout 
+              child={<AdminOverview />} 
+              heading={"Overview"}
+            />
+          }
+        />
+        <Route
+          path="/admin/managestudents"
+          element={
+            <MainLayout 
+              child={<ManageStudents />} 
+              heading={"Manage Students"}
+            />
+          }
+        />
+        <Route
+          path="/admin/managetutors"
+          element={
+            <MainLayout 
+              child={<ManageTutors />} 
+              heading={"Manage Tutors"}
             />
           }
         />

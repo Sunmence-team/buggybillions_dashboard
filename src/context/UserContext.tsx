@@ -9,8 +9,7 @@ interface userProviderProps {
 export interface UserProps {
   bug_id: number;
   username: string;
-  first_name: string;
-  last_name: string;
+  fullname: string;
   email: string;
   role: string;
 }
@@ -19,7 +18,7 @@ interface UserContextType {
   user: UserProps | null;
   token: string | null;
   role: string | null;
-  login: (token: string) => void;
+  login: (token: string, role: string) => void;
   logout: () => void;
   isLoggedIn: boolean;
   refreshUser: (token:string) => Promise<void>;
@@ -30,6 +29,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: userProviderProps) => {
   const [user, setUser] = useState<UserProps | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,7 +38,8 @@ export const UserProvider = ({ children }: userProviderProps) => {
       setLoading(true);
       const storedToken = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
-      if (!storedToken || !storedUser) {
+      const storedRole = localStorage.getItem("role");
+      if (!storedToken || !storedUser || !storedRole) {
         setLoading(false);
         return;
       }
@@ -46,6 +47,7 @@ export const UserProvider = ({ children }: userProviderProps) => {
       try {
         const parsedUser = JSON.parse(storedUser);
         setToken(storedToken);
+        setRole(storedRole);
         setUser(parsedUser);
 
         await refreshUser(storedToken);
@@ -61,9 +63,11 @@ export const UserProvider = ({ children }: userProviderProps) => {
   }, []);
 
   
-  const login = (token: string) => {
+  const login = (token: string, role: string) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
     setToken(token);
+    setRole(role);
     
     refreshUser(token)
   };
@@ -72,8 +76,10 @@ export const UserProvider = ({ children }: userProviderProps) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
 
     setToken(null);
+    setRole(null);
     setUser(null);
 
     toast.success("Logged out successfully");
@@ -88,7 +94,7 @@ export const UserProvider = ({ children }: userProviderProps) => {
     if (!authToken) throw new Error("No token");
 
     try {
-      const response = await api.get("/me", {
+      const response = await api.get("/api/me", {
         headers: {
           "Authorization": `Bearer ${authToken}`
         }
@@ -98,6 +104,7 @@ export const UserProvider = ({ children }: userProviderProps) => {
 
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("role", user.role);
     } catch (err: any) {
       console.error("Failed to refresh user:", err);
       if (err.response?.status === 401) {

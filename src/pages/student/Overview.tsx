@@ -4,7 +4,7 @@ import { HiOutlineIdentification } from "react-icons/hi";
 import { PiBookOpenUserFill } from "react-icons/pi";
 import { PiArrowFatLineUp } from "react-icons/pi";
 
-const Overview = () => {
+const StudentOverview: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 justify-between md:grid-cols-3">
@@ -97,4 +97,4 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+export default StudentOverview;

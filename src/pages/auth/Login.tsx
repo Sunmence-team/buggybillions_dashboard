@@ -1,13 +1,18 @@
 import React from "react";
 import { FaUser } from "react-icons/fa";
 import { MdLock } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { LoginValidationSchema } from "../../lib/validationschemas";
 import { assests } from "../../assets/assest";
 import api from "../../helpers/api";
+import { useUser } from "../../context/UserContext";
+import { toast } from "sonner";
 
 const Login: React.FC = () => {
+  const { login } = useUser();
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       bug_id: "",
@@ -19,8 +24,21 @@ const Login: React.FC = () => {
       try {
         const response = await api.post("/api/login", values)
         console.log("response", response)
-      } catch (error: any) {
 
+        if (response.status === 200) {
+          const { role, token } = response.data
+          login(token, role);
+          navigate(
+            role === "admin"
+              ? "/admin/overview"
+              : role === "tutor"
+                ? "/tutor/curriculum"
+                : "/student/overview"
+          )
+        }
+      } catch (error: any) {
+        console.log("Error occured logging in", error)
+        toast.error(error.data?.response?.message || error?.message)
       }
     }
   })
@@ -87,9 +105,10 @@ const Login: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-purple text-white py-2 rounded-lg"
+              disabled={formik.isSubmitting || !formik.isValid}
+              className="w-full bg-purple text-white h-11.25 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {formik.isSubmitting ? "Logging in..." : "Login"}
             </button>
 
             <div className="text-sm text-center mt-4 text-gray-600 flex flex-col">

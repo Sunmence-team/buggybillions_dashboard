@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react";
 import LeftNav from "../components/navs/LeftNav";
-import TopNav from "../components/navs/TopNav";
+import TopNav from "../components/navs/TopNav"
 import { AnimatePresence, motion } from "framer-motion";
 import { FaBars } from "react-icons/fa";
 
 interface MainLayOutProps {
   child: React.ReactElement;
   heading: string;
-  subText: string;
+  subText?: string;
 }
 
 const MainLayout: React.FC<MainLayOutProps> = ({ child, heading, subText }) => {

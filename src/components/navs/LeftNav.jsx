@@ -6,8 +6,11 @@ import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
 import { MdAssignmentAdd, MdSentimentVerySatisfied } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
+import { useUser } from "../../context/UserContext";
 
 const LeftNav = ({ setIsExpanded }) => {
+  const { user } = useUser();
+
   const navLinks = [
     {
       name: "Dashboard",
@@ -57,6 +60,24 @@ const LeftNav = ({ setIsExpanded }) => {
       icon: <MdAssignmentAdd />,
       role: "tutor",
     },
+    {
+      name: "Dashboard",
+      path: "/admin/overview",
+      icon: <LuLayoutDashboard />,
+      role: "admin",
+    },
+    {
+      name: "Students",
+      path: "/admin/managestudents",
+      icon: <LuLayoutDashboard />,
+      role: "admin",
+    },
+    {
+      name: "Tutors",
+      path: "/admin/managetutors",
+      icon: <LuLayoutDashboard />,
+      role: "admin",
+    },
   ];
 
   return (
@@ -67,12 +88,12 @@ const LeftNav = ({ setIsExpanded }) => {
         <img src={assests.logo} className="" alt="Buggy Academy Logo" />
       </div>
       <nav className="overflow-y-auto no-scrollbar w-full flex flex-col items-start gap-2.5 border-b border-white/30 h-[calc(100%-(24px+3rem))]">
-        {/* {navLinks.filter(link => link.role === user?.role).map((item) => { */}
-        {navLinks.map((navlink) => {
+        {navLinks.filter(navlink => navlink.role === user?.role).map((navlink) => {
+        // {navLinks.map((navlink) => {
           return (
             <NavLink
-              to={navlink.path}
-              key={navlink.path}
+              to={navlink?.path}
+              key={navlink?.path}
               className={({ isActive }) => `
                 nav-link flex items-center w-full rounded-md justify-start gap-3 p-3 text-white ${
                   isActive
