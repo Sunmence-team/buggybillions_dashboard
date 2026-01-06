@@ -7,13 +7,16 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
+import { useUser } from "../../context/UserContext";
 
 const ManageStudents: React.FC = () => {
+  const { token } = useUser();
   const [students, setStudents] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -26,14 +29,22 @@ const ManageStudents: React.FC = () => {
   const itemsPerPage = 10;
 
   const fetchStudents = async () => {
+    if (!token) return;
+
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/all_students?page=${currentPage}`);
-      setStudents(response.data.data || []);
-      setTotalPages(response.data.last_page || 1);
-      setTotalItems(response.data.total || 0);
-      // If the API returns 'current_page', we might sync it, but we manage it locally too
+      const response = await api.get(`/api/all_students?page=${currentPage}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 200 && response.data) {
+        setStudents(response.data.students || []);
+        setTotalPages(response.data.last_page || 1);
+        setTotalItems(response.data.total || 0);    
+      }
     } catch (err: any) {
       console.error("Error fetching students:", err);
       setError("Failed to load students. Please try again.");
@@ -45,33 +56,46 @@ const ManageStudents: React.FC = () => {
 
   useEffect(() => {
     fetchStudents();
-  }, [currentPage]);
+  }, [token, currentPage]);
 
   const handleCreate = async (data: any) => {
+    setIsSubmitting(true);
     try {
-      await api.post("/api/create_users", {
-        ...data,
-        role: "student", // Assuming role is needed since it's a generic create_users endpoint
+      await api.post("/api/create_users", data, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
       });
       toast.success("Student created successfully!");
       setIsCreateModalOpen(false);
-      fetchStudents(); // Refresh the list
+      fetchStudents();
     } catch (err: any) {
       console.error("Error creating student:", err);
       toast.error(err.response?.data?.message || "Failed to create student.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleUpdate = (data: any) => {
-    // Placeholder for Update API call
-    console.log("Update Data:", data);
-    // Optimistic update
-    setStudents((prev) =>
-      prev.map((s) => (s.id === selectedStudent.id ? { ...s, ...data } : s))
-    );
-    setModalType(null);
-    setSelectedStudent(null);
-    toast.success("Student updated successfully (Demo)");
+  const handleUpdate = async (data: any) => {
+    setIsSubmitting(true);
+    try {
+      // Placeholder for Update API call
+      console.log("Update Data:", data);
+      
+      // Optimistic update
+      setStudents((prev) =>
+        prev.map((s) => (s.id === selectedStudent.id ? { ...s, ...data } : s))
+      );
+      toast.success("Student updated successfully (Demo)");
+      setModalType(null);
+      setSelectedStudent(null);
+    } catch (err: any) {
+      console.error("Error updating student:", err);
+      toast.error("Failed to update student.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleActionMenu = (id: string) => {
@@ -172,7 +196,6 @@ const ManageStudents: React.FC = () => {
         totalItems={totalItems}
         itemsPerPage={itemsPerPage}
         setCurrentPage={setCurrentPage}
-        tableType="Students"
       />
 
       {/* Create Modal */}
@@ -181,6 +204,7 @@ const ManageStudents: React.FC = () => {
           <CreateStudentForm
             onSubmit={handleCreate}
             onCancel={() => setIsCreateModalOpen(false)}
+            isLoading={isSubmitting}
           />
         </Modal>
       )}
@@ -201,6 +225,7 @@ const ManageStudents: React.FC = () => {
               setSelectedStudent(null);
             }}
             readOnly={modalType === "view"}
+            isLoading={isSubmitting}
           />
         </Modal>
       )}

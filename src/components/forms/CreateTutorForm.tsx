@@ -5,6 +5,7 @@ interface CreateTutorFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
   readOnly?: boolean;
+  isLoading?: boolean;
 }
 
 const STACKS = {
@@ -19,6 +20,7 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
   onSubmit,
   onCancel,
   readOnly = false,
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState({
     fullname: "",
@@ -85,9 +87,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="fullname"
             value={formData.fullname}
             onChange={handleChange}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
             placeholder="Enter Full Name"
           />
         </div>
@@ -99,9 +101,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="username"
             value={formData.username}
             onChange={handleChange}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
             placeholder="Enter Username"
           />
         </div>
@@ -113,9 +115,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="mobile"
             value={formData.mobile}
             onChange={handleChange}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
             placeholder="Enter Mobile Number"
           />
         </div>
@@ -127,9 +129,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="bug_id"
             value={formData.bug_id}
             onChange={handleChange}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
             placeholder="Enter Bug ID"
           />
         </div>
@@ -142,9 +144,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
              name="password"
              value={formData.password}
              onChange={handleChange}
-             disabled={readOnly}
+             disabled={readOnly || isLoading}
              required={!initialData}
-             className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
              placeholder={initialData ? "Leave blank to keep current" : "Enter Password"}
            />
          </div>
@@ -156,9 +158,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="stack"
             value={formData.stack}
             onChange={handleChange}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
           >
             <option value="">Select Stack</option>
             {Object.keys(STACKS).map((stack) => (
@@ -175,9 +177,9 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="department"
             value={formData.department}
             onChange={handleChange}
-            disabled={readOnly || !formData.stack}
+            disabled={readOnly || !formData.stack || isLoading}
             required
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100"
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
           >
             <option value="">Select Department</option>
             {departments.map((dept) => (
@@ -193,16 +195,25 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+          disabled={isLoading}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
         >
           {readOnly ? "Close" : "Cancel"}
         </button>
         {!readOnly && (
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple rounded-md disabled:opacity-70 flex items-center gap-2"
           >
-            {initialData ? "Update" : "Create"}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                {initialData ? "Updating..." : "Creating..."}
+              </>
+            ) : (
+              initialData ? "Update" : "Create"
+            )}
           </button>
         )}
       </div>

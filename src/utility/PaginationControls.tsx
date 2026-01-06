@@ -9,7 +9,6 @@ const PaginationControls: React.FC<PaginationControlProps> = ({
   totalItems,
   setCurrentPage,
   itemsPerPage,
-  tableType,
 }) => {
   if (totalPages <= 1) return null;
 
@@ -21,7 +20,7 @@ const PaginationControls: React.FC<PaginationControlProps> = ({
       <div className="text-tetiary/50 font-medium">
         Showing &nbsp;
         <span className="text-tetiary">{start} - {end} of {totalItems}</span>
-        &nbsp; {tableType}
+        &nbsp;
       </div>
 
       <div className="flex items-center gap-4">

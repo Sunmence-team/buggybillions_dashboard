@@ -41,7 +41,6 @@ export interface PaginationControlProps {
   totalItems: number;
   itemsPerPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  tableType?: string;
 }
 
 export interface TasksProps {

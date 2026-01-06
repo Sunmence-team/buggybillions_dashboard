@@ -18,7 +18,7 @@ const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
   return (
     <header className="bg-white lg:px-0 flex items-center justify-between w-full">
       <div>
-        <h4 className="md:text-lg font-semibold leading-5">{heading}</h4>
+        <h4 className="md:text-lg font-semibold leading-6">{heading}</h4>
         {subText && <p className='text-sm'>{subText}</p>}
       </div>
       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black">

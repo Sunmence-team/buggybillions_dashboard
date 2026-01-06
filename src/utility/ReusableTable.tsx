@@ -13,7 +13,6 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   totalItems,
   setCurrentPage,
   hasSerialNo = true,
-  tableType,
 }) => {
   const itemsPerPage = 10;
 
@@ -44,7 +43,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
               {columnsWithSN.map((col, idx) => (
                 <th
                   key={col.key ?? idx}
-                  className="p-4 text-sm font-medium text-tetiary/60 whitespace-nowrap"
+                  className="p-4 text-sm font-medium text-black/60 whitespace-nowrap"
                 >
                   {col.title}
                 </th>
@@ -54,7 +53,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
 
           <tbody>
             {isLoading ? (
-              <tr className="h-12.5 border-y border-fadedBlack">
+              <tr className="h-12.5 border-y border-black/15">
                 <td colSpan={columnsWithSN.length}>
                   <div className="flex items-center justify-center gap-2 text-sm">
                     <LuLoaderCircle className="animate-spin" />
@@ -63,7 +62,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                 </td>
               </tr>
             ) : error ? (
-              <tr>
+              <tr className={`h-12.5 border-y border-black/15`}>
                 <td colSpan={columnsWithSN.length}>
                   {typeof error === "string"
                     ? error
@@ -71,7 +70,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                 </td>
               </tr>
             ) : data.length === 0 ? (
-              <tr>
+              <tr className={`h-12.5 border-y border-black/15`}>
                 <td colSpan={columnsWithSN.length} className="p-3 text-sm">
                   No data found.
                 </td>
@@ -87,7 +86,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                       key={col.key ?? idx}
                       className={
                         col.className ||
-                        "p-3 text-sm whitespace-nowrap text-tetiary font-medium"
+                        "p-3 text-sm whitespace-nowrap text-black font-medium"
                       }
                     >
                       {col.render
@@ -110,7 +109,6 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
             totalItems={totalItems}
             itemsPerPage={itemsPerPage}
             setCurrentPage={setCurrentPage}
-            tableType={tableType ?? ""}
           />
         )}
       </div>

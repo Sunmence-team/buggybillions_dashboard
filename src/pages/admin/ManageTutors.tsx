@@ -7,13 +7,16 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
+import { useUser } from "../../context/UserContext";
 
 const ManageTutors: React.FC = () => {
+  const { token } = useUser()
   const [tutors, setTutors] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -24,11 +27,18 @@ const ManageTutors: React.FC = () => {
   const itemsPerPage = 10;
 
   const fetchTutors = async () => {
+    if (!token) return;
+    
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/all_tutors?page=${currentPage}`);
-      setTutors(response.data.data || []);
+      const response = await api.get(`/api/all_tutors?page=${currentPage}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setTutors(response.data.tutors || []);
       setTotalPages(response.data.last_page || 1);
       setTotalItems(response.data.total || 0);
     } catch (err: any) {
@@ -42,13 +52,15 @@ const ManageTutors: React.FC = () => {
 
   useEffect(() => {
     fetchTutors();
-  }, [currentPage]);
+  }, [token, currentPage]);
 
   const handleCreate = async (data: any) => {
+    setIsSubmitting(true);
     try {
-      await api.post("/api/create_users", {
-        ...data,
-        role: "tutor",
+      await api.post("/api/tutors", data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       toast.success("Tutor created successfully!");
       setIsCreateModalOpen(false);
@@ -56,18 +68,28 @@ const ManageTutors: React.FC = () => {
     } catch (err: any) {
       console.error("Error creating tutor:", err);
       toast.error(err.response?.data?.message || "Failed to create tutor.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleUpdate = (data: any) => {
-    // Placeholder for Update API call
-    console.log("Update Data:", data);
-    setTutors((prev) =>
-      prev.map((t) => (t.id === selectedTutor.id ? { ...t, ...data } : t))
-    );
-    setModalType(null);
-    setSelectedTutor(null);
-    toast.success("Tutor updated successfully (Demo)");
+  const handleUpdate = async (data: any) => {
+    setIsSubmitting(true);
+    try {
+      // Placeholder for Update API call
+      console.log("Update Data:", data);
+      setTutors((prev) =>
+        prev.map((t) => (t.id === selectedTutor.id ? { ...t, ...data } : t))
+      );
+      toast.success("Tutor updated successfully (Demo)");
+      setModalType(null);
+      setSelectedTutor(null);
+    } catch (err: any) {
+      console.error("Error updating tutor:", err);
+      toast.error("Failed to update tutor.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleActionMenu = (id: string) => {
@@ -176,7 +198,6 @@ const ManageTutors: React.FC = () => {
         totalItems={totalItems}
         itemsPerPage={itemsPerPage}
         setCurrentPage={setCurrentPage}
-        tableType="Tutors"
       />
 
       {/* Create Modal */}
@@ -185,6 +206,7 @@ const ManageTutors: React.FC = () => {
           <CreateTutorForm
             onSubmit={handleCreate}
             onCancel={() => setIsCreateModalOpen(false)}
+            isLoading={isSubmitting}
           />
         </Modal>
       )}
@@ -205,6 +227,7 @@ const ManageTutors: React.FC = () => {
               setSelectedTutor(null);
             }}
             readOnly={modalType === "view"}
+            isLoading={isSubmitting}
           />
         </Modal>
       )}
