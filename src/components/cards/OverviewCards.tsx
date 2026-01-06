@@ -1,10 +1,24 @@
 import React from "react";
 
-const OverviewCards = ({ icon, label, value, iconBg, iconColor }) => {
+interface OverviewCardsProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  iconBg: string;
+  iconColor: string;
+}
+
+const OverviewCards: React.FC<OverviewCardsProps> = ({
+  icon,
+  label,
+  value,
+  iconBg,
+  iconColor,
+}) => {
   return (
     <div className="flex items-center min-h-32 max-h-38 gap-4 rounded-xl bg-white p-4 shadow-md border border-gray-200">
       <div
-        className={`flex h-14  w-14 items-center justify-center rounded-2xl ${iconBg} ${iconColor} text-xl`}
+        className={`flex h-14 w-14 items-center justify-center rounded-2xl ${iconBg} ${iconColor} text-xl`}
       >
         {icon}
       </div>

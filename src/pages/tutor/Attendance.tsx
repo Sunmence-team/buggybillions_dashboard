@@ -1,13 +1,18 @@
-import React from "react";
-import { useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaTimes, FaUser } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { HiUserGroup } from "react-icons/hi2";
 import { VscCopilot } from "react-icons/vsc";
-import { FaUser } from "react-icons/fa";
 
-const studentsData = [
+// Define a type for a student
+interface Student {
+  id: number;
+  name: string;
+  present: boolean;
+}
+
+const studentsData: Student[] = [
   { id: 25001, name: "Bamigbade Adeola Olabanji", present: true },
   { id: 25002, name: "Ajibade Adebisi Olakuleyin", present: false },
   { id: 25003, name: "Tinuade Adekitan Olabamire", present: true },
@@ -20,65 +25,56 @@ const studentsData = [
   { id: 25010, name: "Imade Adekunle Olaosebikan", present: false },
 ];
 
-const Attendance = () => {
-  const [students, setStudents] = useState(studentsData);
-  const [selected, setSelected] = useState(null);
+const Attendance: React.FC = () => {
+  const [students, setStudents] = useState<Student[]>(studentsData);
+  const [selected, setSelected] = useState<Student | null>(null);
 
   const allTotal = students.length;
-  const present = students.filter((alade) => alade.present).length;
+  const present = students.filter((s) => s.present).length;
   const attendanceRate = Math.round((present / allTotal) * 100);
 
-  const allAttendance = (id) => {
+  const toggleAttendance = (id: number) => {
     setStudents((prev) =>
-      prev.map((alade) =>
-        alade.id === id ? { ...alade, present: !alade.present } : alade
-      )
+      prev.map((s) => (s.id === id ? { ...s, present: !s.present } : s))
     );
   };
 
   return (
     <div className="p-6 space-y-6">
-      <div className="grid grid-cols-3 gap-5 bg-white shadow p-3  rounded-2xl">
+      {/* Attendance Summary Cards */}
+      <div className="grid grid-cols-3 gap-5 bg-white shadow p-3 rounded-2xl">
         <div className="bg-[#E487BC] w-full h-35 rounded-md flex items-center justify-center">
           <div className="flex justify-center items-center gap-3">
-            <div>
-              <HiUserGroup className="text-white text-[50px]" />
-            </div>
-
+            <HiUserGroup className="text-white text-[50px]" />
             <div className="flex flex-col">
               <h2 className="text-white text-[18px]">Total Student</h2>
-              <h2 className="text-white text-[37px]">24</h2>
+              <h2 className="text-white text-[37px]">{allTotal}</h2>
             </div>
           </div>
         </div>
 
         <div className="bg-[#796FAB] w-full h-35 rounded-md flex items-center justify-center">
           <div className="flex justify-center items-center gap-3">
-            <div>
-              <HiUserGroup className="text-white text-[50px]" />
-            </div>
-
+            <HiUserGroup className="text-white text-[50px]" />
             <div className="flex flex-col">
-              <h2 className="text-white text-[18px]">Total Student</h2>
-              <h2 className="text-white text-[37px]">20</h2>
+              <h2 className="text-white text-[18px]">Present</h2>
+              <h2 className="text-white text-[37px]">{present}</h2>
             </div>
           </div>
         </div>
 
         <div className="bg-[#E5AA2D] w-full h-35 rounded-md flex items-center justify-center">
           <div className="flex justify-center items-center gap-3">
-            <div>
-              <VscCopilot className="text-white text-[50px]" />
-            </div>
-
+            <VscCopilot className="text-white text-[50px]" />
             <div className="flex flex-col">
-              <h2 className="text-white text-[18px]">Total Student</h2>
-              <h2 className="text-white text-[37px]">04</h2>
+              <h2 className="text-white text-[18px]">Absent</h2>
+              <h2 className="text-white text-[37px]}">{allTotal - present}</h2>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Students Table */}
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 bg-white p-4 rounded-2xl shadow">
           <h2 className="font-semibold text-lg mb-2">Students Information</h2>
@@ -92,36 +88,32 @@ const Attendance = () => {
               </tr>
             </thead>
             <tbody>
-              {students.map((alade) => (
+              {students.map((s) => (
                 <tr
-                  key={alade.id}
+                  key={s.id}
                   className={`hover:bg-gray-300 ${
-                    selected?.id === alade.id ? "bg-gray-800" : ""
+                    selected?.id === s.id ? "bg-gray-800" : ""
                   }`}
                 >
-                  <td className="">
+                  <td>
                     <CgProfile className="w-8 h-8 rounded-full bg-red-400" />
                   </td>
-                  <td className="py-2 px-3">{alade.name}</td>
-                  <td className="py-2 px-3">{alade.id}</td>
+                  <td className="py-2 px-3">{s.name}</td>
+                  <td className="py-2 px-3">{s.id}</td>
                   <td className="py-2 px-3">
                     <div className="flex gap-3">
                       <button
-                        onClick={(e) => {
-                          allAttendance(alade.id);
-                        }}
+                        onClick={() => toggleAttendance(s.id)}
                         className={`p-1 rounded ${
-                          alade.present ? "bg-[#796FAB]" : "bg-gray-200"
+                          s.present ? "bg-[#796FAB]" : "bg-gray-200"
                         }`}
                       >
                         <IoCheckmarkSharp className="w-4 h-4 cursor-pointer" />
                       </button>
                       <button
-                        onClick={(e) => {
-                          allAttendance(alade.id);
-                        }}
+                        onClick={() => toggleAttendance(s.id)}
                         className={`p-1 rounded ${
-                          !alade.present ? "bg-red-500" : "bg-gray-200"
+                          !s.present ? "bg-red-500" : "bg-gray-200"
                         }`}
                       >
                         <FaTimes className="w-4 h-4 cursor-pointer" />
@@ -134,27 +126,25 @@ const Attendance = () => {
           </table>
         </div>
 
+        {/* Attendance Rate & Profile */}
         <div className="flex flex-col justify-between">
           <div className="bg-white p-6 rounded-2xl shadow flex flex-col items-center">
-            <h2 className="mb-4 font-semibold flex text-[#796FAB]">
-              Attendance Rate:
-            </h2>
+            <h2 className="mb-4 font-semibold flex text-[#796FAB]">Attendance Rate:</h2>
             <div className="relative w-32 h-32">
-              <span className="absolute inset-0 text-[50px] flex items-center justify-center font-bold text-lg">
+              <span className="absolute inset-0 flex items-center justify-center font-bold text-[50px]">
                 {attendanceRate}%
               </span>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow">
+          <div className="bg-white p-4 rounded-2xl shadow text-center">
             <div className="flex flex-col justify-center gap-1 items-center">
-              <div className="rounded-sm  bg-gray-300 p-2">b</div>
-              <h2 className="font-semibold  flex gap-1 items-center">
-                OLAONIPEKUN, <p>Jolaade</p>{" "}
+              <div className="rounded-sm bg-gray-300 p-2">b</div>
+              <h2 className="font-semibold flex gap-1 items-center">
+                OLAONIPEKUN, <p>Jolaade</p>
               </h2>
               <p>Aderibigbe</p>
             </div>
-
             <p>ID: 123456</p>
             <p>Email: jolaao@gmail.com</p>
             <p>Phone: +2349032615233</p>

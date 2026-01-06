@@ -21,6 +21,7 @@ import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
 import AdminOverview from "./pages/admin/Overview";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ManageTutors from "./pages/admin/ManageTutors";
+import SignUp from "./pages/auth/SignUp";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         {/* Auth */}
         <Route path="/" element={<Navigate to="/auth/login" replace />} />
         <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/signup" element={<SignUp />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
         {/* Student */}

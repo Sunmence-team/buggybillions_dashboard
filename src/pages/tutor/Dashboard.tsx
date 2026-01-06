@@ -5,9 +5,10 @@ import { MdOutlineChecklist } from "react-icons/md";
 import { BsClipboardCheck } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
+      {/* HEADER */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-sm">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -29,6 +30,7 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* OVERVIEW CARDS */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <OverviewCards
           icon={<HiOutlineUsers />}
@@ -55,6 +57,7 @@ const Dashboard = () => {
         />
       </div>
 
+      {/* LOWER SECTION */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* RECENT SUBMISSION */}
         <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-md border border-gray-200">
@@ -65,9 +68,8 @@ const Dashboard = () => {
             </span>
           </div>
 
-          {/* INNER SCROLL AREA */}
           <div className="max-h-60 overflow-y-scroll pe-3 space-y-4 styled-scrollbar">
-            {[1, 2, 3].map((_, index) => (
+            {[1, 2, 3].map((_, index: number) => (
               <div
                 key={index}
                 className="flex items-center justify-between rounded-lg bg-gray-50 p-4"
@@ -97,9 +99,8 @@ const Dashboard = () => {
         <div className="rounded-xl bg-white p-6 shadow-md border border-gray-200">
           <h3 className="mb-4 text-lg font-semibold">Recent Activity</h3>
 
-          {/* INNER SCROLL AREA */}
           <div className="max-h-60 overflow-y-scroll pe-3 space-y-4 styled-scrollbar">
-            {[1, 2, 3].map((_, index) => (
+            {[1, 2, 3].map((_, index: number) => (
               <div
                 key={index}
                 className="rounded-lg border border-gray-200 p-4"
