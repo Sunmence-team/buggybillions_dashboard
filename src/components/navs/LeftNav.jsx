@@ -1,5 +1,5 @@
 import React from "react";
-import { assests } from "../assets/assest";
+import { assests } from "../../assets/assest";
 import { NavLink } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
@@ -83,9 +83,7 @@ const LeftNav = ({ setIsExpanded }) => {
               onClick={() => setIsExpanded(false)}
             >
               {navlink.icon}
-              <span
-                className={`text-sm whitespace-nowrap`}
-              >
+              <span className={`text-sm whitespace-nowrap`}>
                 {navlink.name}
               </span>
             </NavLink>

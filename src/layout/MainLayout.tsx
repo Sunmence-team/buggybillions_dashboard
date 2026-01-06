@@ -1,10 +1,16 @@
 import React, { useRef, useState } from "react";
-import LeftNav from "../components/LeftNav";
-import TopNav from "../components/TopNav";
+import LeftNav from "../components/navs/LeftNav";
+import TopNav from "../components/navs/TopNav";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaBars } from "react-icons/fa";
 
-const MainLayout = ({ child, heading, subText }) => {
+interface MainLayOutProps {
+  child: React.ReactElement;
+  heading: string;
+  subText: string;
+}
+
+const MainLayout: React.FC<MainLayOutProps> = ({ child, heading, subText }) => {
   const mainContentRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const pageVariants = {
@@ -34,7 +40,12 @@ const MainLayout = ({ child, heading, subText }) => {
     <div
       className={`w-screen h-screen overflow-hidden flex items-start bg-white`}
     >
-      <div onClick={() => setIsExpanded(!isExpanded)} className={`lg:w-1/5 h-full w-full lg:static absolute ${isExpanded ? "top-0 left-0" : "-left-full"} z-50 bg-black/70`}>
+      <div
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={`lg:w-1/5 h-full w-full lg:static absolute ${
+          isExpanded ? "top-0 left-0" : "-left-full"
+        } z-50 bg-black/70`}
+      >
         <LeftNav setIsExpanded={setIsExpanded} />
       </div>
       <div className="flex-1 flex flex-col h-full w-full">
@@ -46,10 +57,7 @@ const MainLayout = ({ child, heading, subText }) => {
           >
             <FaBars />
           </button>
-          <TopNav
-            heading={heading} 
-            subText={subText}
-          />
+          <TopNav heading={heading} subText={subText} />
         </div>
         <main
           ref={mainContentRef}
@@ -66,7 +74,7 @@ const MainLayout = ({ child, heading, subText }) => {
               initial="initial"
               animate="animate"
               exit="exit"
-              variants={pageVariants}
+              variants={pageVariants as any}
               style={{
                 minHeight: "100%",
                 display: "flex",

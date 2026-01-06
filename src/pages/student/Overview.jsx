@@ -1,5 +1,5 @@
 import React from "react";
-import OverviewCards from "../../components/OverviewCards";
+import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { PiBookOpenUserFill } from "react-icons/pi";
 import { PiArrowFatLineUp } from "react-icons/pi";
@@ -10,7 +10,7 @@ const Overview = () => {
       <div className="grid grid-cols-1 gap-6 justify-between md:grid-cols-3">
         {/* Grey */}
         <OverviewCards
-          icon={<HiOutlineIdentification size={"30px"}/>}
+          icon={<HiOutlineIdentification size={"30px"} />}
           label="Student ID"
           value="BBSTU2025001"
           iconBg="bg-gray-100"
@@ -28,7 +28,7 @@ const Overview = () => {
 
         {/* Grey */}
         <OverviewCards
-          icon={<PiArrowFatLineUp size={"30px"}/>}
+          icon={<PiArrowFatLineUp size={"30px"} />}
           label="Grade"
           value="90% Excellent"
           iconBg="bg-gray-100"
@@ -45,7 +45,7 @@ const Overview = () => {
             </span>
           </div>
 
-          <ul className="space-y-4 max-h-[200px] styled-scrollbar overflow-y-scroll pe-2">
+          <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
             {[1, 2, 3, 4].map((_, index) => (
               <li
                 key={index}
@@ -79,10 +79,7 @@ const Overview = () => {
             </div>
 
             {[1, 2].map((_, index) => (
-              <div
-                key={index}
-                className="rounded-lg border p-4"
-              >
+              <div key={index} className="rounded-lg border p-4">
                 <small className="text-xs text-gray-400">17/12/2025</small>
                 <h4 className="mt-1 font-medium line-clamp-1">
                   Project Submission Reminder

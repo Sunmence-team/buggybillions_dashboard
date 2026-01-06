@@ -1,5 +1,5 @@
 import React from "react";
-import OverviewCards from "../../components/OverviewCards";
+import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { MdOutlineChecklist } from "react-icons/md";
 import { BsClipboardCheck } from "react-icons/bs";
@@ -8,9 +8,7 @@ import { FiSearch } from "react-icons/fi";
 const Dashboard = () => {
   return (
     <div className="space-y-6">
-
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        
         <div className="relative w-full sm:max-w-sm">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -58,7 +56,6 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
         {/* RECENT SUBMISSION */}
         <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-md border border-gray-200">
           <div className="mb-4 flex items-center justify-between">
@@ -117,7 +114,6 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );
