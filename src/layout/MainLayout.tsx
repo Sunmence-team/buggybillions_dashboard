@@ -49,7 +49,7 @@ const MainLayout: React.FC<MainLayOutProps> = ({ child, heading, subText }) => {
         <LeftNav setIsExpanded={setIsExpanded} />
       </div>
       <div className="flex-1 flex flex-col h-full w-full">
-        <div className="flex gap-2 items-center w-full overflow-hidden md:px-6 px-4 py-6 shadow-md">
+        <div className="flex gap-2 items-center w-full overflow-hidden md:px-6 px-4 py-4 border-b border-gray-200">
           <button
             type="button"
             className="lg:hidden p-2"

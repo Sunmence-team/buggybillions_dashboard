@@ -1,62 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateStudentForm from "../../components/forms/CreateStudentForm";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { BsThreeDotsVertical } from "react-icons/bs";
-
-// Dummy Data
-const INITIAL_STUDENTS = [
-  {
-    id: "1",
-    bug_id: "BUG-001",
-    password: "pass",
-    stack: "frontend",
-    department: "React",
-    created_at: "2024-01-01",
-  },
-  {
-    id: "2",
-    bug_id: "BUG-002",
-    password: "pass",
-    stack: "backend",
-    department: "Node.js",
-    created_at: "2024-01-02",
-  },
-];
+import { FaPlus } from "react-icons/fa6";
+import api from "../../helpers/api";
+import { toast } from "sonner";
 
 const ManageStudents: React.FC = () => {
-  const [students, setStudents] = useState<any[]>(INITIAL_STUDENTS);
+  const [students, setStudents] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
-  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | null>(null);
+  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | null>(
+    null
+  );
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
-  // Pagination logic (dummy)
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(students.length / itemsPerPage);
-  const currentData = students.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
-  const handleCreate = (data: any) => {
-    const newStudent = {
-      ...data,
-      id: Math.random().toString(36).substr(2, 9),
-      created_at: new Date().toISOString().split("T")[0],
-    };
-    setStudents([...students, newStudent]);
-    setIsCreateModalOpen(false);
+  const fetchStudents = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`/api/all_students?page=${currentPage}`);
+      setStudents(response.data.data || []);
+      setTotalPages(response.data.last_page || 1);
+      setTotalItems(response.data.total || 0);
+      // If the API returns 'current_page', we might sync it, but we manage it locally too
+    } catch (err: any) {
+      console.error("Error fetching students:", err);
+      setError("Failed to load students. Please try again.");
+      toast.error("Failed to load students.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, [currentPage]);
+
+  const handleCreate = async (data: any) => {
+    try {
+      await api.post("/api/create_users", {
+        ...data,
+        role: "student", // Assuming role is needed since it's a generic create_users endpoint
+      });
+      toast.success("Student created successfully!");
+      setIsCreateModalOpen(false);
+      fetchStudents(); // Refresh the list
+    } catch (err: any) {
+      console.error("Error creating student:", err);
+      toast.error(err.response?.data?.message || "Failed to create student.");
+    }
   };
 
   const handleUpdate = (data: any) => {
+    // Placeholder for Update API call
+    console.log("Update Data:", data);
+    // Optimistic update
     setStudents((prev) =>
       prev.map((s) => (s.id === selectedStudent.id ? { ...s, ...data } : s))
     );
     setModalType(null);
     setSelectedStudent(null);
+    toast.success("Student updated successfully (Demo)");
   };
 
   const toggleActionMenu = (id: string) => {
@@ -80,6 +95,10 @@ const ManageStudents: React.FC = () => {
     {
       title: "Created At",
       key: "created_at",
+      render: (item) => {
+        if (!item.created_at) return "-";
+        return new Date(item.created_at).toLocaleDateString();
+      }
     },
     {
       title: "Action",
@@ -118,7 +137,7 @@ const ManageStudents: React.FC = () => {
                 className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
                 onClick={() => {
                   setSelectedStudent(item);
-                  setModalType("edit"); // Reusing edit for "Upgrade" as per instruction context, or could be separate if needed.
+                  setModalType("edit"); // Reusing edit for "Upgrade"
                   setOpenActionId(null);
                 }}
               >
@@ -131,47 +150,30 @@ const ManageStudents: React.FC = () => {
     },
   ];
 
-  // Close action menu when clicking outside (simple handling via overlay if needed, or just let it be for now)
-  // For better UX, we could add a global click listener, but for this task scope, let's keep it simple.
-
   return (
-    <div className="p-6">
+    <div className="">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-tetiary">Manage Students</h1>
-        {students.length > 0 && (
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Add Student
-          </button>
-        )}
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-3 h-11.25 text-sm flex items-center justify-center gap-2 bg-purple text-white rounded-md"
+        >
+          <FaPlus /> <span>Add Student</span>
+        </button>
       </div>
 
-      {students.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow-sm border border-gray-100">
-          <p className="text-lg text-gray-500 mb-4">No students yet.</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Add Student
-          </button>
-        </div>
-      ) : (
-        <ReusableTable
-          columns={columns}
-          data={currentData}
-          isLoading={false}
-          error={null}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={students.length}
-          itemsPerPage={itemsPerPage}
-          setCurrentPage={setCurrentPage}
-          tableType="Students"
-        />
-      )}
+      <ReusableTable
+        columns={columns}
+        data={students}
+        isLoading={isLoading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        setCurrentPage={setCurrentPage}
+        tableType="Students"
+      />
 
       {/* Create Modal */}
       {isCreateModalOpen && (

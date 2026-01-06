@@ -21,8 +21,8 @@ const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
         <h4 className="md:text-lg font-semibold leading-5">{heading}</h4>
         {subText && <p className='text-sm'>{subText}</p>}
       </div>
-      <div className="flex items-center justify-center w-8 lg:w-10 h-8 lg:h-10 rounded-full bg-black">
-        <p className="text-white text-sm lg:text-xl text-center font-medium uppercase">
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black">
+        <p className="text-white text-sm lg:text-lg text-center font-medium uppercase">
           {`${splitedFirstLetterOfFirstName}${splitedFirstLetterOfLastName ? splitedFirstLetterOfLastName : ""}`}
         </p>
       </div>

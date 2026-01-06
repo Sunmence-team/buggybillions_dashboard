@@ -7,6 +7,7 @@ import { RiUserAddFill } from "react-icons/ri";
 import { MdAssignmentAdd, MdSentimentVerySatisfied } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { useUser } from "../../context/UserContext";
+import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
 
 const LeftNav = ({ setIsExpanded }) => {
   const { user } = useUser();
@@ -69,13 +70,13 @@ const LeftNav = ({ setIsExpanded }) => {
     {
       name: "Students",
       path: "/admin/managestudents",
-      icon: <LuLayoutDashboard />,
+      icon: <PiStudent />,
       role: "admin",
     },
     {
       name: "Tutors",
       path: "/admin/managetutors",
-      icon: <LuLayoutDashboard />,
+      icon: <PiChalkboardTeacherFill />,
       role: "admin",
     },
   ];

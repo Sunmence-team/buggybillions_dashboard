@@ -148,6 +148,7 @@ function App() {
             <MainLayout 
               child={<ManageStudents />} 
               heading={"Manage Students"}
+              subText="Easily manage all students"
             />
           }
         />
