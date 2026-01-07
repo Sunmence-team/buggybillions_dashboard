@@ -52,10 +52,13 @@ const SignUp: React.FC = () => {
             "linear-gradient(to bottom, rgba(121, 111, 171, 0.97), rgba(121, 111, 171, 0.96)), url('./lap.jpg')",
         }}
       >
-        <div>
+        <div className="absolute">
           <img src={assests.logo} className="w-55" />
         </div>
-          <h1 className="text-4xl text-bold text-justify items-center my-auto">Join us today and <span className="text-yellow-400 text-5xl text-bold">start your Journey</span></h1>
+        <div className="flex justify-center w-96 mx-auto items-center">
+          <h1 className="text-4xl font-semibold ">Join us today and start<span className="text-yellow-400"> your Journey</span></h1>
+
+        </div>
     
       </div>
 
@@ -63,10 +66,10 @@ const SignUp: React.FC = () => {
         <div className="w-full max-w-md">
           <div>
             <h2 className="text-2xl font-semibold text-black text-center">
-              Login
+              SignUp
             </h2>
             <p className="text-black mb-10 text-center">
-              Sign in to your account
+              Your Experience start here
             </p>
           </div>
           <form onSubmit={formik.handleSubmit} className="space-y-5">
