@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../helpers/api";
 import { toast } from "sonner";
 import { FaFolder } from "react-icons/fa";
+import { useUser } from "../../context/UserContext";
 
 interface Lesson {
   id: number;
@@ -19,6 +20,7 @@ const Curriculum = () => {
   const [getLesson, setGetLesson] = React.useState<Lesson[]>([])
 
   const navigate = useNavigate()
+  const {user} = useUser()
 
   const handleForm = () => {
     navigate('/tutor/curriculum/lessonForm')
@@ -28,10 +30,9 @@ const Curriculum = () => {
     const token = localStorage.getItem('token')
     if (!token) return
     setLoading(true)
-    const tutorId = 8
 
     try {
-      const response = await api.get(`/api/tutors/${tutorId}  /weekly-lessons`, {
+      const response = await api.get(`/api/tutors/${user?.id}/weekly-lessons`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
