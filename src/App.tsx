@@ -13,7 +13,7 @@ import StudentAssignments from "./pages/student/StudentAssignments";
 
 import Dashboard from "./pages/tutor/Dashboard";
 import Curriculum from "./pages/tutor/Curriculum";
-import Attendance from "./pages/tutor/Attendance";
+
 import Student from "./pages/tutor/Student";
 import Assignment from "./pages/tutor/Assignment";
 import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
@@ -21,6 +21,7 @@ import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
 import AdminOverview from "./pages/admin/Overview";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ManageTutors from "./pages/admin/ManageTutors";
+import Attendance from "./pages/tutor/Attendance";
 
 
 function App() {
