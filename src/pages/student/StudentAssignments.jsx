@@ -11,10 +11,16 @@ import { BiBookmarkPlus } from "react-icons/bi";
 import { IoMdTime } from "react-icons/io";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { IoIosTimer } from "react-icons/io";
+import Duesoon from "./Components/Duesoon";
+import Alltask from "./Components/Alltask";
+import Submitted from "./Components/Submitted";
 
 function StudentAssignments() {
+
+  const [activeTab, setActiveTab] = React.useState('allTask')
+
   return (
-     <div className=" p-6">
+    <div className=" p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Assignments</h1>
@@ -97,14 +103,26 @@ function StudentAssignments() {
 
       <div className="flex items-center justify-between mt-12">
         <div className="flex gap-2 shadow bg-white p-2 rounded-full">
-          {["All Tasks", "Due Soon", "Submitted", "Graded"].map((tab) => (
-            <button
-              key={tab}
-              className="px-4 py-2 text-sm rounded-xl  hover:bg-[#796FAB]"
-            >
-              {tab}
-            </button>
-          ))}
+          <button
+            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'allTask' ? 'text-purple' : ''}`}
+            onClick={() => setActiveTab('allTask')}>
+            All Task
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'dueSoon' ? 'text-purple' : ''}`}
+            onClick={() => setActiveTab('dueSoon')}>
+            Due Soon
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'submitted' ? 'text-purple' : ''}`}
+            onClick={() => setActiveTab('submitted')}>
+            Submitted
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'graded' ? 'text-purple' : ''}`}
+            onClick={() => setActiveTab('graded')}>
+            Graded
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-[13px]">STORY BY:</p>
@@ -114,146 +132,11 @@ function StudentAssignments() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-7">
-        <div className="bg-white rounded-2xl border-l-4 border-[#E5AA2D] p-5 shadow">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-black">Week 05 :</p>
-                <p className="text-[#796FAB]"> UX Research</p>
-              </div>
-              <h3 className="font-bold text-[20px]">User Persona Profiles</h3>
-            </div>
-
-            <div className=" flex items-center gap-1 bg-[#e5ab2d3d] text-[#E5AA2D] px-2 py-1 rounded-full">
-              <span>
-                <FiAlertTriangle />
-              </span>
-              Due Soon
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Create 3 detailed user personas based on interview datacollected
-            last week include goals,Faurstrations,and...
-          </p>
-          <div className="flex justify-between items-center mt-10">
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full">
-              <span>
-                <MdEditCalendar color="#E5AA2D" size={20} />
-              </span>
-              <p className="text-[12px]">Due Oct 15, 11:59 PM</p>
-            </div>
-
-            <button className="flex items-center gap-1 px-3 py-3 bg-[#E5AA2D] text-white rounded-xl text-sm">
-              <BiBookmarkPlus size={15} />
-              Submit
-            </button>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border-l-4 border-gray-400 p-5 shadow">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-black">Week 05 :</p>
-                <p className="text-[#796FAB]"> UX Research</p>
-              </div>
-              <h3 className="font-bold text-[20px]">User Persona Profiles</h3>
-            </div>
-
-            <div className=" flex items-center gap-1 bg-gray-400 text-black px-2 py-1 rounded-full">
-              <span>
-                <IoMdTime />
-              </span>
-              Due Soon
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Create 3 detailed user personas based on interview datacollected
-            last week include goals,Faurstrations,and...
-          </p>
-          <div className="flex justify-between items-center mt-10">
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full">
-              <span>
-                <MdEditCalendar color="#808080" size={20} />
-              </span>
-              <p className="text-[12px]">Due Oct 15, 11:59 PM</p>
-            </div>
-
-            <button className="flex items-center gap-1 px-3 py-1 bg-white shadow text-black rounded-xl text-sm">
-              View Details
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border-l-4 border-[#796fab78] p-5 shadow">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-black">Week 05 :</p>
-                <p className="text-[#796FAB]"> UX Research</p>
-              </div>
-              <h3 className="font-bold text-[20px]">User Persona Profiles</h3>
-            </div>
-
-            <div className=" flex items-center gap-1 bg-[#796fab78] text-[#796FAB] px-2 py-1 rounded-full">
-              <p className="bg-[#796FAB] rounded-full text-white">
-                <GrFormCheckmark />
-              </p>
-              Due Soon
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Create 3 detailed user personas based on interview datacollected
-            last week include goals,Faurstrations,and...
-          </p>
-          <div className="flex justify-between items-center mt-10">
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full">
-              <span>
-                <MdEditCalendar color="#796FAB" size={20} />
-              </span>
-              <p className="text-[12px]">Due Oct 15, 11:59 PM</p>
-            </div>
-
-            <button className="flex items-center gap-1 px-4 py-2 bg-[#796fab78] text-white rounded-xl text-sm">
-              Submit
-            </button>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border-l-4 border-[#796FAB] p-5 shadow">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-black">Week 05 :</p>
-                <p className="text-[#796FAB]"> UX Research</p>
-              </div>
-              <h3 className="font-bold text-[20px]">User Persona Profiles</h3>
-            </div>
-
-            <div className=" flex items-center gap-1 bg-green-200 text-green-600 px-2 py-1 rounded-full">
-              <p className="bg-green-400 rounded-full">
-                <RiVerifiedBadgeFill />
-              </p>
-              Graded
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Create 3 detailed user personas based on interview datacollected
-            last week include goals,Faurstrations,and...
-          </p>
-          <div className="flex justify-between items-center mt-10">
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full">
-              <span>
-                <IoIosTimer color="#796FAB" size={20} />
-              </span>
-              <p className="text-[12px]">Graded Oct 02</p>
-            </div>
-
-            <button className="flex items-center gap-1 px-3 py-2 bg-[#796fab4c] text-[#796FAB] rounded-xl text-sm">
-              View Feedback
-            </button>
-          </div>
-        </div>
-      </div>
+       {activeTab === 'allTask' && (<Alltask /> )}
+       {activeTab === 'dueSoon' && (<Duesoon /> )}
+       {activeTab === 'submitted' && (<Submitted /> )}
+       {/* {activeTab === 'dueSoon' && (<Duesoon /> )} */}
+     
     </div>
   );
 }
