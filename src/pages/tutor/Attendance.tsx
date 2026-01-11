@@ -22,7 +22,8 @@ const studentsData: Student[] = [
 ];
 
 const Attendance: React.FC = () => {
-  const [lessonId] = useState<number>();
+  /* ================= STATE ================= */
+  const [lessonId] = useState<number>(1); // replace with real lesson id
   const [students, setStudents] = useState<Student[]>(studentsData);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,7 @@ const Attendance: React.FC = () => {
   const presentCount = students.filter((s) => s.present).length;
   const absentCount = totalStudents - presentCount;
 
-  /* ================= FETCH ATTENDANCE FOR LESSON ================= */
+  /* ================= FETCH ATTENDANCE ================= */
   const fetchAttendance = async () => {
     try {
       setLoading(true);
@@ -44,7 +45,7 @@ const Attendance: React.FC = () => {
         const mapped: Student[] = res.data.map((item: any) => ({
           id: item.student_id,
           name: item.name,
-          present: item.present,
+          present: Boolean(item.present),
         }));
 
         setStudents(mapped);
@@ -63,19 +64,16 @@ const Attendance: React.FC = () => {
     fetchAttendance();
   }, []);
 
-  /* ================= TOGGLE ATTENDANCE (UI ONLY) ================= */
-  const toggleAttendance = (id: number) => {
+  /* ================= TOGGLE ATTENDANCE ================= */
+  const toggleAttendance = (id: number, value: boolean) => {
     setStudents((prev) =>
       prev.map((student) =>
-        student.id === id ? { ...student, present: !student.present } : student
+        student.id === id ? { ...student, present: value } : student
       )
     );
 
     if (selectedStudent?.id === id) {
-      setSelectedStudent({
-        ...selectedStudent,
-        present: !selectedStudent.present,
-      });
+      setSelectedStudent({ ...selectedStudent, present: value });
     }
   };
 
@@ -86,6 +84,10 @@ const Attendance: React.FC = () => {
 
       await api.post("/attendance/mark", {
         lesson_id: lessonId,
+        attendance: students.map((s) => ({
+          student_id: s.id,
+          present: s.present,
+        })),
       });
 
       alert("Attendance marked successfully");
@@ -101,20 +103,18 @@ const Attendance: React.FC = () => {
     <div className="p-4 sm:p-6 space-y-6">
       {/* ================= SUMMARY ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-white shadow p-3 rounded-2xl">
-        <SummaryCard
-          title="Total Students"
-          value={totalStudents}
-          color="#E487BC"
-        />
+        <SummaryCard title="Total Students" value={totalStudents} color="#E487BC" />
         <SummaryCard title="Present" value={presentCount} color="#796FAB" />
         <SummaryCard title="Absent" value={absentCount} color="#E5AA2D" />
       </div>
 
-      {/* ================= TABLE + SELECTED CARD ================= */}
+      {/* ================= TABLE + SELECTED ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* TABLE */}
         <div className="lg:col-span-2 bg-white p-4 rounded-2xl shadow overflow-x-auto">
-          <h2 className="font-semibold text-lg mb-3">Students Information</h2>
+          <h2 className="font-semibold text-lg mb-3">
+            Students Information
+          </h2>
 
           {loading ? (
             <p className="text-center py-6">Loading attendance...</p>
@@ -122,18 +122,10 @@ const Attendance: React.FC = () => {
             <table className="w-full min-w-[650px] border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="py-3 px-4 text-left font-medium text-gray-600">
-                    Profile
-                  </th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-600">
-                    Name
-                  </th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-600">
-                    ID
-                  </th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-600">
-                    Attendance
-                  </th>
+                  <th className="py-3 px-4 text-left">Profile</th>
+                  <th className="py-3 px-4 text-left">Name</th>
+                  <th className="py-3 px-4 text-left">ID</th>
+                  <th className="py-3 px-4 text-left">Attendance</th>
                 </tr>
               </thead>
 
@@ -148,9 +140,7 @@ const Attendance: React.FC = () => {
                       <CgProfile className="w-8 h-8" />
                     </td>
 
-                    <td className="py-3 px-4 max-w-[220px] break-words">
-                      {student.name}
-                    </td>
+                    <td className="py-3 px-4">{student.name}</td>
 
                     <td className="py-3 px-4">{student.id}</td>
 
@@ -159,7 +149,7 @@ const Attendance: React.FC = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleAttendance(student.id);
+                            toggleAttendance(student.id, true);
                           }}
                           className={`p-1 rounded ${
                             student.present
@@ -173,7 +163,7 @@ const Attendance: React.FC = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleAttendance(student.id);
+                            toggleAttendance(student.id, false);
                           }}
                           className={`p-1 rounded ${
                             !student.present
@@ -193,7 +183,7 @@ const Attendance: React.FC = () => {
         </div>
 
         {/* SELECTED STUDENT */}
-        <div className="bg-white p-6 rounded-2xl shadow self-start h-fit">
+        <div className="bg-white p-6 rounded-2xl shadow self-start">
           <h3 className="font-semibold mb-4 text-[#796FAB]">
             Selected Student
           </h3>
@@ -202,7 +192,9 @@ const Attendance: React.FC = () => {
             <div className="flex flex-col items-center gap-3 text-center">
               <CgProfile className="w-20 h-20 text-gray-400" />
               <h4 className="font-semibold">{selectedStudent.name}</h4>
-              <p className="text-sm text-gray-500">ID: {selectedStudent.id}</p>
+              <p className="text-sm text-gray-500">
+                ID: {selectedStudent.id}
+              </p>
               <span
                 className={`px-4 py-1 rounded-full text-sm ${
                   selectedStudent.present

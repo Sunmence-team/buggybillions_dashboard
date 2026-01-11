@@ -1,30 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../../context/UserContext";
 import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { PiBookOpenUserFill, PiArrowFatLineUp } from "react-icons/pi";
+import api from "../../helpers/api";
+
+interface Activity {
+  title: string;
+  description: string;
+  time: string;
+}
+
+interface Announcement {
+  date: string;
+  type: string;
+  title: string;
+  description: string;
+  color: string;
+}
 
 const StudentOverview: React.FC = () => {
   const { user, loading } = useUser();
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
+  // Fetch assignments as recent activities
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchAssignments = async () => {
+      try {
+        setActivitiesLoading(true);
+        const res = await api.get(`/api/users/${user.id}/assignments`);
+        const assignments = res.data.assignments || [];
+
+        // Map API data → Recent Activity format
+        const formattedActivities = assignments.map((item: any) => ({
+          title: item.title ? "Assignment Submitted" : "Assignment",
+          description: item.title || "New assignment activity",
+          time: item.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : "Just now",
+        }));
+
+        setRecentActivities(formattedActivities);
+      } catch (error) {
+        console.error("Failed to fetch assignments", error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+
+    fetchAssignments();
+  }, [user?.id]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>Loading user data...</p>;
   }
 
-  // Placeholder recent activities and announcements
-  const recentActivities = user?.recentActivities || [
-    { title: "Assignment Submitted", description: "Food App Project", time: "2 hours ago" },
-    { title: "Quiz Completed", description: "UI/UX Basics", time: "1 day ago" },
-    { title: "Project Feedback Received", description: "Landing Page Project", time: "3 days ago" },
-    { title: "Forum Participation", description: "Week 2 Discussion", time: "5 days ago" },
-  ];
+  // Fallback if no activities
+  const activitiesToRender =
+    recentActivities.length > 0
+      ? recentActivities
+      : [
+          {
+            title: "No recent activity",
+            description: "You have no assignments yet",
+            time: "",
+          },
+        ];
 
-  const announcements = user?.announcements || [
+  // Placeholder announcements
+  const announcements: Announcement[] = user?.announcements || [
     {
       date: "Today",
       type: "Important",
       title: "Project Submission Reminder",
-      description: "This is to remind you all to submit your project on or before 12am on Friday",
+      description:
+        "This is to remind you all to submit your project on or before 12am on Friday",
       color: "yellow",
     },
     {
@@ -46,7 +99,7 @@ const StudentOverview: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 gap-6 justify-between md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <OverviewCards
           icon={<HiOutlineIdentification size="30px" />}
           label="Student ID"
@@ -81,32 +134,44 @@ const StudentOverview: React.FC = () => {
             </span>
           </div>
 
-          <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
-            {recentActivities.map((activity, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
-              >
-                <div>
-                  <p className="font-medium">{activity.title}</p>
-                  <p className="text-sm text-gray-500">{activity.description}</p>
-                </div>
-                <span className="text-[19px] text-gray-700">{activity.time}</span>
-              </li>
-            ))}
-          </ul>
+          {activitiesLoading ? (
+            <p className="text-gray-500">Loading activities...</p>
+          ) : (
+            <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
+              {activitiesToRender.map((activity, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
+                >
+                  <div>
+                    <p className="font-medium">{activity.title}</p>
+                    <p className="text-sm text-gray-500">{activity.description}</p>
+                  </div>
+                  <span className="text-[19px] text-gray-700">{activity.time}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Announcements */}
         <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <h3 className="mb-4 text-lg font-semibold">Announcement</h3>
+          <h3 className="mb-4 text-lg font-semibold">Announcements</h3>
           <div className="space-y-4 max-h-[200px] pe-2 styled-scrollbar overflow-y-scroll">
             {announcements.map((ann, index) => (
               <div
                 key={index}
-                className={`rounded-lg border-l-4 ${ann.color === "yellow" ? "border-yellow-500 bg-yellow-50" : "border-gray-300 bg-gray-50"} p-4`}
+                className={`rounded-lg border-l-4 ${
+                  ann.color === "yellow"
+                    ? "border-yellow-500 bg-yellow-50"
+                    : "border-gray-300 bg-gray-50"
+                } p-4`}
               >
-                <small className={`text-xs ${ann.color === "yellow" ? "text-yellow-700" : "text-gray-400"}`}>
+                <small
+                  className={`text-xs ${
+                    ann.color === "yellow" ? "text-yellow-700" : "text-gray-400"
+                  }`}
+                >
                   {ann.date} • {ann.type}
                 </small>
                 <h4 className="mt-1 font-medium line-clamp-1">{ann.title}</h4>
