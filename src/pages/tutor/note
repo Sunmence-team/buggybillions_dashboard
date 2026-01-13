@@ -1,48 +1,54 @@
-(
-          getLesson.map((lesson) => (
-            <div
-              key={lesson.id}
-              className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden"
+<div
+              key={assignment.id}
+              className={`bg-white rounded-2xl border-l-4 ${assignment.borderColor} p-5 shadow`}
             >
-              {/* Day */}
-              <div className="bg-gray-100 px-4 py-2 font-semibold text-gray-700">
-                {lesson.day}
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-1">
+                    <p className="text-xs text-black">
+                      {assignment.week} :
+                    </p>
+                    <p className="text-[#796FAB]">
+                      {assignment.category}
+                    </p>
+                  </div>
+                  <h3 className="font-bold text-[20px]">
+                    {assignment.title}
+                  </h3>
+                </div>
+
+                {/* STATUS */}
+                <div
+                  className={`flex items-center gap-1 ${assignment.statusBgColor} ${assignment.statusTextColor} px-2 py-1 rounded-full`}
+                >
+                  <span className={assignment.statusIconBg}>
+                    <StatusIcon size={14} />
+                  </span>
+                  <span className="text-xs font-medium">
+                    {assignment.statusLabel}
+                  </span>
+                </div>
               </div>
 
-              {/* Content */}
-              <div className="p-4 md:flex md:items-start md:space-x-6">
-                {/* Topic */}
-                <div className="mb-4 md:mb-0 md:w-1/4">
-                  <p className="text-blue-600 font-bold text-sm uppercase">Topic</p>
-                  <h2 className="text-gray-900 font-semibold text-lg mt-1">
-                    {lesson.topic}
-                  </h2>
+              <p className="text-sm text-gray-500 mt-2">
+                {assignment.description}
+              </p>
+
+              <div className="flex justify-between items-center mt-10">
+                {/* DATE */}
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full text-gray-500">
+                  <DateIcon size={16} />
+                  <p className="text-[12px]">
+                    {assignment.dueDate}
+                  </p>
                 </div>
 
-                {/* Introduction */}
-                <div className="flex-1">
-                  <p className="text-blue-600 font-bold text-sm uppercase">Introduction</p>
-                  <p className="text-gray-700 mt-1">{lesson.introduction}</p>
-                </div>
-
-                {/* Resources */}
-                <div className="flex items-center mt-4 md:mt-0 space-x-2">
-                  {lesson.resources ? (
-                    <a
-                      href={lesson.resources}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center bg-gray-100 px-3 py-1 rounded-full text-gray-700 hover:bg-gray-200 transition"
-                    >
-                      <FaFolder className="mr-2" />
-                      Resources
-                    </a>
-                  ) : (
-                    <span className="text-gray-400">No resources</span>
-                  )}
-                  <button className="text-gray-500 hover:text-gray-700">...</button>
-                </div>
+                {/* BUTTON */}
+                <button
+                  className={`flex items-center gap-1 px-3 py-2 ${assignment.buttonBgColor} ${assignment.buttonTextColor} rounded-xl text-sm`}
+                >
+                  {ButtonIcon && <ButtonIcon size={14} />}
+                  {assignment.buttonText}
+                </button>
               </div>
             </div>
-          ))
-        )

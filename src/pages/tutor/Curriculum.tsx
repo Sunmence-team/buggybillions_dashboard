@@ -20,7 +20,7 @@ const Curriculum = () => {
   const [getLesson, setGetLesson] = React.useState<Lesson[]>([])
 
   const navigate = useNavigate()
-  const {user} = useUser()
+  const { user } = useUser()
 
   const handleForm = () => {
     navigate('/tutor/curriculum/lessonForm')
@@ -66,9 +66,11 @@ const Curriculum = () => {
     }
   }
 
-  React.useEffect(() => {
-    fetchLesson()
-  }, [])
+   React.useEffect(() => {
+    if (user?.id) {
+      fetchLesson()
+    }
+  }, [user?.id])
 
   return (
     <>
@@ -82,28 +84,6 @@ const Curriculum = () => {
           Create Curriculum
         </button>
       </div>
-
-      {/* <div>
-        <div className="grid grid-cols-12 gap-4 bg-gray-100 p-4 font-semibold text-sm">
-          <div className="col-span-2">Day</div>
-          <div className="col-span-3">Topic</div>
-          <div className="col-span-4">Introduction</div>
-          <div className="col-span-3">Resources</div>
-        </div>
-
-        {
-          getLesson.map((lesson, index) => (
-            <div key={index}>
-              <p>
-                {lesson.day}
-              </p>
-
-            </div>
-
-          ))
-        }
-
-      </div> */}
 
       <div className="space-y-4">
         {loading ? (
