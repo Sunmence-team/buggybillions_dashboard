@@ -117,7 +117,7 @@ const Login: React.FC = () => {
               </Link>
               <div className="flex justify-center gap-1">
                 <p className="text-black"> Don’t have an account? </p>
-                <Link to="/auth/register" className="text-red-500 font-semibold">
+                <Link to="/auth/profileSetup" className="text-red-500 font-semibold">
                   Sign up
                 </Link>
               </div>

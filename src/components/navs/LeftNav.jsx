@@ -8,6 +8,8 @@ import { MdAssignmentAdd, MdSentimentVerySatisfied } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { useUser } from "../../context/UserContext";
 import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
+import { FaRegUser } from "react-icons/fa";
+
 
 const LeftNav = ({ setIsExpanded }) => {
   const { user } = useUser();
@@ -32,11 +34,18 @@ const LeftNav = ({ setIsExpanded }) => {
       role: "student",
     },
     {
-      name: "Assignments ",
-      path: "/student/studentassignments ",
+      name: "Assignments",
+      path: "/student/studentassignments",
       icon: <MdSentimentVerySatisfied />,
       role: "student",
     },
+    {
+      name: "Profile",
+      path: "/student/studentprofile",
+      icon: <FaRegUser />,
+      role: "student",
+    },
+
     {
       name: "Curriculum",
       path: "/tutor/curriculum",
@@ -61,6 +70,7 @@ const LeftNav = ({ setIsExpanded }) => {
       icon: <MdAssignmentAdd />,
       role: "tutor",
     },
+    
     {
       name: "Dashboard",
       path: "/admin/overview",
@@ -89,28 +99,30 @@ const LeftNav = ({ setIsExpanded }) => {
         <img src={assests.logo} className="" alt="Buggy Academy Logo" />
       </div>
       <nav className="overflow-y-auto no-scrollbar w-full flex flex-col items-start gap-2.5 border-b border-white/30 h-[calc(100%-(24px+3rem))]">
-        {navLinks.filter(navlink => navlink.role === user?.role).map((navlink) => {
-        // {navLinks.map((navlink) => {
-          return (
-            <NavLink
-              to={navlink?.path}
-              key={navlink?.path}
-              className={({ isActive }) => `
+        {navLinks
+          .filter((navlink) => navlink.role === user?.role)
+          .map((navlink) => {
+            // {navLinks.map((navlink) => {
+            return (
+              <NavLink
+                to={navlink?.path}
+                key={navlink?.path}
+                className={({ isActive }) => `
                 nav-link flex items-center w-full rounded-md justify-start gap-3 p-3 text-white ${
                   isActive
                     ? "font-semibold opacity-100 bg-white/20"
                     : "hover:bg-white/20"
                 }
               `}
-              onClick={() => setIsExpanded(false)}
-            >
-              {navlink.icon}
-              <span className={`text-sm whitespace-nowrap`}>
-                {navlink.name}
-              </span>
-            </NavLink>
-          );
-        })}
+                onClick={() => setIsExpanded(false)}
+              >
+                {navlink.icon}
+                <span className={`text-sm whitespace-nowrap`}>
+                  {navlink.name}
+                </span>
+              </NavLink>
+            );
+          })}
       </nav>
     </div>
   );

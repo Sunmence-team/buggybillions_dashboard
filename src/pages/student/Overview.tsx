@@ -1,42 +1,131 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useUser } from "../../context/UserContext";
 import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
-import { PiBookOpenUserFill } from "react-icons/pi";
-import { PiArrowFatLineUp } from "react-icons/pi";
+import { PiBookOpenUserFill, PiArrowFatLineUp } from "react-icons/pi";
+import api from "../../helpers/api";
+
+interface Activity {
+  title: string;
+  description: string;
+  time: string;
+}
+
+interface Announcement {
+  date: string;
+  type: string;
+  title: string;
+  description: string;
+  color: string;
+}
 
 const StudentOverview: React.FC = () => {
+  const { user, loading } = useUser();
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
+  // Fetch assignments as recent activities
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchAssignments = async () => {
+      try {
+        setActivitiesLoading(true);
+        const res = await api.get(`/api/users/${user.id}/assignments`);
+        const assignments = res.data.assignments || [];
+
+        // Map API data → Recent Activity format
+        const formattedActivities = assignments.map((item: any) => ({
+          title: item.title ? "Assignment Submitted" : "Assignment",
+          description: item.title || "New assignment activity",
+          time: item.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : "Just now",
+        }));
+
+        setRecentActivities(formattedActivities);
+      } catch (error) {
+        console.error("Failed to fetch assignments", error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+
+    fetchAssignments();
+  }, [user?.id]);
+
+  if (loading) {
+    return <p>Loading user data...</p>;
+  }
+
+  // Fallback if no activities
+  const activitiesToRender =
+    recentActivities.length > 0
+      ? recentActivities
+      : [
+          {
+            title: "No recent activity",
+            description: "You have no assignments yet",
+            time: "",
+          },
+        ];
+
+  // Placeholder announcements
+  const announcements: Announcement[] = user?.announcements || [
+    {
+      date: "Today",
+      type: "Important",
+      title: "Project Submission Reminder",
+      description:
+        "This is to remind you all to submit your project on or before 12am on Friday",
+      color: "yellow",
+    },
+    {
+      date: "17/12/2025",
+      type: "Info",
+      title: "New Course Materials Available",
+      description: "UI/UX advanced resources are now available in your dashboard",
+      color: "gray",
+    },
+    {
+      date: "16/12/2025",
+      type: "Info",
+      title: "Workshop Invitation",
+      description: "Join our Figma workshop this Friday at 3 PM",
+      color: "gray",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 justify-between md:grid-cols-3">
-        {/* Grey */}
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <OverviewCards
-          icon={<HiOutlineIdentification size={"30px"} />}
+          icon={<HiOutlineIdentification size="30px" />}
           label="Student ID"
-          value="BBSTU2025001"
+          value={user?.bug_id?.toString() || "N/A"}
           iconBg="bg-gray-100"
           iconColor="text-gray-500"
         />
-
-        {/* Orange (middle card) */}
         <OverviewCards
-          icon={<PiBookOpenUserFill size={"30px"} />}
+          icon={<PiBookOpenUserFill size="30px" />}
           label="Course Enrolled"
-          value="UI/UX Design"
+          value={user?.department || "N/A"}
           iconBg="bg-orange-100"
           iconColor="text-orange-500"
         />
-
-        {/* Grey */}
         <OverviewCards
-          icon={<PiArrowFatLineUp size={"30px"} />}
+          icon={<PiArrowFatLineUp size="30px" />}
           label="Grade"
-          value="90% Excellent"
+          value={user?.grade || "N/A"}
           iconBg="bg-gray-100"
           iconColor="text-gray-500"
         />
       </div>
 
+      {/* Recent Activities & Announcements */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Recent Activities */}
         <div className="lg:col-span-2 rounded-xl bg-white p-4 shadow-md border border-gray-200">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-[25px] font-semibold">Recent Activities</h3>
@@ -45,49 +134,48 @@ const StudentOverview: React.FC = () => {
             </span>
           </div>
 
-          <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
-            {[1, 2, 3, 4].map((_, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
-              >
-                <div>
-                  <p className="font-medium">Assignment Submitted</p>
-                  <p className="text-sm text-gray-500">Food App Project</p>
-                </div>
-                <span className="text-[19px] text-gray-700">2 hours ago</span>
-              </li>
-            ))}
-          </ul>
+          {activitiesLoading ? (
+            <p className="text-gray-500">Loading activities...</p>
+          ) : (
+            <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
+              {activitiesToRender.map((activity, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
+                >
+                  <div>
+                    <p className="font-medium">{activity.title}</p>
+                    <p className="text-sm text-gray-500">{activity.description}</p>
+                  </div>
+                  <span className="text-[19px] text-gray-700">{activity.time}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
+        {/* Announcements */}
         <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <h3 className="mb-4 text-lg font-semibold">Announcement</h3>
-
+          <h3 className="mb-4 text-lg font-semibold">Announcements</h3>
           <div className="space-y-4 max-h-[200px] pe-2 styled-scrollbar overflow-y-scroll">
-            <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 p-4">
-              <small className="text-xs text-yellow-700">
-                Today • Important
-              </small>
-              <h4 className="mt-1 font-medium line-clamp-1">
-                Project Submission Reminder
-              </h4>
-              <p className="text-sm text-gray-600 line-clamp-2">
-                This is to remind you all to submit your project on or before
-                12am on Friday
-              </p>
-            </div>
-
-            {[1, 2].map((_, index) => (
-              <div key={index} className="rounded-lg border p-4">
-                <small className="text-xs text-gray-400">17/12/2025</small>
-                <h4 className="mt-1 font-medium line-clamp-1">
-                  Project Submission Reminder
-                </h4>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  This is to remind you all to submit your project on or before
-                  12am on Friday
-                </p>
+            {announcements.map((ann, index) => (
+              <div
+                key={index}
+                className={`rounded-lg border-l-4 ${
+                  ann.color === "yellow"
+                    ? "border-yellow-500 bg-yellow-50"
+                    : "border-gray-300 bg-gray-50"
+                } p-4`}
+              >
+                <small
+                  className={`text-xs ${
+                    ann.color === "yellow" ? "text-yellow-700" : "text-gray-400"
+                  }`}
+                >
+                  {ann.date} • {ann.type}
+                </small>
+                <h4 className="mt-1 font-medium line-clamp-1">{ann.title}</h4>
+                <p className="text-sm text-gray-600 line-clamp-2">{ann.description}</p>
               </div>
             ))}
           </div>
