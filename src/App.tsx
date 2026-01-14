@@ -21,6 +21,7 @@ import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
 import AdminOverview from "./pages/admin/Overview";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ManageTutors from "./pages/admin/ManageTutors";
+import CreateLessonForm from "./components/forms/CreateLessonForm";
 import Attendance from "./pages/tutor/Attendance";
 import TutorProfile from "./pages/tutor/TutorProfile";
 import Profile from "./pages/student/StudentProfile";
@@ -95,6 +96,15 @@ function App() {
           element={
             <MainLayout 
               child={<Curriculum />} 
+              heading={"Heading"}
+            />
+          }
+        />
+        <Route
+          path="/tutor/curriculum/lessonForm"
+          element={
+            <MainLayout 
+              child={<CreateLessonForm />} 
               heading={"Heading"}
             />
           }

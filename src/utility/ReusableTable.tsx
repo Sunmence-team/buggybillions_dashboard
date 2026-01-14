@@ -19,16 +19,16 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
   const columnsWithSN: TableColumnProps[] = [
     ...(hasSerialNo
       ? [
-          {
-            title: "S/N",
-            key: "sn",
-            render: (_: any, index: number) => {
-              const serial = (currentPage - 1) * itemsPerPage + index + 1;
-              return serial.toString().padStart(3, "0");
-            },
-            className: "p-4 text-sm whitespace-nowrap font-medium",
+        {
+          title: "S/N",
+          key: "sn",
+          render: (_: any, index: number) => {
+            const serial = (currentPage - 1) * itemsPerPage + index + 1;
+            return serial.toString().padStart(3, "0");
           },
-        ]
+          className: "p-4 text-sm whitespace-nowrap font-medium",
+        },
+      ]
       : []),
 
     ...columns,
@@ -39,7 +39,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
       <div className="overflow-x-auto no-scrollbar w-full lg:p-0 pe-4">
         <table className="w-full min-w-200 text-center bg-white mb-2">
           <thead>
-            <tr className="bg-[#ECFFFC] h-12.5 rounded-xl">
+            <tr className="bg-gray-300 h-12.5 rounded-xl">
               {columnsWithSN.map((col, idx) => (
                 <th
                   key={col.key ?? idx}
@@ -92,8 +92,8 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                       {col.render
                         ? col.render(item, index)
                         : col.key
-                        ? item[col.key as keyof typeof item]
-                        : "-"}
+                          ? item[col.key as keyof typeof item]
+                          : "-"}
                     </td>
                   ))}
                 </tr>
