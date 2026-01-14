@@ -17,20 +17,22 @@ interface Grade {
 interface GradeFormProps {
     onClose?: () => void;
     assignmentId: number;
+    onSuccess: any
 }
 
-export default function GradeForm({ onClose, assignmentId }: GradeFormProps) {
+export default function GradeForm({ onClose, assignmentId, onSuccess }: GradeFormProps) {
 
     const [loading, setLoading] = React.useState(false)
-    const [gradedData, setGradedata] = React.useState<Grade[]>([])
     const { user } = useUser()
 
     const gradeSchema = yup.object({
         grade: yup.string().required('Grade the Submitted Assignment')
+        .min(0)
+        .max(100)
     })
     const formik = useFormik({
         initialValues: {
-            grade: ''
+            grade: 0
         },
         validationSchema: gradeSchema,
         onSubmit: async (values, { resetForm }) => {
@@ -46,10 +48,10 @@ export default function GradeForm({ onClose, assignmentId }: GradeFormProps) {
                 })
                 if (response.status === 200 || response.status === 201) {
                     console.log(response.data)
-                    // setGradedata(response.data.assignment)
                     resetForm()
                     if (onClose) onClose();
                     toast.success('Assignment Graded')
+                    onSuccess()
 
                 }
 

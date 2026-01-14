@@ -31,6 +31,7 @@ function StudentAssignments() {
   const [loading, setLoading] = React.useState(false)
   const [assignments, setAssignments] = React.useState<Assignment[]>([])
   const [search, setSearch] = React.useState('')
+  // const [sort, setSort]
   const { user } = useUser()
 
   const fetchAssignment = async () => {
@@ -127,7 +128,7 @@ function StudentAssignments() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center border justify-between mb-6">
+      <div className="flex flex-col md:flex-row gap-6 items-center borde justify-between mb-3">
         <div className="">
           <h1 className="text-2xl font-semibold">Assignments</h1>
           <div className="flex gap-5 items-center justify-center mt-5">
@@ -157,17 +158,15 @@ function StudentAssignments() {
               )
             }
           </div>
-          <div className="flexmflex-col md:flex-row">
 
-          </div>
-          <div className="relative none md:block">
-            <IoIosSearch className="absolute left-3 top-2.5 h-4 w-4 text-black" />
+          <div className="relativ flex items-center px-2 rounded-xl border none md:block">
+            <IoIosSearch className="h-4 w-4 text-black" />
             <input
               type="text"
               placeholder="Search assignments"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 rounded-xl border text-sm outline-none"
+              className=" py-2 rounded-xl text-sm outline-none"
             />
           </div>
           <button className="p-2 rounded-xl border bg-white">
@@ -176,7 +175,7 @@ function StudentAssignments() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-12 transition-all">
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 gap-4 transition-all">
         <div className="flex gap-2 shadow bg-white md:p-2 w-auto rounded-full">
           <button
             className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'allTask' ? 'text-purple' : ''}`}
@@ -199,10 +198,12 @@ function StudentAssignments() {
             Graded
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <p className="text-[13px]">STORY BY:</p>
+        <div className="flex items-center gap-2 outline-none">
+          <p className="text-[13px]">SORT BY:</p>
           <select className="px-3 py-2 rounded-xl border text-sm">
-            <option>Due Date (Closest)</option>
+            <option>Submitted</option>
+            <option>Graded</option>
+            <option>Duea Date (Closest)</option>
           </select>
         </div>
       </div>

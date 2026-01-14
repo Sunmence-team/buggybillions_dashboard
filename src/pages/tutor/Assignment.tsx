@@ -73,6 +73,8 @@ const Assignment = () => {
             setModal(true)
           }}
           canView={true}
+          disabled={item.status === 'graded'}
+          
         />
 
       )
@@ -109,6 +111,12 @@ const Assignment = () => {
     }
   }, [user?.id])
 
+  const handleGradeSuccess = () => {
+  fetchAssignment(); // refetch table data
+  setModal(false);
+};
+
+
 
   return (
     <>
@@ -137,6 +145,7 @@ const Assignment = () => {
             <GradeForm
               assignmentId={selectedAssignmentId!} 
               onClose={() => setModal(false)}
+              onSuccess={handleGradeSuccess}
             />
           </Modal>
         )}
