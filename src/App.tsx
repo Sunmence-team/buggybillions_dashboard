@@ -13,7 +13,7 @@ import StudentAssignments from "./pages/student/StudentAssignments";
 
 import Dashboard from "./pages/tutor/Dashboard";
 import Curriculum from "./pages/tutor/Curriculum";
-import Attendance from "./pages/tutor/Attendance";
+
 import Student from "./pages/tutor/Student";
 import Assignment from "./pages/tutor/Assignment";
 import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
@@ -22,6 +22,11 @@ import AdminOverview from "./pages/admin/Overview";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ManageTutors from "./pages/admin/ManageTutors";
 import CreateLessonForm from "./components/forms/CreateLessonForm";
+import Attendance from "./pages/tutor/Attendance";
+import TutorProfile from "./pages/tutor/TutorProfile";
+import Profile from "./pages/student/StudentProfile";
+import ProfileSetUp from "./pages/auth/ProfileSetUp";
+
 
 
 function App() {
@@ -33,7 +38,7 @@ function App() {
         {/* Auth */}
         <Route path="/" element={<Navigate to="/auth/login" replace />} />
         <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/profilesetup" element={<ProfileSetUp />} />
 
         {/* Student */}
         <Route
@@ -75,6 +80,15 @@ function App() {
             />
           }
         />
+        <Route
+          path="/student/studentprofile"
+          element={
+            <MainLayout 
+              child={<Profile />} 
+              heading={"Student's profile"}
+            />
+          }
+        />
 
         {/* Tutor */}
         <Route
@@ -100,7 +114,7 @@ function App() {
           element={
             <MainLayout 
               child={<Attendance />} 
-              heading={"Heading"}
+              heading={"Attendance"}
             />
           }
         />
@@ -111,6 +125,16 @@ function App() {
               child={<Dashboard />} 
               heading={"Tutor's Dashboard"}
               subText={"Manage your course and student progress"}
+            />
+          }
+        />
+        <Route
+          path="/tutor/tutorprofile"
+          element={
+            <MainLayout 
+              child={<TutorProfile/>} 
+              heading={"Tutor's Profile"}
+              
             />
           }
         />
