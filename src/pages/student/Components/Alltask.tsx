@@ -1,50 +1,12 @@
 import React from 'react';
-import { toast } from "sonner";
-import { useUser } from '../../../context/UserContext';
-import api from '../../../helpers/api';
 
-interface Assignment {
-  id: string | number;
-  assignment_name: string;
-  assignment_description: string;
-  status: string;
-  created_at: string;
+interface Props{
+  assignments: any[];
+  loading: boolean;
 }
 
-export default function Alltask() {
-
-  const [loading, setLoading] = React.useState(false)
-  const [assignments, setAssignments] = React.useState<Assignment[]>([])
-  const { user } = useUser()
-
-  const fetchAssignment = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-    setLoading(true)
-
-    try {
-      const response = await api.get(`/api/users/${user?.id}/assignments`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-
-      if (response.status === 200 || response.status === 201) {
-        setAssignments(response.data.assignments)
-
-      }
-
-    } catch (error: any) {
-      const errMessage = error.response?.data?.message || error.message
-      toast.error(errMessage)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  React.useEffect(() => {
-    if (user?.id) {
-      fetchAssignment()
-    }
-  }, [user?.id])
+export default function Alltask({assignments, loading}: Props) {
+ 
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

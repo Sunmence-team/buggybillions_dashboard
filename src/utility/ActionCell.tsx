@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaEye } from "react-icons/fa6";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FaStar } from "react-icons/fa";
 import { TfiMore } from "react-icons/tfi";
 
 interface ActionCellProps {
@@ -49,7 +48,7 @@ const ActionCell: React.FC<ActionCellProps> = ({
               className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100"
               onClick={() => onGrade?.(rowId)}
             >
-              <FaEye /> Grade
+              <FaStar /> Grade
             </button>
           )}
          

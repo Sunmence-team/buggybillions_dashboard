@@ -1,7 +1,4 @@
 import React from 'react'
-import api from '../../../helpers/api';
-import { useUser } from '../../../context/UserContext';
-import { toast } from 'sonner';
 
 interface Sumbmitted {
   user_id: string | number;
@@ -12,43 +9,12 @@ interface Sumbmitted {
   grade?: any
 }
 
-export default function Submitted() {
+interface Props {
+  assignments: any[];
+  loading: boolean;
+}
 
-  const [loading, setLoading] = React.useState(false)
-  const [submittedData, setSubmittedData] = React.useState<Sumbmitted[]>([])
-  const { user } = useUser()
-
-  const fetchSubmittedData = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return;
-    setLoading(true)
-    try {
-      const response = await api.get(`/api/users/${user?.id}/assignments`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (response.status === 200 || response.status === 201) {
-        console.log(response.data)
-        const submittedAssignments = response.data.assignments.filter(
-          (assignment: Sumbmitted) => assignment.status === 'submitted'
-        );
-        setSubmittedData(submittedAssignments)
-      }
-
-    } catch (error: any) {
-      const errMessage = error.response?.data?.message || error.message
-      toast.error(errMessage)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  React.useEffect(() => {
-    if (user?.id) {
-      fetchSubmittedData()
-    }
-  }, [user?.id])
+export default function Submitted({assignments, loading}: Props) {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -62,13 +28,13 @@ export default function Submitted() {
     <>
       {loading ? (
         <p className="text-center mt-10">Loading Submitted Assignment...</p>
-      ) : submittedData.length === 0 ? (
+      ) : assignments.length === 0 ? (
         <div className="px-4 py-8 text-center text-gray-500">
           No Assignment Submitted
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-7">
-          {submittedData.map((submit) => (
+          {assignments.map((submit) => (
             <div
               key={submit.user_id}
               className={`bg-white rounded-2xl border-l-4 p-5 shadow

@@ -12,11 +12,64 @@ import { FaStar } from "react-icons/fa";
 import { GrFormCheckmark } from "react-icons/gr";
 import { CgSandClock } from "react-icons/cg";
 import { MdArrowRightAlt } from "react-icons/md";
+import { toast } from "sonner";
+import api from "../../helpers/api";
+import { useUser } from "../../context/UserContext";
+
+interface Assignment {
+  id: string | number;
+  assignment_name: string;
+  assignment_description: string;
+  status: string;
+  created_at: string;
+}
 
 function StudentAssignments() {
 
   const [activeTab, setActiveTab] = React.useState('allTask')
   const [modal, setModal] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState(false)
+  const [assignments, setAssignments] = React.useState<Assignment[]>([])
+  const [search, setSearch] = React.useState('')
+  const { user } = useUser()
+
+  const fetchAssignment = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    setLoading(true)
+
+    try {
+      const response = await api.get(`/api/users/${user?.id}/assignments`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      if (response.status === 200 || response.status === 201) {
+        setAssignments(response.data.assignments)
+
+      }
+
+    } catch (error: any) {
+      const errMessage = error.response?.data?.message || error.message
+      toast.error(errMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  React.useEffect(() => {
+    if (user?.id) {
+      fetchAssignment()
+    }
+  }, [user?.id])
+
+  const submittedCount = assignments.filter(a => a.status === "submitted").length;
+  const gradedCount = assignments.filter(a => a.status === "graded").length;
+  const dueSoonCount = assignments.filter(a => a.status === "pending").length;
+
+  const filteredAssignments = assignments.filter((assignment) =>
+    assignment.assignment_name.toLowerCase().includes(search.toLowerCase()) ||
+    assignment.assignment_description.toLowerCase().includes(search.toLowerCase())
+  );
 
 
 
@@ -52,8 +105,8 @@ function StudentAssignments() {
               85% complete
             </p>
           </div>
-          <p className="text-black font-bold text-3xl mt-4">12 Submitted</p>
-          <p className="text- text-black">Total Assignmebts this term</p>
+          <p className="text-black font-bold text-3xl mt-4">{submittedCount} Submitted</p>
+          <p className="text- text-black">Total Assignments this term</p>
         </div>
 
         <div className="rounded-2xl bg-white p-5 shadow-sm">
@@ -65,7 +118,7 @@ function StudentAssignments() {
               Top 10%
             </span>
           </div>
-          <h2 className="text-3xl font-bold  mt-4">94 / 100</h2>
+          <h2 className="text-3xl font-bold  mt-4">{gradedCount}%</h2>
           <p className="text-black">Average grade</p>
           <div className="flex items-center mt-2 gap-2">
             <h3 className="text-[15px]">RECENT:</h3>
@@ -112,6 +165,8 @@ function StudentAssignments() {
             <input
               type="text"
               placeholder="Search assignments"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-2 rounded-xl border text-sm outline-none"
             />
           </div>
@@ -152,10 +207,11 @@ function StudentAssignments() {
         </div>
       </div>
 
-      {activeTab === 'allTask' && (<Alltask />)}
+      {activeTab === 'allTask' && (<Alltask assignments={assignments} loading={loading} />)}
       {activeTab === 'dueSoon' && (<Duesoon />)}
-      {activeTab === 'submitted' && (<Submitted />)}
-      {activeTab === 'graded' && (<Graded />)}
+      {activeTab === 'submitted' && (<Submitted assignments={assignments.filter(a => a.status === "submitted")} loading={loading} />)}
+      {activeTab === 'graded' && (<Graded
+        assignments={assignments.filter(a => a.status === "graded")} loading={loading} />)}
 
     </div>
   );

@@ -1,54 +1,10 @@
 import React from 'react'
-import api from '../../../helpers/api';
-import { useUser } from '../../../context/UserContext';
-import { toast } from 'sonner';
 
-interface Grade {
-  user_id: string | number;
-  assignment_name: string;
-  assignment_description: string;
-  status: string;
-  created_at: string
-  grade?: any 
+interface Props {
+  assignments: any[];
+  loading: boolean;
 }
-
-export default function Graded() {
-
-  const [loading, setLoading] = React.useState(false)
-  const [gradedData, setGradedata] = React.useState<Grade[]>([])
-  const { user } = useUser()
-
-  const fetchGradedData = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return;
-    setLoading(true)
-    try {
-      const response = await api.get(`/api/users/${user?.id}/assignments`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (response.status === 200 || response.status === 201) {
-        console.log(response.data)
-        const gradedAssignments = response.data.assignments.filter(
-          (assignment: Grade) => assignment.status === 'graded'
-        );
-        setGradedata(gradedAssignments)
-      }
-
-    } catch (error: any) {
-      const errMessage = error.response?.data?.message || error.message
-      toast.error(errMessage)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  React.useEffect(() => {
-    if (user?.id) {
-      fetchGradedData()
-    }
-  }, [user?.id])
+export default function Graded({assignments, loading}) {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -62,13 +18,13 @@ export default function Graded() {
     <>
       {loading ? (
         <p className="text-center mt-10">Loading Grades...</p>
-      ) : gradedData.length === 0 ? (
+      ) : assignments.length === 0 ? (
         <div className="px-4 py-8 text-center text-gray-500">
           No Assignment Graded
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-7">
-          {gradedData.map((grade) => (
+          {assignments.map((grade) => (
             <div
               key={grade.user_id}
               className={`bg-white rounded-2xl border-l-4 p-5 shadow
