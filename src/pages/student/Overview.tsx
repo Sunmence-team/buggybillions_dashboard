@@ -24,53 +24,65 @@ const StudentOverview: React.FC = () => {
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
 
-  // Fetch assignments as recent activities
+  // Fetch assignments & curriculum as recent activities
   useEffect(() => {
     if (!user?.id) return;
 
-    const fetchAssignments = async () => {
+    const fetchActivities = async () => {
       try {
         setActivitiesLoading(true);
-        const res = await api.get(`/api/users/${user.id}/assignments`);
-        const assignments = res.data.assignments || [];
 
-        // Map API data → Recent Activity format
-        const formattedActivities = assignments.map((item: any) => ({
-          title: item.title ? "Assignment Submitted" : "Assignment",
+        // 1️⃣ Fetch assignments
+        const resAssignments = await api.get(`/api/users/${user.id}/assignments`);
+        const assignments = resAssignments.data.assignments || [];
+        const formattedAssignments: Activity[] = assignments.map((item: any) => ({
+          title: "Assignment Submitted",
           description: item.title || "New assignment activity",
           time: item.created_at
             ? new Date(item.created_at).toLocaleDateString()
             : "Just now",
         }));
 
-        setRecentActivities(formattedActivities);
+        // 2️⃣ Fetch curriculum/lessons
+        const resCurriculum = await api.get(`/api/users/${user.id}/curriculum`);
+        const curriculum = resCurriculum.data.curriculum || [];
+        const formattedCurriculum: Activity[] = curriculum.map((item: any) => ({
+          title: "Curriculum Update",
+          description: item.topic || "New curriculum activity",
+          time: item.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : "Just now",
+        }));
+
+        // Merge & sort by time (latest first)
+        const mergedActivities = [...formattedAssignments, ...formattedCurriculum].sort(
+          (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+        );
+
+        setRecentActivities(mergedActivities);
       } catch (error) {
-        console.error("Failed to fetch assignments", error);
+        console.error("Failed to fetch activities or curriculum", error);
       } finally {
         setActivitiesLoading(false);
       }
     };
 
-    fetchAssignments();
+    fetchActivities();
   }, [user?.id]);
 
-  if (loading) {
-    return <p>Loading user data...</p>;
-  }
+  if (loading) return <p>Loading user data...</p>;
 
-  // Fallback if no activities
   const activitiesToRender =
     recentActivities.length > 0
       ? recentActivities
       : [
           {
             title: "No recent activity",
-            description: "You have no assignments yet",
+            description: "You have no assignments or curriculum updates yet",
             time: "",
           },
         ];
 
-  // Placeholder announcements
   const announcements: Announcement[] = user?.announcements || [
     {
       date: "Today",
