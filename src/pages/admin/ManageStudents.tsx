@@ -117,6 +117,10 @@ const ManageStudents: React.FC = () => {
       key: "department",
     },
     {
+      title: "Leader board",
+      key: "leader_board",
+    },
+    {
       title: "Created At",
       key: "created_at",
       render: (item) => {
