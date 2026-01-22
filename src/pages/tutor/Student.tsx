@@ -51,15 +51,6 @@ const TutorStudents: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      /**
-       * Backend response:
-       * {
-       *   tutor: {...},
-       *   total_students: number,
-       *   students: []
-       * }
-       */
       setStudents(res.data?.students || []);
       setTotalItems(res.data?.total_students || 0);
       setTotalPages(1); // backend doesn’t paginate yet

@@ -23,9 +23,8 @@ const StudentOverview: React.FC = () => {
   const { user, loading } = useUser();
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
-  const [grade, setGrade] = useState<string>("N/A");
+  const [gradedCount, setGradedCount] = useState<number>(0);
 
-  // Fetch assignments & curriculum as recent activities
   useEffect(() => {
     if (!user?.id) return;
 
@@ -37,20 +36,9 @@ const StudentOverview: React.FC = () => {
         const resAssignments = await api.get(`/api/users/${user.id}/assignments`);
         const assignments = resAssignments.data.assignments || [];
 
-        // ✅ CALCULATE GRADE
+        // ✅ COUNT GRADED
         const graded = assignments.filter((a: any) => a.status === "graded");
-
-        if (graded.length > 0) {
-          const totalScore = graded.reduce(
-            (sum: number, a: any) => sum + Number(a.score || a.marks || a.grade || 0),
-            0
-          );
-
-          const avg = Math.round(totalScore / graded.length);
-          setGrade(`${avg}%`);
-        } else {
-          setGrade("N/A");
-        }
+        setGradedCount(graded.length);
 
         const formattedAssignments: Activity[] = assignments.map((item: any) => ({
           title: "Assignment Activity",
@@ -137,8 +125,8 @@ const StudentOverview: React.FC = () => {
         />
         <OverviewCards
           icon={<PiArrowFatLineUp size="30px" />}
-          label="Grade"
-          value={grade}
+          label="Graded Assignments"
+          value={gradedCount.toString()}
           iconBg="bg-gray-100"
           iconColor="text-gray-500"
         />

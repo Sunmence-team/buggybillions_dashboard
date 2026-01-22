@@ -58,28 +58,37 @@ function App() {
             <MainLayout
               child={<StudentCurriculm />}
               heading={"My Curriculum"}
-              subText={"Check out your curriculum"}
             />
           }
         />
         <Route
           path="/student/studentassignments"
           element={
-            <MainLayout child={<StudentAssignments />} heading={"Heading"} />
+            <MainLayout child={<StudentAssignments />} heading={"My Assignments"} />
           }
         />
-        <Route
+        {/* <Route
           path="/student/timetable"
           element={<MainLayout child={<Timetable />} heading={"Heading"} />}
-        />
+        /> */}
         <Route
           path="/student/studentprofile"
           element={
-            <MainLayout child={<Profile />} heading={"Student's profile"} />
+            <MainLayout child={<Profile />} heading={"My profile"} />
           }
         />
 
         {/* Tutor */}
+        <Route
+          path="/tutor/dashboard"
+          element={
+            <MainLayout
+              child={<Dashboard />}
+              heading={"Tutor's Dashboard"}
+              subText={"Manage your course and student progress"}
+            />
+          }
+        />
         <Route
           path="/tutor/curriculum"
           element={<MainLayout child={<Curriculum />} heading={"My Curriculum"} />}
@@ -92,18 +101,9 @@ function App() {
         />
         <Route
           path="/tutor/attendance"
-          element={<MainLayout child={<Attendance />} heading={"Attendance"} />}
+          element={<MainLayout child={<Attendance />} heading={"My student's Attendance"} />}
         />
-        <Route
-          path="/tutor/dashboard"
-          element={
-            <MainLayout
-              child={<Dashboard />}
-              heading={"Tutor's Dashboard"}
-              subText={"Manage your course and student progress"}
-            />
-          }
-        />
+        
         <Route
           path="/tutor/tutorprofile"
           element={
@@ -112,7 +112,7 @@ function App() {
         />
         <Route
           path="/tutor/student"
-          element={<MainLayout child={<Student />} heading={"Students"} />}
+          element={<MainLayout child={<Student />} heading={"My Students"} />}
         />
         <Route
           path="/tutor/tutorannouncement"
@@ -122,13 +122,13 @@ function App() {
         />
         <Route
           path="/tutor/assignment"
-          element={<MainLayout child={<Assignment />} heading={"Assignment"} />}
+          element={<MainLayout child={<Assignment />} heading={"Student's Assignment"} />}
         />
 
         <Route
           path="/admin/overview"
           element={
-            <MainLayout child={<AdminOverview />} heading={"Overview"} />
+            <MainLayout child={<AdminOverview />} heading={"Admin Dashboard"} />
           }
         />
         <Route
@@ -136,7 +136,7 @@ function App() {
           element={
             <MainLayout
               child={<ManageStudents />}
-              heading={"Manage Students"}
+              heading={"Manage All Students"}
               subText="Easily manage all students"
             />
           }
@@ -144,7 +144,9 @@ function App() {
         <Route
           path="/admin/managetutors"
           element={
-            <MainLayout child={<ManageTutors />} heading={"Manage Tutors"} />
+            <MainLayout child={<ManageTutors />} 
+            heading={"Manage All Tutors"} 
+            subText="Easily manage all Tutors"/>
           }
         />
       </Routes>
