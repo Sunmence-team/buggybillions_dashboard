@@ -74,7 +74,7 @@ const StudentCurriculum = () => {
                         <h2 className="font-bold  text-black">week 2:</h2>
                         <p className="text-sm text-black">{me.week2}</p>
                       </div>
-
+  kl; 
                       <div className="flex flex-col gap-1 bg-white shadow p-4">
                         <h2 className="font-bold  text-black">week 3:</h2>
                         <p className="text-sm  text-black">{me.week3}</p>
