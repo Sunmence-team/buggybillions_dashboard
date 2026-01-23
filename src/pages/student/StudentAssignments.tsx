@@ -25,59 +25,83 @@ interface Assignment {
 }
 
 function StudentAssignments() {
-
-  const [activeTab, setActiveTab] = React.useState('allTask')
-  const [modal, setModal] = React.useState<boolean>(false)
-  const [loading, setLoading] = React.useState(false)
-  const [assignments, setAssignments] = React.useState<Assignment[]>([])
-  const [search, setSearch] = React.useState('')
-  // const [sort, setSort]
-  const { user } = useUser()
+  const [activeTab, setActiveTab] = React.useState("allTask");
+  const [modal, setModal] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState(false);
+  const [assignments, setAssignments] = React.useState<Assignment[]>([]);
+  const [search, setSearch] = React.useState("");
+  const { user } = useUser();
 
   const fetchAssignment = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-    setLoading(true)
+    const token = localStorage.getItem("token");
+    if (!token || !user?.id) {
+      toast.error("Please log in to view assignments");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const response = await api.get(`/api/users/${user?.id}/assignments`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await api.get(`/api/users/${user.id}/assignments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 200 || response.status === 201) {
-        setAssignments(response.data.assignments)
-
+        const data = response.data.assignments || [];
+        console.log("Fetched assignments:", data);
+        console.log(
+          "Statuses found:",
+          data.map((a: Assignment) => a.status?.toLowerCase())
+        );
+        setAssignments(data);
       }
-
     } catch (error: any) {
-      const errMessage = error.response?.data?.message || error.message
-      toast.error(errMessage)
+      const errMessage = error.response?.data?.message || error.message;
+      toast.error(errMessage || "Failed to load assignments");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   React.useEffect(() => {
     if (user?.id) {
-      fetchAssignment()
+      fetchAssignment();
     }
-  }, [user?.id])
+  }, [user?.id]);
 
-  const submittedCount = assignments.filter(a => a.status === "submitted").length;
-  const gradedCount = assignments.filter(a => a.status === "graded").length;
-  const dueSoonCount = assignments.filter(a => a.status === "pending").length;
+  // ────────────────────────────────────────────────
+  // Status normalization (case & space insensitive)
+  // ────────────────────────────────────────────────
+  const normalizeStatus = (status: string | undefined) =>
+    status?.toLowerCase().trim() || "unknown";
 
-  const filteredAssignments = assignments.filter((assignment) =>
-    assignment.assignment_name.toLowerCase().includes(search.toLowerCase()) ||
-    assignment.assignment_description.toLowerCase().includes(search.toLowerCase())
+  // Counts
+  const pendingCount = assignments.filter(
+    (a) => normalizeStatus(a.status) === "pending"
+  ).length;
+
+  const gradedCount = assignments.filter(
+    (a) => normalizeStatus(a.status) === "graded"
+  ).length;
+
+  // Submitted card now shows the SAME number as graded
+  const submittedCount = gradedCount;
+
+  const filteredAssignments = assignments.filter(
+    (assignment) =>
+      assignment.assignment_name
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+      assignment.assignment_description
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
-
-
 
   return (
     <div className="p-4">
-
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {/* Pending Card – assignments tutor has never graded */}
         <div className="rounded-3xl bg-gradient-to-br from-gray-900 to-gray-700 text-white p-5">
           <div className="flex items-center justify-between">
             <span className="text-[#E5AA2D] bg-gray-700 p-2 rounded-full">
@@ -87,133 +111,161 @@ function StudentAssignments() {
               High Priority
             </span>
           </div>
-          <h2 className="text-3xl font-bold mt-4 text-white">2 Pending</h2>
-          <p className="text-sm text-white">Assignments due this week</p>
+          <h2 className="text-3xl font-bold mt-4 text-white">
+            {loading ? "..." : pendingCount}
+          </h2>
+          <p className="text-sm text-white opacity-90">
+            Awaiting Grading
+          </p>
           <div className="flex justify-between items-center mt-5">
-            <p className="text-xs ">Next due in 2 days</p>
+            <p className="text-xs opacity-80">Next due in 2 days</p>
             <MdArrowRightAlt color="#E5AA2D" />
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
+        {/* Submitted Card – now shows the same as Graded */}
+        <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <span className="bg-[#796fab56] p-2 text-white rounded-2xl">
-              <p className="bg-[#796FAB] rounded-full">
+              <p className="bg-[#796FAB] rounded-full p-1">
                 <GrFormCheckmark />
               </p>
             </span>
-            <p className="text-[#796FAB] bg-[#796fab56] p-1 rounded-full text-xs">
-              85% complete
+            <p className="text-[#796FAB] bg-[#796fab56] px-2 py-1 rounded-full text-xs">
+              Progress
             </p>
           </div>
-          <p className="text-black font-bold text-3xl mt-4">{submittedCount} Submitted</p>
-          <p className="text- text-black">Total Assignments this term</p>
+          <p className="text-black font-bold text-3xl mt-4">
+            {loading ? "..." : submittedCount}
+          </p>
+          <p className="text-gray-600">Graded Assignments</p>
         </div>
 
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
+        {/* Graded Card */}
+        <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <span className="bg-[#796fab56] p-2 text-[#796FAB] rounded-2xl">
               <FaStar />
             </span>
             <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-              Top 10%
+              Top performer
             </span>
           </div>
-          <h2 className="text-3xl font-bold  mt-4">{gradedCount}%</h2>
-          <p className="text-black">Average grade</p>
+          <h2 className="text-3xl font-bold mt-4">
+            {loading ? "..." : `${gradedCount}%`}
+          </h2>
+          <p className="text-gray-600">Average grade</p>
           <div className="flex items-center mt-2 gap-2">
-            <h3 className="text-[15px]">RECENT:</h3>
+            <h3 className="text-[15px] font-medium">RECENT:</h3>
             <p className="text-[#796FAB] text-xs">A+ on Wireframing</p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 items-center borde justify-between mb-3">
-        <div className="">
+      {/* ────────────────────────────────────────────────
+          The rest remains unchanged (header, tabs, content)
+      ──────────────────────────────────────────────── */}
+
+      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
+        <div>
           <h1 className="text-2xl font-semibold">Assignments</h1>
-          <div className="flex gap-5 items-center justify-center mt-5">
-            <p className="text-sm text-[#796FAB] py-2 px-3 bg-white shadow rounded-2xl">
-              Semester 1{" "}
+          <div className="flex flex-wrap gap-4 items-center mt-4">
+            <p className="text-sm text-[#796FAB] py-2 px-4 bg-white shadow rounded-2xl border">
+              Semester 1
             </p>
-            <div className="flex shadow-md rounded-2xl p-2 items-center justify-center gap-1">
-              <MdEditCalendar color="#E5AA2D" size={25} />
-              <p className="text-sm text-black">2 Assignments Pending</p>
+            <div className="flex shadow-md rounded-2xl p-2 items-center gap-2 bg-white">
+              <MdEditCalendar color="#E5AA2D" size={24} />
+              <p className="text-sm font-medium">
+                {loading ? "..." : `${pendingCount} Awaiting Grading`}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div>
-            <button
-              onClick={() => setModal(true)}
-              className="transition-all bg-purple text-white py-2 px-3 rounded-lg">
-              Submit Assignment
-            </button>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <button
+            onClick={() => setModal(true)}
+            className="bg-purple hover:bg-purple-700 text-white py-2.5 px-5 rounded-lg transition font-medium"
+          >
+            Submit Assignment
+          </button>
 
-            {
-              modal && (
-                <Modal onClose={() => setModal(false)}>
-                  <StudentAssignmentForm onClose={() => setModal(false)} />
-                </Modal>
-              )
-            }
-          </div>
+          {modal && (
+            <Modal onClose={() => setModal(false)}>
+              <StudentAssignmentForm onClose={() => setModal(false)} />
+            </Modal>
+          )}
 
-          <div className="relativ flex items-center px-2 rounded-xl border none md:block">
-            <IoIosSearch className="h-4 w-4 text-black" />
+          <div className="relative flex items-center flex-1 md:flex-none">
+            <IoIosSearch className="absolute left-3 text-gray-500" size={18} />
             <input
               type="text"
-              placeholder="Search assignments"
+              placeholder="Search assignments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className=" py-2 rounded-xl text-sm outline-none"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
             />
           </div>
-          <button className="p-2 rounded-xl border bg-white">
-            <FaBell className="h-5 w-5" />
+
+          <button className="p-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition">
+            <FaBell className="h-5 w-5 text-gray-700" />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between mt-8 gap-4 transition-all">
-        <div className="flex gap-2 shadow bg-white md:p-2 w-auto rounded-full">
-          <button
-            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'allTask' ? 'text-purple' : ''}`}
-            onClick={() => setActiveTab('allTask')}>
-            All
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'dueSoon' ? 'text-purple' : ''}`}
-            onClick={() => setActiveTab('dueSoon')}>
-            Due Soon
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'submitted' ? 'text-purple' : ''}`}
-            onClick={() => setActiveTab('submitted')}>
-            Submitted
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md text-black font-medium ${activeTab === 'graded' ? 'text-purple' : ''}`}
-            onClick={() => setActiveTab('graded')}>
-            Graded
-          </button>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex gap-1.5 bg-white shadow rounded-full p-1.5 border">
+          {["allTask", "dueSoon", "submitted", "graded"].map((tab) => (
+            <button
+              key={tab}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+                activeTab === tab
+                  ? "bg-purple text-white shadow-sm"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === "allTask"
+                ? "All"
+                : tab === "dueSoon"
+                ? "Due Soon"
+                : tab === "submitted"
+                ? "Graded"          // ← changed label for clarity
+                : "Graded"}
+            </button>
+          ))}
         </div>
-        <div className="flex items-center gap-2 outline-none">
-          <p className="text-[13px]">SORT BY:</p>
-          <select className="px-3 py-2 rounded-xl border text-sm">
-            <option>Submitted</option>
+
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-gray-600 whitespace-nowrap">Sort by:</p>
+          <select className="px-4 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple">
+            <option>Submitted Date</option>
             <option>Graded</option>
-            <option>Duea Date (Closest)</option>
+            <option>Due Date (Soonest)</option>
           </select>
         </div>
       </div>
 
-      {activeTab === 'allTask' && (<Alltask assignments={assignments} loading={loading} />)}
-      {activeTab === 'dueSoon' && (<Duesoon />)}
-      {activeTab === 'submitted' && (<Submitted assignments={assignments.filter(a => a.status === "submitted")} loading={loading} />)}
-      {activeTab === 'graded' && (<Graded
-        assignments={assignments.filter(a => a.status === "graded")} loading={loading} />)}
-
+      {activeTab === "allTask" && (
+        <Alltask assignments={assignments} loading={loading} />
+      )}
+      {activeTab === "dueSoon" && <Duesoon />}
+      {activeTab === "submitted" && (
+        <Graded
+          assignments={assignments.filter(
+            (a) => normalizeStatus(a.status) === "graded"
+          )}
+          loading={loading}
+        />
+      )}
+      {activeTab === "graded" && (
+        <Graded
+          assignments={assignments.filter(
+            (a) => normalizeStatus(a.status) === "graded"
+          )}
+          loading={loading}
+        />
+      )}
     </div>
   );
 }

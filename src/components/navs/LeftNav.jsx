@@ -21,12 +21,12 @@ const LeftNav = ({ setIsExpanded }) => {
       icon: <LuLayoutDashboard />,
       role: "student",
     },
-    {
-      name: "Timetable",
-      path: "/student/timetable",
-      icon: <LuLayoutDashboard />,
-      role: "student",
-    },
+    // {
+    //   name: "Timetable",
+    //   path: "/student/timetable",
+    //   icon: <LuLayoutDashboard />,
+    //   role: "student",
+    // },
     {
       name: "Student Curriculum",
       path: "/student/studentcurriculum",
@@ -45,7 +45,18 @@ const LeftNav = ({ setIsExpanded }) => {
       icon: <FaRegUser />,
       role: "student",
     },
-
+     {
+      name: "Dashboard",
+      path: "/admin/overview",
+      icon: <LuLayoutDashboard />,
+      role: "admin",
+    },
+     {
+      name: "Dashboard",
+      path: "/tutor/dashboard",
+      icon: <LuLayoutDashboard />,
+      role: "tutor",
+    },
     {
       name: "Curriculum",
       path: "/tutor/curriculum",
@@ -71,12 +82,6 @@ const LeftNav = ({ setIsExpanded }) => {
       role: "tutor",
     },
     
-    {
-      name: "Dashboard",
-      path: "/admin/overview",
-      icon: <LuLayoutDashboard />,
-      role: "admin",
-    },
     {
       name: "Students",
       path: "/admin/managestudents",

@@ -32,7 +32,7 @@ const Login: React.FC = () => {
             role === "admin"
               ? "/admin/overview"
               : role === "tutor"
-                ? "/tutor/curriculum"
+                ? "/tutor/dashboard"
                 : "/student/overview"
           )
         }
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
               </Link>
               <div className="flex justify-center gap-1">
                 <p className="text-black"> Don’t have an account? </p>
-                <Link to="/auth/profileSetup" className="text-red-500 font-semibold">
+                <Link to="/auth/profilesetup" className="text-red-500 font-semibold">
                   Sign up
                 </Link>
               </div>
