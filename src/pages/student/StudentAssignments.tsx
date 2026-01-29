@@ -98,16 +98,16 @@ function StudentAssignments() {
   );
 
   return (
-    <div className="p-4">
+    <div className="">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Pending Card – assignments tutor has never graded */}
-        <div className="rounded-3xl bg-gradient-to-br from-gray-900 to-gray-700 text-white p-5">
+        <div className="rounded-xl bg-linear-to-br from-gray-900 to-gray-700 text-white p-5">
           <div className="flex items-center justify-between">
-            <span className="text-[#E5AA2D] bg-gray-700 p-2 rounded-full">
+            <span className="text-yellow bg-gray-700 p-2 rounded-full">
               <CgSandClock />
             </span>
-            <span className="text-xs bg-[#E5AA2D] px-2 py-1 rounded">
+            <span className="text-xs bg-yellow px-2 py-1 rounded">
               High Priority
             </span>
           </div>
@@ -117,21 +117,21 @@ function StudentAssignments() {
           <p className="text-sm text-white opacity-90">
             Awaiting Grading
           </p>
-          <div className="flex justify-between items-center mt-5">
+          {/* <div className="flex justify-between items-center mt-5">
             <p className="text-xs opacity-80">Next due in 2 days</p>
             <MdArrowRightAlt color="#E5AA2D" />
-          </div>
+          </div> */}
         </div>
 
         {/* Submitted Card – now shows the same as Graded */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-200">
+        <div className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <span className="bg-[#796fab56] p-2 text-white rounded-2xl">
-              <p className="bg-[#796FAB] rounded-full p-1">
+              <p className="bg-purple rounded-full p-1">
                 <GrFormCheckmark />
               </p>
             </span>
-            <p className="text-[#796FAB] bg-[#796fab56] px-2 py-1 rounded-full text-xs">
+            <p className="text-purple bg-[#796fab56] px-2 py-1 rounded-full text-xs">
               Progress
             </p>
           </div>
@@ -142,9 +142,9 @@ function StudentAssignments() {
         </div>
 
         {/* Graded Card */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-200">
+        <div className="rounded-xl bg-white p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
-            <span className="bg-[#796fab56] p-2 text-[#796FAB] rounded-2xl">
+            <span className="bg-[#796fab56] p-2 text-purple rounded-2xl">
               <FaStar />
             </span>
             <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
@@ -155,10 +155,10 @@ function StudentAssignments() {
             {loading ? "..." : `${gradedCount}%`}
           </h2>
           <p className="text-gray-600">Average grade</p>
-          <div className="flex items-center mt-2 gap-2">
+          {/* <div className="flex items-center mt-2 gap-2">
             <h3 className="text-[15px] font-medium">RECENT:</h3>
-            <p className="text-[#796FAB] text-xs">A+ on Wireframing</p>
-          </div>
+            <p className="text-purple text-xs">A+ on Wireframing</p>
+          </div> */}
         </div>
       </div>
 
@@ -169,8 +169,8 @@ function StudentAssignments() {
       <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Assignments</h1>
-          <div className="flex flex-wrap gap-4 items-center mt-4">
-            <p className="text-sm text-[#796FAB] py-2 px-4 bg-white shadow rounded-2xl border">
+          {/* <div className="flex flex-wrap gap-4 items-center mt-4">
+            <p className="text-sm text-purple py-2 px-4 bg-white shadow rounded-2xl border">
               Semester 1
             </p>
             <div className="flex shadow-md rounded-2xl p-2 items-center gap-2 bg-white">
@@ -179,7 +179,7 @@ function StudentAssignments() {
                 {loading ? "..." : `${pendingCount} Awaiting Grading`}
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -192,7 +192,7 @@ function StudentAssignments() {
 
           {modal && (
             <Modal onClose={() => setModal(false)}>
-              <StudentAssignmentForm onClose={() => setModal(false)} />
+              <StudentAssignmentForm onClose={() => setModal(false)} onSuccess={fetchAssignment} />
             </Modal>
           )}
 
@@ -207,15 +207,15 @@ function StudentAssignments() {
             />
           </div>
 
-          <button className="p-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition">
+          {/* <button className="p-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition">
             <FaBell className="h-5 w-5 text-gray-700" />
-          </button>
+          </button> */}
         </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex gap-1.5 bg-white shadow rounded-full p-1.5 border">
-          {["allTask", "dueSoon", "submitted", "graded"].map((tab) => (
+          {["allTask", "graded", "submitted"].map((tab) => (
             <button
               key={tab}
               className={`px-5 py-2 rounded-full text-sm font-medium transition ${
@@ -227,10 +227,8 @@ function StudentAssignments() {
             >
               {tab === "allTask"
                 ? "All"
-                : tab === "dueSoon"
-                ? "Due Soon"
                 : tab === "submitted"
-                ? "Graded"          // ← changed label for clarity
+                ? "Under Review"          // ← changed label for clarity
                 : "Graded"}
             </button>
           ))}
@@ -249,11 +247,10 @@ function StudentAssignments() {
       {activeTab === "allTask" && (
         <Alltask assignments={assignments} loading={loading} />
       )}
-      {activeTab === "dueSoon" && <Duesoon />}
       {activeTab === "submitted" && (
         <Graded
           assignments={assignments.filter(
-            (a) => normalizeStatus(a.status) === "graded"
+            (a) => normalizeStatus(a.status) === "submitted"
           )}
           loading={loading}
         />

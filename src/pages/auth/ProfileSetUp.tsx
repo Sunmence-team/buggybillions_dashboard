@@ -49,7 +49,7 @@ const ProfileSetUp: React.FC = () => {
 
         if (response.status === 200) {
           toast.success("Profile setup completed!");
-          navigate("/student/overview");
+          navigate("/auth/login");
         }
       } catch (error: any) {
         toast.error(
@@ -159,12 +159,12 @@ const ProfileSetUp: React.FC = () => {
                 Login
               </Link>
 
-              <div className="flex justify-center gap-1">
+              {/* <div className="flex justify-center gap-1">
                 <p className="text-black">Already completed?</p>
                 <Link to="/student/overview" className="text-red-500 font-semibold">
                   Go to Dashboard
                 </Link>
-              </div>
+              </div> */}
             </div>
           </form>
         </div>

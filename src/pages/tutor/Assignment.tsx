@@ -9,6 +9,8 @@ import ActionCell from "../../utility/ActionCell";
 import Modal from "../../components/modal/Modal";
 import GradeForm from "../../components/forms/GradeForm";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Assignment = () => {
   const { user } = useUser()
 
@@ -74,7 +76,14 @@ const Assignment = () => {
           }}
           canView={true}
           disabled={item.status === 'graded'}
-          
+          onDownloadAttached={() => {
+            const link = document.createElement('a');
+            link.href = `${API_URL}/api/${item?.file_path}`;
+            link.download = `${item?.fullname || 'student'}-assignment`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
         />
 
       )

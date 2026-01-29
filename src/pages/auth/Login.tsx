@@ -37,6 +37,11 @@ const Login: React.FC = () => {
           )
         }
       } catch (error: any) {
+        if (error.status === 400) {
+          toast.error("Your account is not setup yet. Please complete your account setup.")
+          navigate("/auth/profilesetup")
+          return
+        }
         console.log("Error occured logging in", error)
         toast.error(error.data?.response?.message || error?.message)
       }
@@ -115,12 +120,12 @@ const Login: React.FC = () => {
               <Link to="/" className="text-sm text-black">
                 Forgot Password?
               </Link>
-              <div className="flex justify-center gap-1">
+              {/* <div className="flex justify-center gap-1">
                 <p className="text-black"> Don’t have an account? </p>
                 <Link to="/auth/profilesetup" className="text-red-500 font-semibold">
                   Sign up
                 </Link>
-              </div>
+              </div> */}
             </div>
           </form>
         </div>

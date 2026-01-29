@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
-import { MdAssignmentAdd, MdSentimentVerySatisfied } from "react-icons/md";
+import { MdAssignmentAdd, MdLogout, MdSentimentVerySatisfied } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { useUser } from "../../context/UserContext";
 import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
@@ -12,7 +12,7 @@ import { FaRegUser } from "react-icons/fa";
 
 
 const LeftNav = ({ setIsExpanded }) => {
-  const { user } = useUser();
+  const { user, logout } = useUser();
 
   const navLinks = [
     {
@@ -129,6 +129,15 @@ const LeftNav = ({ setIsExpanded }) => {
             );
           })}
       </nav>
+
+      <button
+        type="button"
+        onClick={logout}
+        className="flex items-center gap-2 text-gray-200 hover:text-white mt-auto px-3 py-2 w-full rounded-md hover:bg-white/20 transition-colors cursor-pointer"
+      >
+        <MdLogout />
+        <span>Logout</span>
+      </button>
     </div>
   );
 };

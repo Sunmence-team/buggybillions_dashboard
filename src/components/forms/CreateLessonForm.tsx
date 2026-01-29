@@ -101,7 +101,7 @@ export default function CreateLessonForm() {
     return (
         <div className="">
 
-            <form onSubmit={formik.handleSubmit} className=" relative p-6 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={formik.handleSubmit} className="relative overflow-y-auto">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 bg-gray-50 p-4 font-semibold text-sm text-gray-700 mb-2 border-b border-gray-300">
                     <div className="col-span-2">Day</div>
@@ -115,7 +115,7 @@ export default function CreateLessonForm() {
                 {formik.values.lessons.map((lesson, index) => (
                     <div
                         key={index}
-                        className="grid grid-cols-12 gap-4 items-start p-3 bg-white border-b border-gray-300 transition"
+                        className="grid grid-cols-12 gap-4 items-start py-3 bg-white border-b border-gray-300 transition"
                     >
                         {/* Day */}
                         <div className="col-span-2">
@@ -219,11 +219,11 @@ export default function CreateLessonForm() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="sticky bottom-0 w-full border-t border-gray-300 flex justify-between items-center mt-8 bg-white h-[10vh]">
+                <div className="sticky bottom-0 w-full border-t border-gray-300 flex justify-between items-center mt-8 bg-white pt-3">
                     <button
                         type="button"
                         onClick={addLesson}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 rounded-lg font-medium transition"
+                        className="flex items-center gap-2 px-4 h-12.5 bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 rounded-lg font-medium transition"
                     >
                         <LuPlus size={20} />
                         Add Lesson
@@ -232,7 +232,7 @@ export default function CreateLessonForm() {
                     <button
                         type="submit"
                         disabled={loading || !formik.isValid}
-                        className="px-4 py-2 bg-[#796FAB] hover:bg-[#6a5a9a] disabled:bg-gray-400 text-white font-medium rounded-lg shadow-md transition disabled:cursor-not-allowed"
+                        className="px-4 h-12.5 bg-purple hover:bg-[#6a5a9a] cursor-pointer disabled:bg-gray-400 text-white font-medium rounded-lg shadow-md transition disabled:cursor-not-allowed"
                     >
                         {loading ? "Saving..." : "Save Curriculum"}
                     </button>

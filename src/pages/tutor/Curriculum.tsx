@@ -59,7 +59,7 @@ const Curriculum = () => {
         setGetLesson(sortedLessons);
       }
     } catch (error: any) {
-      const errMessage = error.response?.data?.data || error.message;
+      const errMessage = error.response?.data?.message || error.message;
       toast.error(errMessage)
     } finally {
       setLoading(false)
@@ -75,10 +75,10 @@ const Curriculum = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-[#796FAB]">Curriculum</h2>
+        <h2 className="text-2xl font-semibold text-purple">Curriculum</h2>
         <button
           onClick={handleForm}
-          className="bg-[#796FAB] hover:bg-[#6a5a9a] text-white px-5 py-3 rounded-lg flex items-center gap-2 transition shadow-md"
+          className="bg-purple hover:bg-[#6a5a9a] text-white px-5 py-3 rounded-lg flex items-center gap-2 transition shadow-md"
         >
           <LuPlus size={20} />
           Create Curriculum

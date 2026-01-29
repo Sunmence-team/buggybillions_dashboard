@@ -4,7 +4,17 @@ interface Props {
   assignments: any[];
   loading: boolean;
 }
-export default function Graded({assignments, loading}) {
+
+interface Grade {
+  user_id: string | number;
+  assignment_name: string;
+  assignment_description: string;
+  status: string;
+  created_at: string
+  grade: number
+}
+
+export default function Graded({assignments, loading}: Props) {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -20,11 +30,11 @@ export default function Graded({assignments, loading}) {
         <p className="text-center mt-10">Loading Grades...</p>
       ) : assignments.length === 0 ? (
         <div className="px-4 py-8 text-center text-gray-500">
-          No Assignment Graded
+          No Assignment under review
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-7">
-          {assignments.map((grade) => (
+          {assignments.map((grade: Grade) => (
             <div
               key={grade.user_id}
               className={`bg-white rounded-2xl border-l-4 p-5 shadow

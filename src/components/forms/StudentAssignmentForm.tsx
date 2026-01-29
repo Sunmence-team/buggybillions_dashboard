@@ -6,9 +6,10 @@ import api from '../../helpers/api';
 
 interface StudentAssignmentFormProps {
   onClose?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function StudentAssignmentForm({onClose}: StudentAssignmentFormProps) {
+export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAssignmentFormProps) {
 
     const [loading, setLoading] = React.useState(false)
     // const [postAssignment, setPostAssignment] = React.useState<any[]>([])
@@ -42,7 +43,7 @@ export default function StudentAssignmentForm({onClose}: StudentAssignmentFormPr
                 const formData = new FormData();
                 formData.append("assignment_name", values.assignment_name);
                 formData.append("assignment_description", values.assignment_description);
-                formData.append("file", values.file as File);
+                formData.append("file", values.file as unknown as File);
 
                 const response = await api.post('/api/assignments/submit', formData, {
                     headers: {
@@ -52,6 +53,7 @@ export default function StudentAssignmentForm({onClose}: StudentAssignmentFormPr
                 })
                 if(response.status === 200 || response.status === 201){
                     toast.success('Successfully submitted assignment')
+                    onSuccess?.();
                     if (onClose) onClose();
                     resetForm()
                 }
@@ -130,7 +132,7 @@ export default function StudentAssignmentForm({onClose}: StudentAssignmentFormPr
                         type="submit"
                         disabled={loading}
                         className={`px-4 py-3 rounded-lg w-full 
-                        ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#796FAB]"}`}
+                        ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple hover:bg-purple-900 cursor-pointer"} text-white font-medium`}
                     >
                         {loading ? "Submitting..." : "Submit"}
                     </button>
