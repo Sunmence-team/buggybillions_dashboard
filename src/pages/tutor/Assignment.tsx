@@ -1,6 +1,4 @@
 import React from "react";
-import { useFormik } from "formik";
-import * as yup from 'yup'
 import { toast } from "sonner";
 import api from "../../helpers/api";
 import ReusableTable from "../../utility/ReusableTable";
@@ -9,7 +7,7 @@ import ActionCell from "../../utility/ActionCell";
 import Modal from "../../components/modal/Modal";
 import GradeForm from "../../components/forms/GradeForm";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const STORAGE_API_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
 const Assignment = () => {
   const { user } = useUser()
@@ -78,7 +76,7 @@ const Assignment = () => {
           disabled={item.status === 'graded'}
           onDownloadAttached={() => {
             const link = document.createElement('a');
-            link.href = `${API_URL}/api/${item?.file_path}`;
+            link.href = `${STORAGE_API_URL}/${item?.file_path}`;
             link.download = `${item?.fullname || 'student'}-assignment`;
             document.body.appendChild(link);
             link.click();
