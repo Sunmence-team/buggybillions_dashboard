@@ -1,93 +1,181 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useUser } from "../../context/UserContext";
 import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
-import { PiBookOpenUserFill } from "react-icons/pi";
-import { PiArrowFatLineUp } from "react-icons/pi";
+import { PiBookOpenUserFill, PiArrowFatLineUp } from "react-icons/pi";
+import api from "../../helpers/api";
+
+interface Activity {
+  title: string;
+  description: string;
+  time: string;
+}
+
+interface Announcement {
+  date: string;
+  type: string;
+  title: string;
+  description: string;
+  color: string;
+}
 
 const StudentOverview: React.FC = () => {
+  const { user, loading } = useUser();
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+  const [gradedCount, setGradedCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchActivities = async () => {
+      try {
+        setActivitiesLoading(true);
+
+        // 1️⃣ Fetch assignments
+        const resAssignments = await api.get(`/api/users/${user.id}/assignments`);
+        const assignments = resAssignments.data.assignments || [];
+
+        // ✅ COUNT GRADED
+        const graded = assignments.filter((a: any) => a.status === "graded");
+        setGradedCount(graded.length);
+
+        const formattedAssignments: Activity[] = assignments.map((item: any) => ({
+          title: "Assignment Activity",
+          description: item.assignment_name || item.title || "Assignment update",
+          time: item.created_at
+            ? new Date(item.created_at).toLocaleDateString()
+            : "Just now",
+        }));
+
+        // 2️⃣ Fetch curriculum safely
+        let formattedCurriculum: Activity[] = [];
+
+        try {
+          const resCurriculum = await api.get(`/api/users/${user.id}/curriculum`);
+          const curriculum = resCurriculum.data.curriculum || [];
+
+          formattedCurriculum = curriculum.map((item: any) => ({
+            title: "Curriculum Update",
+            description: item.topic || "New lesson added",
+            time: item.created_at
+              ? new Date(item.created_at).toLocaleDateString()
+              : "Just now",
+          }));
+        } catch (err) {
+          console.log("Curriculum not available");
+        }
+
+        const mergedActivities = [...formattedAssignments, ...formattedCurriculum].sort(
+          (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+        );
+
+        setRecentActivities(mergedActivities);
+      } catch (error) {
+        console.error("Failed to fetch activities", error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [user?.id]);
+
+  if (loading) return <p>Loading user data...</p>;
+
+  const activitiesToRender =
+    recentActivities.length > 0
+      ? recentActivities
+      : [
+          {
+            title: "No recent activity",
+            description: "You have no assignments or curriculum updates yet",
+            time: "",
+          },
+        ];
+
+  const announcements: Announcement[] = user?.announcements || [
+    {
+      date: "Today",
+      type: "Important",
+      title: "Project Submission Reminder",
+      description:
+        "This is to remind you all to submit your project on or before 12am on Friday",
+      color: "yellow",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 justify-between md:grid-cols-3">
-        {/* Grey */}
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <OverviewCards
-          icon={<HiOutlineIdentification size={"30px"} />}
+          icon={<HiOutlineIdentification size="30px" />}
           label="Student ID"
-          value="BBSTU2025001"
+          value={user?.bug_id?.toString() || "N/A"}
           iconBg="bg-gray-100"
           iconColor="text-gray-500"
         />
-
-        {/* Orange (middle card) */}
         <OverviewCards
-          icon={<PiBookOpenUserFill size={"30px"} />}
+          icon={<PiBookOpenUserFill size="30px" />}
           label="Course Enrolled"
-          value="UI/UX Design"
+          value={user?.department || "N/A"}
           iconBg="bg-orange-100"
           iconColor="text-orange-500"
         />
-
-        {/* Grey */}
         <OverviewCards
-          icon={<PiArrowFatLineUp size={"30px"} />}
-          label="Grade"
-          value="90% Excellent"
+          icon={<PiArrowFatLineUp size="30px" />}
+          label="Graded Assignments"
+          value={gradedCount.toString()}
           iconBg="bg-gray-100"
           iconColor="text-gray-500"
         />
       </div>
 
+      {/* Recent Activities & Announcements */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl bg-white p-4 shadow-md border border-gray-200">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-[25px] font-semibold">Recent Activities</h3>
-            <span className="cursor-pointer text-sm text-purple-600">
-              View all history
-            </span>
           </div>
 
-          <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
-            {[1, 2, 3, 4].map((_, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
-              >
-                <div>
-                  <p className="font-medium">Assignment Submitted</p>
-                  <p className="text-sm text-gray-500">Food App Project</p>
-                </div>
-                <span className="text-[19px] text-gray-700">2 hours ago</span>
-              </li>
-            ))}
-          </ul>
+          {activitiesLoading ? (
+            <p className="text-gray-500">Loading activities...</p>
+          ) : (
+            <ul className="space-y-4 max-h-50 styled-scrollbar overflow-y-scroll pe-2">
+              {activitiesToRender.map((activity, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between rounded-lg bg-gray-200 p-4"
+                >
+                  <div>
+                    <p className="font-medium">{activity.title}</p>
+                    <p className="text-sm text-gray-500">{activity.description}</p>
+                  </div>
+                  <span className="text-[19px] text-gray-700">{activity.time}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <h3 className="mb-4 text-lg font-semibold">Announcement</h3>
-
+          <h3 className="mb-4 text-lg font-semibold">Announcements</h3>
           <div className="space-y-4 max-h-[200px] pe-2 styled-scrollbar overflow-y-scroll">
-            <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 p-4">
-              <small className="text-xs text-yellow-700">
-                Today • Important
-              </small>
-              <h4 className="mt-1 font-medium line-clamp-1">
-                Project Submission Reminder
-              </h4>
-              <p className="text-sm text-gray-600 line-clamp-2">
-                This is to remind you all to submit your project on or before
-                12am on Friday
-              </p>
-            </div>
-
-            {[1, 2].map((_, index) => (
-              <div key={index} className="rounded-lg border p-4">
-                <small className="text-xs text-gray-400">17/12/2025</small>
-                <h4 className="mt-1 font-medium line-clamp-1">
-                  Project Submission Reminder
-                </h4>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  This is to remind you all to submit your project on or before
-                  12am on Friday
-                </p>
+            {announcements.map((ann, index) => (
+              <div
+                key={index}
+                className={`rounded-lg border-l-4 ${
+                  ann.color === "yellow"
+                    ? "border-yellow-500 bg-yellow-50"
+                    : "border-gray-300 bg-gray-50"
+                } p-4`}
+              >
+                <small className="text-xs">
+                  {ann.date} • {ann.type}
+                </small>
+                <h4 className="mt-1 font-medium">{ann.title}</h4>
+                <p className="text-sm text-gray-600">{ann.description}</p>
               </div>
             ))}
           </div>

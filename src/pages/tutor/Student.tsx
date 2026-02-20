@@ -1,212 +1,152 @@
-import { useState } from "react";
-import { IoIosEye } from "react-icons/io";
-import { FaTimes, FaUserCircle } from "react-icons/fa";
-import type { IconType } from "react-icons";
+import React, { useEffect, useState } from "react";
+import ReusableTable from "../../utility/ReusableTable";
+import type { TableColumnProps } from "../../lib/interfaces";
+import api from "../../helpers/api";
+import { toast } from "sonner";
+import { useUser } from "../../context/UserContext";
 
-interface Person {
+/* ================= TYPES ================= */
+type Student = {
   id: number;
-  name: string;
+  fullname: string;
+  email: string;
+  username: string;
+  bug_id: string;
+  role: string;
   stack: string;
   department: string;
-  profile: IconType;
-}
+  mobile: string;
+  enabled: string;
+  active: string;
+  created_at: string;
+  updated_at: string;
+};
 
-const studentsData: Person[] = [
-  {
-    id: 25001,
-    name: "Bamigbade Adeola Olabanji",
-    stack: "Html",
-    department: "Frontend",
-    profile: FaUserCircle,
-  },
-  {
-    id: 25002,
-    name: "Ajibade Adebisi Olakuleyin",
-    stack: "Bootstrap",
-    department: "Backend",
-    profile: FaUserCircle,
-  },
-  {
-    id: 25003,
-    name: "Tinuade Adekitan Olabamire",
-    stack: "React",
-    department: "Full Stack",
-    profile: FaUserCircle,
-  },
-];
+const TutorStudents: React.FC = () => {
+  const { user, token } = useUser();
 
-const tutorData: Person[] = [
-  {
-    id: 35001,
-    name: "Summence Ajayi",
-    stack: "React",
-    department: "Frontend",
-    profile: FaUserCircle,
-  },
-  {
-    id: 35002,
-    name: "Kolapo Balogun",
-    stack: "Javascript",
-    department: "Backend",
-    profile: FaUserCircle,
-  },
-];
+  const tutorId = user?.id; // ✅ real tutor ID from auth
 
-const Student = () => {
-  const [students] = useState<Person[]>(studentsData);
-  const [tutors] = useState<Person[]>(tutorData);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [showStudentForm, setShowStudentForm] = useState<boolean>(false);
-  const [showTutorForm, setShowTutorForm] = useState<boolean>(false);
+  /* pagination (even if backend doesn’t paginate yet) */
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
-  const [selectedStudent, setSelectedStudent] = useState<Person | null>(null);
-  const [selectedTutor, setSelectedTutor] = useState<Person | null>(null);
+  const itemsPerPage = 10;
+
+  /* ================= FETCH STUDENTS ================= */
+  const fetchStudents = async () => {
+    if (!token || !tutorId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await api.get(`/api/tutors/${tutorId}/students`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setStudents(res.data?.students || []);
+      setTotalItems(res.data?.total_students || 0);
+      setTotalPages(1); // backend doesn’t paginate yet
+    } catch (err: any) {
+      console.error("Failed to fetch tutor students", err);
+      setError("Failed to load students.");
+      toast.error("Failed to load tutor students.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, [token, tutorId]);
+
+  /* ================= TABLE COLUMNS ================= */
+  const columns: TableColumnProps[] = [
+    {
+      title: "Full Name",
+      key: "fullname",
+    },
+    {
+      title: "Username",
+      key: "username",
+    },
+    {
+      title: "Bug ID",
+      key: "bug_id",
+    },
+    {
+      title: "Stack",
+      key: "stack",
+      render: (item) => <span className="uppercase">{item.stack}</span>,
+    },
+    {
+      title: "Department",
+      key: "department",
+    },
+    {
+      title: "Status",
+      key: "active",
+      render: (item) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            item.active === "1"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {item.active === "1" ? "Active" : "Inactive"}
+        </span>
+      ),
+    },
+    {
+      title: "Created At",
+      key: "created_at",
+      render: (item) =>
+        item.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "-",
+    },
+  ];
+
+  if (!tutorId) {
+    return (
+      <p className="text-center py-10 text-red-500">
+        Tutor not authenticated
+      </p>
+    );
+  }
 
   return (
-    <>
-      {/* STUDENT FORM MODAL */}
-      {showStudentForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white p-6 rounded-xl w-[40%]">
-            <button
-              onClick={() => setShowStudentForm(false)}
-              className="absolute top-4 right-4"
-            >
-              <FaTimes />
-            </button>
-            <h2 className="text-lg font-semibold mb-4">Student Form</h2>
-            <input className="w-full p-2 bg-gray-200 rounded mb-3" placeholder="Name" />
-            <button className="bg-[#796FAB] w-full p-2 rounded text-white">
-              Submit
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* BUTTONS */}
-      <div className="flex justify-end gap-4 mb-6">
-        <button
-          onClick={() => setShowStudentForm(true)}
-          className="bg-[#796FAB] text-white px-4 py-2 rounded"
-        >
-          Student Form
-        </button>
-        <button
-          onClick={() => setShowTutorForm(true)}
-          className="bg-[#796FAB] text-white px-4 py-2 rounded"
-        >
-          Tutor Form
-        </button>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-tetiary">
+          My Students
+        </h1>
+        <p className="text-sm text-gray-500">
+          Total students: {totalItems}
+        </p>
       </div>
 
-      {/* STUDENT TABLE */}
-      <div className="bg-white p-4 rounded-xl shadow mb-10">
-        <h2 className="font-semibold mb-3">Students Information</h2>
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th>S/N</th>
-              <th>Name</th>
-              <th>Stack</th>
-              <th>Department</th>
-              <th>ID</th>
-              <th>View</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((s, i) => (
-              <tr key={s.id}>
-                <td>{i + 1}</td>
-                <td>{s.name}</td>
-                <td>{s.stack}</td>
-                <td>{s.department}</td>
-                <td>{s.id}</td>
-                <td>
-                  <button
-                    onClick={() => setSelectedStudent(s)}
-                    className="p-2 shadow rounded"
-                  >
-                    <IoIosEye />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* STUDENT DETAILS MODAL */}
-      {selectedStudent && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-96 relative">
-            <button
-              onClick={() => setSelectedStudent(null)}
-              className="absolute top-4 right-4"
-            >
-              <FaTimes />
-            </button>
-
-            <div className="flex justify-center mb-4">
-              <selectedStudent.profile size={40} />
-            </div>
-
-            <p><b>Name:</b> {selectedStudent.name}</p>
-            <p><b>Stack:</b> {selectedStudent.stack}</p>
-            <p><b>Department:</b> {selectedStudent.department}</p>
-            <p><b>ID:</b> {selectedStudent.id}</p>
-          </div>
-        </div>
-      )}
-
-      {/* TUTOR TABLE */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-3">Tutor Information</h2>
-        <table className="w-full">
-          <tbody>
-            {tutors.map((t, i) => (
-              <tr key={t.id}>
-                <td>{i + 1}</td>
-                <td>{t.name}</td>
-                <td>{t.stack}</td>
-                <td>{t.department}</td>
-                <td>
-                  <button
-                    onClick={() => setSelectedTutor(t)}
-                    className="p-2 shadow rounded"
-                  >
-                    <IoIosEye />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* TUTOR DETAILS MODAL */}
-      {selectedTutor && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl w-96 relative">
-            <button
-              onClick={() => setSelectedTutor(null)}
-              className="absolute top-4 right-4"
-            >
-              <FaTimes />
-            </button>
-
-            <div className="flex justify-center mb-4">
-              <selectedTutor.profile size={40} />
-            </div>
-
-            <p><b>Name:</b> {selectedTutor.name}</p>
-            <p><b>Stack:</b> {selectedTutor.stack}</p>
-            <p><b>Department:</b> {selectedTutor.department}</p>
-            <p><b>ID:</b> {selectedTutor.id}</p>
-          </div>
-        </div>
-      )}
-    </>
+      <ReusableTable
+        columns={columns}
+        data={students}
+        isLoading={isLoading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        setCurrentPage={setCurrentPage}
+      />
+    </div>
   );
 };
 
-export default Student;
+export default TutorStudents;

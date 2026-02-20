@@ -7,6 +7,7 @@ interface userProviderProps {
 }
 
 export interface UserProps {
+  id:number |string | null
   bug_id: number;
   username: string;
   fullname: string;

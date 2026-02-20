@@ -74,8 +74,8 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
           {readOnly
             ? "Tutor Details"
             : initialData
-            ? "Edit Tutor"
-            : "Add New Tutor"}
+              ? "Edit Tutor"
+              : "Add New Tutor"}
         </h2>
       </div>
 
@@ -137,19 +137,19 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
         </div>
 
         {!readOnly && (
-           <div className="flex flex-col gap-2">
-           <label className="text-sm font-medium text-gray-700">Password</label>
-           <input
-             type="password"
-             name="password"
-             value={formData.password}
-             onChange={handleChange}
-             disabled={readOnly || isLoading}
-             required={!initialData}
-             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-             placeholder={initialData ? "Leave blank to keep current" : "Enter Password"}
-           />
-         </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={readOnly || isLoading}
+              required={!initialData}
+              className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
+              placeholder={initialData ? "Leave blank to keep current" : "Enter Password"}
+            />
+          </div>
         )}
 
         <div className="flex flex-col gap-2">
