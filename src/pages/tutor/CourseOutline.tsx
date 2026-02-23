@@ -6,4 +6,4 @@ const CourseOutline = () => {
   )
 }
 
-export default CourseOutline
+export default CourseOutline;

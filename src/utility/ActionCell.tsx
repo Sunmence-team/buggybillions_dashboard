@@ -1,72 +1,102 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaStar } from "react-icons/fa";
-import { FaDownload } from "react-icons/fa6";
+import { FaEye } from "react-icons/fa6";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { TfiMore } from "react-icons/tfi";
+// 1. Add FloatingPortal to your imports
+import { useFloating, offset, flip, shift, autoUpdate, FloatingPortal } from '@floating-ui/react';
 
 interface ActionCellProps {
   rowId: number;
   rowItem?: object;
-  onGrade?: (id: number) => void; // ✅ optional
+  onEdit?: (id: number) => void;   // ✅ optional
+  onDelete?: (id: number) => void; // ✅ optional
   toggleAction?: () => void;
-  onDownloadAttached?: () => void;
-  canView: boolean
-  disabled?: boolean
+  onView?: (id: number) => void;   // ✅ optional
+  canView?: boolean;
 }
 
 const ActionCell: React.FC<ActionCellProps> = ({
   rowId,
-  toggleAction = () => null,
-  onGrade,
-  onDownloadAttached,
+  onEdit,
+  onDelete,
+  onView,
   canView = false,
-  disabled = false,
 }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const { refs, floatingStyles } = useFloating({
+  open,
+  onOpenChange: setOpen,
+  placement: "bottom-end",
+  middleware: [
+    offset(4),
+    flip({ fallbackPlacements: ["top-end", "bottom-end"] }),
+    shift({ padding: 8 }),
+  ],
+  whileElementsMounted: autoUpdate,
+});
+
+  // Handle clicking outside since Portal moves it out of the local DOM tree
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        // Only close if the click isn't inside the floating element itself
+        const floatingEl = refs.floating.current;
+        if (floatingEl && floatingEl.contains(event.target as Node)) return;
+        
         setOpen(false);
       }
     };
 
     if (open) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+  }, [open, refs.floating]);
 
   return (
-    <div className="relative flex justify-center items-center" ref={dropdownRef}>
-      <TfiMore
-        size={20}
-        className="cursor-pointer rotate-90 text-primary"
-        onClick={() => {
-          setOpen(!open);
-          toggleAction?.();
-        }}
-      />
+    <div className="flex justify-center items-center" ref={dropdownRef}>
+      <div 
+        ref={refs.setReference} 
+        className={`hover:bg-primary/10 w-10 h-10 flex items-center justify-center rounded-lg cursor-pointer ${open ? "bg-primary/20" : ""}`}
+        onClick={() => setOpen(!open)}
+      >
+        <TfiMore size={20} className="rotate-90 text-primary" />
+      </div>
 
+      {/* 2. Wrap the menu in FloatingPortal */}
       {open && (
-        <div className="absolute top-6 right-0 flex flex-col bg-white rounded shadow-md z-50">
-          {(canView || onGrade) && (
-            <button
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 border-b border-gray-200"
-              onClick={() => onGrade?.(rowId)}
-              disabled={disabled}
-            >
-              <FaStar /> Grade
-            </button>
-          )}
-          {onDownloadAttached && (
-            <button
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 border-b border-gray-200"
-              onClick={onDownloadAttached}
-              disabled={disabled}
-            >
-              <FaDownload /> Download
-            </button>
-          )}
-        </div>
+        <FloatingPortal>
+          <div 
+            ref={refs.setFloating}
+            style={{ ...floatingStyles, zIndex: 9999 }} // Ensure it's above everything
+            className="flex flex-col bg-white rounded shadow-xl border border-gray-100 min-w-32 text-xs"
+          >
+            {(canView || onView) && (
+              <button
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => { onView?.(rowId); setOpen(false); }}
+              >
+                <FaEye /> View
+              </button>
+            )}
+            {onEdit && (
+              <button
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => { onEdit(rowId); setOpen(false); }}
+              >
+                <FiEdit /> Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer text-red-600 border-t border-gray-50"
+                onClick={() => { onDelete(rowId); setOpen(false); }}
+              >
+                <FiTrash2 /> Delete
+              </button>
+            )}
+          </div>
+        </FloatingPortal>
       )}
     </div>
   );
