@@ -1,8 +1,15 @@
 import React from "react";
 
-const Timetable = () => {
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const times = [
+const Timetable: React.FC = () => {
+  const days: string[] = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+  ];
+
+  const times: string[] = [
     "8am - 10am",
     "10am - 12pm",
     "12pm - 2pm",
@@ -11,7 +18,7 @@ const Timetable = () => {
   ];
 
   return (
-    <div className="w-full overflow-x-auto rounded-xl bg-white p-6 shadow-md border border-gray-200 ">
+    <div className="w-full overflow-x-auto rounded-xl bg-white p-6 shadow-md border border-gray-200">
       <h2 className="mb-4 text-lg font-semibold text-gray-800">
         Weekly Timetable
       </h2>
@@ -23,7 +30,7 @@ const Timetable = () => {
               Day / Time
             </th>
 
-            {times.map((time) => (
+            {times.map((time: string) => (
               <th
                 key={time}
                 className="border px-4 py-3 text-center text-sm font-medium text-gray-600 whitespace-nowrap"
@@ -35,13 +42,13 @@ const Timetable = () => {
         </thead>
 
         <tbody>
-          {days.map((day) => (
+          {days.map((day: string) => (
             <tr key={day} className="hover:bg-gray-50">
               <td className="border px-4 py-3 font-medium text-gray-700 whitespace-nowrap">
                 {day}
               </td>
 
-              {times.map((time) => (
+              {times.map((time: string) => (
                 <td
                   key={time}
                   className="border px-4 py-3 text-center text-sm text-gray-400"

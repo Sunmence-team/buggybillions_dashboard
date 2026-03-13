@@ -36,10 +36,10 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
 
   return (
     <div className="space-y-5">
-      <div className="overflow-x-auto no-scrollbar w-full lg:p-0 pe-4">
+      <div className="overflow-x-auto no-scrollbar  w-full lg:p-0 pe-4">
         <table className="w-full min-w-200 text-center bg-white mb-2">
           <thead>
-            <tr className="bg-gray-300 h-12.5 rounded-xl">
+            <tr className="bg-[#ECFFFC] h-12.5 rounded-xl">
               {columnsWithSN.map((col, idx) => (
                 <th
                   key={col.key ?? idx}
