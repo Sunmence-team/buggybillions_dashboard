@@ -22,7 +22,7 @@ const Login: React.FC = () => {
     onSubmit: async (values) => {
       console.log("values", values)
       try {
-        const response = await api.post("/api/login", values)
+        const response = await api.post("api/login", values)
         console.log("response", response)
 
         if (response.status === 200) {

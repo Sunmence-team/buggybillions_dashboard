@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import api, { setupInterceptors } from "../helpers/api";
 
-interface userProviderProps {
+interface UserProviderProps {
   children: React.ReactNode;
 }
 
@@ -28,7 +28,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider = ({ children }: userProviderProps) => {
+export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<UserProps | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -64,13 +64,19 @@ export const UserProvider = ({ children }: userProviderProps) => {
   }, []);
 
   
-  const login = (token: string, role: string) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    setToken(token);
-    setRole(role);
-    
-    refreshUser(token)
+  const login = async (token: string, role: string) => {
+    try {
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      setToken(token);
+      setRole(role);
+      
+      await refreshUser(token);
+    } catch (error) {
+      console.error("Login failed:", error);
+      logout();
+      throw error;
+    }
   };
 
 
