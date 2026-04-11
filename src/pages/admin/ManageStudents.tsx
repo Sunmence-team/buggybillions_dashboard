@@ -8,6 +8,8 @@ import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
+import ConfirmDialog from "../../components/modal/ConfirmDialog";
+import { formatISODateToCustom } from "../../helpers/formatterUtility";
 
 const ManageStudents: React.FC = () => {
   const { token } = useUser();
@@ -17,11 +19,12 @@ const ManageStudents: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
-  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | null>(
+  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | "delete" | null>(
     null
   );
   const [openActionId, setOpenActionId] = useState<string | null>(null);
@@ -98,6 +101,34 @@ const ManageStudents: React.FC = () => {
     }
   };
 
+  const handleDelete = async (data: any) => {
+    setIsDeleting(true);
+    try {
+
+      const response = await api.delete(`/api/users/${data.id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 200) {
+        setStudents((prev) =>
+          prev.filter((s) => s.id !== data.id)
+        );
+  
+        toast.success("Student deleted successfully.");
+        setModalType(null);
+        setSelectedStudent(null);
+      }
+
+    } catch (err: any) {
+      console.error("Error updating student:", err);
+      toast.error("Failed to update student.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const toggleActionMenu = (id: string) => {
     setOpenActionId(openActionId === id ? null : id);
   };
@@ -106,27 +137,21 @@ const ManageStudents: React.FC = () => {
     {
       title: "Bug ID",
       key: "bug_id",
+      render: (item) => <span className="uppercase">{item.bug_id}</span>,
     },
     {
       title: "Stack",
       key: "stack",
-      render: (item) => <span className="uppercase">{item.stack}</span>,
+      render: (item) => <span className="capitalize">{item.stack}</span>,
     },
     {
       title: "Department",
       key: "department",
     },
     {
-      title: "Leader board",
-      key: "leader_board",
-    },
-    {
       title: "Created At",
       key: "created_at",
-      render: (item) => {
-        if (!item.created_at) return "-";
-        return new Date(item.created_at).toLocaleDateString();
-      }
+      render: (item) => formatISODateToCustom(item?.created_at ?? ""),
     },
     {
       title: "Action",
@@ -171,6 +196,16 @@ const ManageStudents: React.FC = () => {
               >
                 Upgrade Stack/Dept
               </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                onClick={() => {
+                  setSelectedStudent(item);
+                  setModalType("delete"); // Reusing edit for "Upgrade"
+                  setOpenActionId(null);
+                }}
+              >
+                Delete user
+              </button>
             </div>
           )}
         </div>
@@ -214,7 +249,7 @@ const ManageStudents: React.FC = () => {
       )}
 
       {/* View/Edit/Upgrade Modal */}
-      {modalType && selectedStudent && (
+      {(modalType === "view" || modalType === "edit") && selectedStudent && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -233,6 +268,19 @@ const ManageStudents: React.FC = () => {
           />
         </Modal>
       )}
+
+      <ConfirmDialog
+        isOpen={ modalType === "delete" && selectedStudent !== null}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete student "${selectedStudent?.fullname || selectedStudent?.bug_id}"? This action cannot be undone.`}
+        onConfirm={() => handleDelete(selectedStudent)}
+        onCancel={() => {
+          setModalType(null);
+          setSelectedStudent(null);
+        }}
+        isLoading={isDeleting}
+      />
+      
     </div>
   );
 };

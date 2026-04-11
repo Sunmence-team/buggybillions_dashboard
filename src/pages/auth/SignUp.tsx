@@ -8,8 +8,9 @@ import { assests } from "../../assets/assest";
 import api from "../../helpers/api";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
+import { IoMdMail } from "react-icons/io";
 
-const Login: React.FC = () => {
+const SignUp: React.FC = () => {
   const { login } = useUser();
   const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ const Login: React.FC = () => {
     onSubmit: async (values) => {
       console.log("values", values)
       try {
-        const response = await api.post("api/login", values)
+        const response = await api.post("/api/login", values)
         console.log("response", response)
 
         if (response.status === 200) {
@@ -32,16 +33,11 @@ const Login: React.FC = () => {
             role === "admin"
               ? "/admin/overview"
               : role === "tutor"
-                ? "/tutor/dashboard"
+                ? "/tutor/curriculum"
                 : "/student/overview"
           )
         }
       } catch (error: any) {
-        if (error.status === 400) {
-          toast.error("Your account is not setup yet. Please complete your account setup.")
-          navigate("/auth/profilesetup")
-          return
-        }
         console.log("Error occured logging in", error)
         toast.error(error.data?.response?.message || error?.message)
       }
@@ -56,23 +52,24 @@ const Login: React.FC = () => {
             "linear-gradient(to bottom, rgba(121, 111, 171, 0.97), rgba(121, 111, 171, 0.96)), url('./lap.jpg')",
         }}
       >
-        <div>
+        <div className="absolute">
           <img src={assests.logo} className="w-55" />
         </div>
-        <div className="text-center flex flex-col justify-center items-start">
-          <h1 className="text-4xl text-bold text-justify">Hello!!</h1>
-          <h2 className="text-yellow-400 text-5xl text-bold">Welcome</h2>
+        <div className="flex justify-center w-96 mx-auto items-center">
+          <h1 className="text-4xl font-semibold ">Join us today and start<span className="text-yellow-400"> your Journey</span></h1>
+
         </div>
+    
       </div>
 
       <div className="w-1/1 flex flex-col justify-center items-center p-5 bg-white">
         <div className="w-full max-w-md">
           <div>
             <h2 className="text-2xl font-semibold text-black text-center">
-              Login
+              SignUp
             </h2>
             <p className="text-black mb-10 text-center">
-              Sign in to your account
+              Your Experience start here
             </p>
           </div>
           <form onSubmit={formik.handleSubmit} className="space-y-5">
@@ -81,9 +78,21 @@ const Login: React.FC = () => {
               <input
                 type="text"
                 className="w-full h-full outline-0 border-0"
-                placeholder="Bug ID"
+                placeholder="Full name"
                 name="bug_id"
                 id="bug_id"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+            <div className="flex items-center gap-2 h-12.5 px-4 rounded-lg bg-gray-200">
+              <IoMdMail />
+              <input
+                type="email"
+                className="w-full h-full outline-0 border-0"
+                placeholder="Email"
+                name="bug_email"
+                id="bug_email"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -96,6 +105,18 @@ const Login: React.FC = () => {
                 placeholder="Password"
                 name="password"
                 id="password"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+            <div className="flex items-center gap-2 h-12.5 px-4 rounded-lg bg-gray-200">
+              <MdLock />
+              <input
+                type="password"
+                className="w-full h-full outline-0 border-0"
+                placeholder="confirm Password"
+                name="confirmPassword"
+                id="confirmPassword"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -120,12 +141,12 @@ const Login: React.FC = () => {
               <Link to="/" className="text-sm text-black">
                 Forgot Password?
               </Link>
-              {/* <div className="flex justify-center gap-1">
+              <div className="flex justify-center gap-1">
                 <p className="text-black"> Don’t have an account? </p>
-                <Link to="/auth/profilesetup" className="text-red-500 font-semibold">
+                <Link to="/auth/register" className="text-red-500 font-semibold">
                   Sign up
                 </Link>
-              </div> */}
+              </div>
             </div>
           </form>
         </div>
@@ -134,4 +155,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default SignUp;

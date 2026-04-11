@@ -1,10 +1,10 @@
-import React from "react";
+import React, { FC } from "react";
 import { assests } from "../../assets/assest";
 import { NavLink } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
-import { MdAssignmentAdd, MdLibraryBooks, MdLayers, MdSentimentVerySatisfied } from "react-icons/md";
+import { MdAssignmentAdd, MdLibraryBooks, MdLayers, MdSentimentVerySatisfied, MdLogout } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { useUser } from "../../context/UserContext";
 import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
@@ -12,7 +12,7 @@ import { FaRegUser } from "react-icons/fa";
 
 
 const LeftNav = ({ setIsExpanded }) => {
-  const { user } = useUser();
+  const { user, logout } = useUser();
 
   const navLinks = [
     {
@@ -109,11 +109,9 @@ const LeftNav = ({ setIsExpanded }) => {
   ];
 
   return (
-    <div
-      className={`lg:w-full md:w-1/2 w-3/4 transition-all left-nav duration-500 left-nav relative bg-purple h-full pt-4 lg:pt-2 pb-8 px-4 flex items-start flex-col gap-2`}
-    >
+    <div className="lg:w-full md:w-1/2 w-3/4 transition-all duration-500 relative bg-purple h-full pt-4 lg:pt-2 pb-8 px-4 flex items-start flex-col gap-2">
       <div className="py-4 mb-4 pe-3 w-full">
-        <img src={assests.logo} className="" alt="Buggy Academy Logo" />
+        <img src={assests.logo} alt="Buggy Academy Logo" />
       </div>
       <nav className="overflow-y-auto no-scrollbar w-full flex flex-col items-start gap-2.5 border-b border-white/30 h-[calc(100%-(24px+3rem))]">
         {navLinks
@@ -141,6 +139,15 @@ const LeftNav = ({ setIsExpanded }) => {
             );
           })}
       </nav>
+
+      <button
+        type="button"
+        onClick={logout}
+        className="flex items-center gap-2 text-gray-200 hover:text-white mt-auto px-3 py-2 w-full rounded-md hover:bg-white/20 transition-colors cursor-pointer"
+      >
+        <MdLogout />
+        <span>Logout</span>
+      </button>
     </div>
   );
 };

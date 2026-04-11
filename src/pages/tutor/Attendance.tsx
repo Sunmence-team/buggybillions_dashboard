@@ -199,10 +199,10 @@ const Attendance: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="space-y-6">
       {/* ================= HEADER ================= */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#796FAB]">Mark Attendance</h1>
+        <h1 className="text-2xl font-bold text-purple">Mark Attendance</h1>
         <p className="text-sm text-gray-500">
           Total Lessons: {lessons.length} | Total Students: {students.length}
         </p>
@@ -238,16 +238,16 @@ const Attendance: React.FC = () => {
                 onClick={() => toggleAccordion(lesson.id)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition"
               >
-                <div className="flex items-center gap-4">
-                  <div className="bg-[#796FAB] text-white rounded-full w-12 h-12 flex items-center justify-center font-bold">
-                    {lesson.day}
-                  </div>
-                  <div className="text-left">
+                <div className={`text-left ${isExpanded ? "w-3/4" : ""}`}>
+                  <div className="flex flex-col-reverse items-start gap-1">
                     <h3 className="font-semibold text-lg text-gray-800">
                       {lesson.topic}
                     </h3>
-                    <p className="text-sm text-gray-500">{lesson.introduction}</p>
+                    <div className="bg-purple text-white rounded-md flex items-center px-3 text-sm py-1 justify-center font-bold">
+                    {lesson.day}
                   </div>
+                  </div>
+                  <p className="text-sm text-gray-500">{lesson.introduction}</p>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -283,7 +283,7 @@ const Attendance: React.FC = () => {
                         return (
                           <div
                             key={student.id}
-                            className="flex items-center justify-between bg-white p-3 rounded-lg border border-[#796FAB] hover:shadow-sm transition"
+                            className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple hover:shadow-sm transition"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
@@ -301,7 +301,7 @@ const Attendance: React.FC = () => {
                                 checked={isPresent}
                                 onChange={() => toggleStudentAttendance(lesson.id, student.id)}
                                 disabled={isSaving}
-                                className="w-5 h-5 text-[#796FAB] rounded focus:ring-[#796FAB] disabled:opacity-50"
+                                className="w-5 h-5 text-purple rounded focus:ring-purple disabled:opacity-50"
                               />
                               <span className={`text-sm font-medium ${isPresent ? "text-green-600" : "text-gray-400"}`}>
                                 {isSaving ? "Saving..." : isPresent ? "Present" : "Absent"}

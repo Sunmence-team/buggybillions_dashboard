@@ -59,15 +59,15 @@ const Dashboard: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!tutorId || !token) {
-      setFetchError("Not logged in as tutor");
-      setLoadingStudents(false);
-      setLoadingSubmissions(false);
-      setLoadingTopStudent(false);
-      return;
-    }
-
     const fetchData = async () => {
+      if (!tutorId || !token) {
+        setFetchError("Not logged in as tutor");
+        setLoadingStudents(false);
+        setLoadingSubmissions(false);
+        setLoadingTopStudent(false);
+        return;
+      }
+
       try {
         // 1. Total students
         const studentsRes = await api.get(`/api/tutors/${tutorId}/students`, {
@@ -131,7 +131,7 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [tutorId, token]);
 
-  if (fetchError) {
+  if (user?.role !== "tutor") {
     return (
       <div className="p-8 text-center text-red-600">
         <p className="text-lg font-medium">{fetchError}</p>
@@ -248,7 +248,7 @@ const Dashboard: React.FC = () => {
                     1
                   </div>
                   <div>
-                    <p className="font-medium">{topStudent.fullname}</p>
+                    <p className="font-medium">{topStudent.fullname ?? "[No Name]"}</p>
                     <p className="text-xs text-purple-600 capitalize">
                       {topStudent.stack}
                     </p>

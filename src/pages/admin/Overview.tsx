@@ -116,7 +116,7 @@ const AdminOverview: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="font-medium">{displayName}</p>
+                    <p className="font-medium capitalize">{displayName}</p>
 
                     <p className="text-xs text-purple-600 font-medium capitalize">
                       {user.stack || "—"}
@@ -150,6 +150,10 @@ const AdminOverview: React.FC = () => {
               </div>
             );
           })}
+
+          {loading && (
+            <p className="text-center py-6 text-gray-400">Loading leaderboard...</p>
+          )}
 
           {!leaders.length && !loading && (
             <p className="text-center py-6 text-gray-400">
