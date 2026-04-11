@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
-import CreateTutorForm from "../../components/forms/CreateTutorForm";
+import CreateStackForm from "../../components/forms/CreateStackForm";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa6";
@@ -9,65 +9,113 @@ import api from "../../helpers/api";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 
-const ManageTutors: React.FC = () => {
-  const { token } = useUser()
-  const [tutors, setTutors] = useState<any[]>([]);
+const ManageStacks: React.FC = () => {
+  const { token } = useUser();
+  const [stacks, setStacks] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedTutor, setSelectedTutor] = useState<any | null>(null);
-  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | null>(null);
+  const [selectedStack, setSelectedStack] = useState<any | null>(null);
+  const [modalType, setModalType] = useState<"view" | "edit" | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
-  const fetchTutors = async () => {
+  const fetchStacks = async () => {
     if (!token) return;
-    
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get(`api/all_tutors?page=${currentPage}`, {
+      const response = await api.get(`/api/stacks?page=${currentPage}`, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      setTutors(response.data.tutors || []);
+      // Handle different API response structures
+      let stacksData = [];
+      
+      if (response.data?.stacks && Array.isArray(response.data.stacks)) {
+        stacksData = response.data.stacks;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        stacksData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        stacksData = response.data;
+      }
+
+      setStacks(stacksData);
       setTotalPages(response.data.last_page || 1);
-      setTotalItems(response.data.total || 0);
+      setTotalItems(response.data.total || stacksData.length);
     } catch (err: any) {
-      console.error("Error fetching tutors:", err);
-      setError("Failed to load tutors. Please try again.");
-      toast.error("Failed to load tutors.");
+      console.error("Error fetching stacks:", err);
+      setError("Failed to load stacks. Please try again.");
+      toast.error("Failed to load stacks.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const fetchCourses = async () => {
+    if (!token) return;
+    try {
+      const response = await api.get("/api/courses", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Handle different API response structures
+      let coursesData = [];
+      
+      if (response.data?.courses && Array.isArray(response.data.courses)) {
+        coursesData = response.data.courses;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        coursesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        coursesData = response.data;
+      }
+
+      setCourses(coursesData);
+    } catch (err) {
+      console.warn("Unable to load course options", err);
+    }
+  };
+
   useEffect(() => {
-    fetchTutors();
+    fetchStacks();
+    fetchCourses();
   }, [token, currentPage]);
 
   const handleCreate = async (data: any) => {
+    if (!token) return;
     setIsSubmitting(true);
     try {
-      await api.post("/api/create_users", data, {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("course_id", data.courseId);
+      formData.append("description", data.description);
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+
+      await api.post("/api/stacks", formData, {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
-      toast.success("Tutor created successfully!");
+
+      toast.success("Stack created successfully!");
       setIsCreateModalOpen(false);
-      fetchTutors();
+      fetchStacks();
     } catch (err: any) {
-      console.error("Error creating tutor:", err);
-      toast.error(err.response?.data?.message || "Failed to create tutor.");
+      console.error("Error creating stack:", err);
+      toast.error(err.response?.data?.message || "Failed to create stack.");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,17 +124,18 @@ const ManageTutors: React.FC = () => {
   const handleUpdate = async (data: any) => {
     setIsSubmitting(true);
     try {
-      // Placeholder for Update API call
       console.log("Update Data:", data);
-      setTutors((prev) =>
-        prev.map((t) => (t.id === selectedTutor.id ? { ...t, ...data } : t))
+      setStacks((prev) =>
+        prev.map((stack) =>
+          stack.id === selectedStack.id ? { ...stack, ...data } : stack
+        )
       );
-      toast.success("Tutor updated successfully (Demo)");
+      toast.success("Stack updated successfully (Demo)");
       setModalType(null);
-      setSelectedTutor(null);
+      setSelectedStack(null);
     } catch (err: any) {
-      console.error("Error updating tutor:", err);
-      toast.error("Failed to update tutor.");
+      console.error("Error updating stack:", err);
+      toast.error("Failed to update stack.");
     } finally {
       setIsSubmitting(false);
     }
@@ -98,25 +147,21 @@ const ManageTutors: React.FC = () => {
 
   const columns: TableColumnProps[] = [
     {
-      title: "Full Name",
-      key: "fullname",
+      title: "Stack Title",
+      key: "title",
     },
     {
-      title: "Username",
-      key: "username",
-    },
-     {
-      title: "Bug ID",
-      key: "bug_id",
+      title: "Course",
+      key: "course",
+      render: (item) => item.course?.title || item.course_id || "-",
     },
     {
-      title: "Stack",
-      key: "stack",
-      render: (item) => <span className="uppercase">{item.stack}</span>,
-    },
-    {
-      title: "Department",
-      key: "department",
+      title: "Description",
+      key: "description",
+      className: "p-3 text-sm text-black font-medium",
+      render: (item) => (
+        <span title={item.description} className="max-w-xs block truncate text-left">{item.description || "—"}</span>
+      ),
     },
     {
       title: "Created At",
@@ -124,7 +169,7 @@ const ManageTutors: React.FC = () => {
       render: (item) => {
         if (!item.created_at) return "-";
         return new Date(item.created_at).toLocaleDateString();
-      }
+      },
     },
     {
       title: "Action",
@@ -142,32 +187,22 @@ const ManageTutors: React.FC = () => {
               <button
                 className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
                 onClick={() => {
-                  setSelectedTutor(item);
+                  setSelectedStack(item);
                   setModalType("view");
                   setOpenActionId(null);
                 }}
               >
-                View Tutor
+                View Stack
               </button>
               <button
                 className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
                 onClick={() => {
-                  setSelectedTutor(item);
+                  setSelectedStack(item);
                   setModalType("edit");
                   setOpenActionId(null);
                 }}
               >
-                Edit Tutor Info
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedTutor(item);
-                  setModalType("edit"); 
-                  setOpenActionId(null);
-                }}
-              >
-                Upgrade Stack/Dept
+                Edit Stack
               </button>
             </div>
           )}
@@ -179,18 +214,18 @@ const ManageTutors: React.FC = () => {
   return (
     <div className="">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-tetiary">Manage Tutors</h1>
+        <h1 className="text-2xl font-bold text-tetiary">Manage Stacks</h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
           className="px-3 h-11.25 text-sm flex items-center justify-center gap-2 bg-purple text-white rounded-md"
         >
-          <FaPlus /> <span>Add Tutor</span>
+          <FaPlus /> <span>Add Stack</span>
         </button>
       </div>
 
       <ReusableTable
         columns={columns}
-        data={tutors}
+        data={stacks}
         isLoading={isLoading}
         error={error}
         currentPage={currentPage}
@@ -200,10 +235,13 @@ const ManageTutors: React.FC = () => {
         setCurrentPage={setCurrentPage}
       />
 
-      {/* Create Modal */}
       {isCreateModalOpen && (
         <Modal onClose={() => setIsCreateModalOpen(false)}>
-          <CreateTutorForm
+          <CreateStackForm
+            courses={courses.map((course) => ({
+              id: course.id,
+              title: course.title,
+            }))}
             onSubmit={handleCreate}
             onCancel={() => setIsCreateModalOpen(false)}
             isLoading={isSubmitting}
@@ -211,20 +249,23 @@ const ManageTutors: React.FC = () => {
         </Modal>
       )}
 
-      {/* View/Edit/Upgrade Modal */}
-      {modalType && selectedTutor && (
+      {modalType && selectedStack && (
         <Modal
           onClose={() => {
             setModalType(null);
-            setSelectedTutor(null);
+            setSelectedStack(null);
           }}
         >
-          <CreateTutorForm
-            initialData={selectedTutor}
+          <CreateStackForm
+            initialData={selectedStack}
+            courses={courses.map((course) => ({
+              id: course.id,
+              title: course.title,
+            }))}
             onSubmit={handleUpdate}
             onCancel={() => {
               setModalType(null);
-              setSelectedTutor(null);
+              setSelectedStack(null);
             }}
             readOnly={modalType === "view"}
             isLoading={isSubmitting}
@@ -235,4 +276,4 @@ const ManageTutors: React.FC = () => {
   );
 };
 
-export default ManageTutors;
+export default ManageStacks;

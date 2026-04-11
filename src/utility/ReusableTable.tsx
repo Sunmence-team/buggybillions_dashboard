@@ -69,7 +69,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                     : error.message || "An error occurred"}
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : !Array.isArray(data) || data.length === 0 ? (
               <tr className={`h-12.5 border-y border-black/15`}>
                 <td colSpan={columnsWithSN.length} className="p-3 text-sm">
                   No data found.
@@ -102,7 +102,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
           </tbody>
         </table>
 
-        {!isLoading && !error && data.length > 0 && (
+        {!isLoading && !error && Array.isArray(data) && data.length > 0 && (
           <PaginationControls
             currentPage={currentPage}
             totalPages={totalPages}
