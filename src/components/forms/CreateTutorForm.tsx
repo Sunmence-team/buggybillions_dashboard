@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../../helpers/api";
 
 interface CreateTutorFormProps {
   initialData?: any;
@@ -7,13 +8,6 @@ interface CreateTutorFormProps {
   readOnly?: boolean;
   isLoading?: boolean;
 }
-
-const STACKS = {
-  frontend: ["HTML", "CSS", "React", "Vue", "Angular"],
-  backend: ["Node.js", "Python", "Java", "Go"],
-  mobile: ["Flutter", "React Native", "Swift", "Kotlin"],
-  uiux: ["Figma", "Adobe XD", "Sketch"],
-};
 
 const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
   initialData,
@@ -25,26 +19,53 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
   const [formData, setFormData] = useState({
     fullname: "",
     username: "",
+    email: "",
     mobile: "",
-    bug_id: "",
     password: "",
-    stack: "",
     department: "",
+    stack: "",
   });
+
+  const [stacks, setStacks] = useState<any[]>([]);
+  const [loadingStacks, setLoadingStacks] = useState(false);
+
+  useEffect(() => {
+    fetchStacks();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         fullname: initialData.fullname || "",
         username: initialData.username || "",
+        email: initialData.email || "",
         mobile: initialData.mobile || "",
-        bug_id: initialData.bug_id || "",
         password: initialData.password || "",
-        stack: initialData.stack || "",
         department: initialData.department || "",
+        stack: initialData.stack || initialData.stack_id || "",
       });
     }
   }, [initialData]);
+
+  const fetchStacks = async () => {
+    setLoadingStacks(true);
+    try {
+      const response = await api.get("/api/stacks");
+      let stacksData = [];
+      if (response.data?.stacks && Array.isArray(response.data.stacks)) {
+        stacksData = response.data.stacks;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        stacksData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        stacksData = response.data;
+      }
+      setStacks(stacksData);
+    } catch (error) {
+      console.error("Error fetching stacks:", error);
+    } finally {
+      setLoadingStacks(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -53,19 +74,19 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      // Reset department if stack changes
-      ...(name === "stack" ? { department: "" } : {}),
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Transform data to match backend expectations
+    const submitData = {
+      ...formData,
+      stack: formData.stack, // This will be the stack_id
+      role: "tutor"
+    };
+    onSubmit(submitData);
   };
-
-  const departments = formData.stack
-    ? STACKS[formData.stack as keyof typeof STACKS] || []
-    : [];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,16 +144,16 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Bug ID</label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <input
-            type="text"
-            name="bug_id"
-            value={formData.bug_id}
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             disabled={readOnly || isLoading}
             required
             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-            placeholder="Enter Bug ID"
+            placeholder="Enter Email Address"
           />
         </div>
 
@@ -158,36 +179,33 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             name="stack"
             value={formData.stack}
             onChange={handleChange}
-            disabled={readOnly || isLoading}
+            disabled={readOnly || isLoading || loadingStacks}
             required
             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
           >
-            <option value="">Select Stack</option>
-            {Object.keys(STACKS).map((stack) => (
-              <option key={stack} value={stack}>
-                {stack.toUpperCase()}
+            <option value="">
+              {loadingStacks ? "Loading stacks..." : "Select Stack"}
+            </option>
+            {stacks.map((stack) => (
+              <option key={stack.id} value={stack.id}>
+                {stack.title}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 md:col-span-2">
           <label className="text-sm font-medium text-gray-700">Department</label>
-          <select
+          <input
+            type="text"
             name="department"
             value={formData.department}
             onChange={handleChange}
-            disabled={readOnly || !formData.stack || isLoading}
+            disabled={readOnly || isLoading}
             required
             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-          >
-            <option value="">Select Department</option>
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
+            placeholder="Enter Department (e.g., Software, Design, etc.)"
+          />
         </div>
       </div>
 

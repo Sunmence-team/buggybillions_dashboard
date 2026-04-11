@@ -27,6 +27,8 @@ import TutorProfile from "./pages/tutor/TutorProfile";
 import Profile from "./pages/student/StudentProfile";
 import ProfileSetUp from "./pages/auth/ProfileSetUp";
 import { useUser } from "./context/UserContext";
+import ManageStacks from "./pages/admin/ManageStacks";
+import ManageCourses from "./pages/admin/ManageCourses";
 
 function App() {
   const { user } = useUser();
@@ -149,6 +151,23 @@ function App() {
             subText="Easily manage all Tutors"/>
           }
         />
+        <Route
+          path="/admin/managestacks"
+          element={
+            <MainLayout child={<ManageStacks />} 
+            heading={"Manage All Stacks"} 
+            subText="Easily manage all Stacks"/>
+          }
+        />
+        <Route
+          path="/admin/managecourse"
+          element={
+            <MainLayout child={<ManageCourses />} 
+            heading={"Manage All Courses"} 
+            subText="Easily manage all Courses"/>
+          }
+        />
+      
       </Routes>
     </>
   );

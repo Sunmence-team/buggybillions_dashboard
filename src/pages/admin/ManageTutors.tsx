@@ -44,7 +44,7 @@ const ManageTutors: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/all_tutors?page=${currentPage}`, {
+      const response = await api.get(`api/all_tutors?page=${currentPage}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,10 +69,10 @@ const ManageTutors: React.FC = () => {
   const handleCreate = async (data: any) => {
     setIsSubmitting(true);
     try {
-      await api.post("/api/tutors", data, {
+      await api.post("/api/create_users", data, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          "Authorization": `Bearer ${token}`
+        }
       });
       toast.success("Tutor created successfully!");
       setIsCreateModalOpen(false);
