@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup'
 import { toast } from 'sonner';
 import api from '../../helpers/api';
+import { useUser } from '../../context/UserContext';
 
 interface StudentAssignmentFormProps {
   onClose?: () => void;
@@ -12,23 +13,26 @@ interface StudentAssignmentFormProps {
 export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAssignmentFormProps) {
 
     const [loading, setLoading] = React.useState(false)
+    const { user } = useUser();
     // const [postAssignment, setPostAssignment] = React.useState<any[]>([])
 
     const assignmentSchema = yup.object({
         assignment_name: yup.string().required('Title is required'),
         assignment_description: yup.string().required('Description is required'),
+        weekly_lesson_id: yup.string().required('Weekly lesson is required'),
+        course_id: yup.string().required('Course is required'),
         file: yup
             .mixed()
-            // .test("fileRequired", "Attachment is required", value => value instanceof File)
+            .test("fileRequired", "Attachment is required", value => value instanceof File)
             // .test("fileType", "Only ZIP files are allowed", value => value instanceof File ? value.type === "application/zip" : false)
-
-
     })
 
     const formik = useFormik({
         initialValues: {
             assignment_name: '',
             assignment_description: '',
+            weekly_lesson_id: '',
+            course_id: '',
             file: null
         },
         validationSchema: assignmentSchema,
@@ -40,9 +44,17 @@ export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAss
                 if (!token) return
                 setLoading(true)
 
+                if (!user?.id) {
+                    toast.error('Unable to submit assignment: user not found.');
+                    return;
+                }
+
                 const formData = new FormData();
                 formData.append("assignment_name", values.assignment_name);
                 formData.append("assignment_description", values.assignment_description);
+                formData.append("student_id", user.id.toString());
+                formData.append("weekly_lesson_id", values.weekly_lesson_id);
+                formData.append("course_id", values.course_id);
                 formData.append("file", values.file as unknown as File);
 
                 const response = await api.post('/api/assignments/submit', formData, {
@@ -60,10 +72,14 @@ export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAss
 
 
             } catch (error: any) {
-                const ErrMessage = error.response?.data?.data || error.data
-                toast.error(ErrMessage)
+                const ErrMessage =
+                    error.response?.data?.message ||
+                    error.response?.data?.data ||
+                    error.message ||
+                    "Failed to submit assignment";
+                toast.error(ErrMessage);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         }
     })
@@ -110,6 +126,36 @@ export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAss
                 />
                 {formik.touched.assignment_description && formik.errors.assignment_description && (
                     <p className="text-red-500 text-sm">{formik.errors.assignment_description}</p>
+                )}
+
+                {/* Weekly Lesson */}
+                <label className="font-medium">Weekly Lesson ID</label>
+                <input
+                    type="text"
+                    name="weekly_lesson_id"
+                    placeholder="Enter weekly lesson id"
+                    value={formik.values.weekly_lesson_id}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="p-3 rounded-lg bg-gray-300 text-black focus:outline-none"
+                />
+                {formik.touched.weekly_lesson_id && formik.errors.weekly_lesson_id && (
+                    <p className="text-red-500 text-sm">{formik.errors.weekly_lesson_id}</p>
+                )}
+
+                {/* Course */}
+                <label className="font-medium">Course ID</label>
+                <input
+                    type="text"
+                    name="course_id"
+                    placeholder="Enter course id"
+                    value={formik.values.course_id}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="p-3 rounded-lg bg-gray-300 text-black focus:outline-none"
+                />
+                {formik.touched.course_id && formik.errors.course_id && (
+                    <p className="text-red-500 text-sm">{formik.errors.course_id}</p>
                 )}
 
                 {/* File Upload */}

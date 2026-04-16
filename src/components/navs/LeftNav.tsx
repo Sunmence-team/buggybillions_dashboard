@@ -106,6 +106,12 @@ const LeftNav = ({ setIsExpanded }) => {
       icon: <MdLayers />,
       role: "admin",
     },
+    {
+      name: "Classes",
+      path: "/admin/manageclasses",
+      icon: <MdLayers />,
+      role: "admin",
+    },
   ];
 
   return (

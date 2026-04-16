@@ -8,6 +8,7 @@ import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
+import ConfirmDialog from "../../components/modal/ConfirmDialog";
 
 const ManageCourses: React.FC = () => {
   const { token } = useUser();
@@ -17,10 +18,11 @@ const ManageCourses: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
-  const [modalType, setModalType] = useState<"view" | "edit" | null>(null);
+  const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
@@ -97,22 +99,57 @@ const ManageCourses: React.FC = () => {
   };
 
   const handleUpdate = async (data: any) => {
+    if (!token || !selectedCourse) return;
+
     setIsSubmitting(true);
     try {
-      console.log("Update Data:", data);
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === selectedCourse.id ? { ...course, ...data } : course
-        )
-      );
-      toast.success("Course updated successfully (Demo)");
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("price", data.price?.toString() || "");
+      formData.append("language", data.language);
+      formData.append("description", data.description);
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+
+      await api.put(`/api/courses/${selectedCourse.id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Course updated successfully!");
       setModalType(null);
       setSelectedCourse(null);
+      fetchCourses();
     } catch (err: any) {
       console.error("Error updating course:", err);
-      toast.error("Failed to update course.");
+      toast.error(err.response?.data?.message || "Failed to update course.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (course: any) => {
+    if (!token || !course?.id) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/courses/${course.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("Course deleted successfully.");
+      setModalType(null);
+      setSelectedCourse(null);
+      fetchCourses();
+    } catch (err: any) {
+      console.error("Error deleting course:", err);
+      toast.error(err.response?.data?.message || "Failed to delete course.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -181,7 +218,17 @@ const ManageCourses: React.FC = () => {
                   setOpenActionId(null);
                 }}
               >
-                Edit Course
+                Update Course
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm"
+                onClick={() => {
+                  setSelectedCourse(item);
+                  setModalType("delete");
+                  setOpenActionId(null);
+                }}
+              >
+                Delete Course
               </button>
             </div>
           )}
@@ -224,7 +271,7 @@ const ManageCourses: React.FC = () => {
         </Modal>
       )}
 
-      {modalType && selectedCourse && (
+      {modalType && selectedCourse && modalType !== "delete" && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -243,6 +290,18 @@ const ManageCourses: React.FC = () => {
           />
         </Modal>
       )}
+
+      <ConfirmDialog
+        isOpen={modalType === "delete" && selectedCourse !== null}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete course "${selectedCourse?.title || selectedCourse?.id}"? This action cannot be undone.`}
+        onConfirm={() => handleDelete(selectedCourse)}
+        onCancel={() => {
+          setModalType(null);
+          setSelectedCourse(null);
+        }}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

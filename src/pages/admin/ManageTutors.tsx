@@ -31,8 +31,10 @@ const ManageTutors: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<any | null>(null);
+  const [stacks, setStacks] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [modalType, setModalType] = useState<
-    "view" | "edit" | "upgrade" | "delete" | null
+    "view" | "edit" | "delete" | null
   >(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
@@ -62,8 +64,58 @@ const ManageTutors: React.FC = () => {
     }
   };
 
+  const fetchStacks = async () => {
+    if (!token) return;
+    try {
+      const response = await api.get("/api/stacks", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      let stacksData = [];
+      if (response.data?.stacks && Array.isArray(response.data.stacks)) {
+        stacksData = response.data.stacks;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        stacksData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        stacksData = response.data;
+      }
+
+      setStacks(stacksData);
+    } catch (err: any) {
+      console.warn("Unable to load stacks:", err);
+    }
+  };
+
+  const fetchClasses = async () => {
+    if (!token) return;
+    try {
+      const response = await api.get("/api/classes", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      let classesData = [];
+      if (response.data?.classes && Array.isArray(response.data.classes)) {
+        classesData = response.data.classes;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        classesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        classesData = response.data;
+      }
+
+      setClasses(classesData);
+    } catch (err: any) {
+      console.warn("Unable to load classes:", err);
+    }
+  };
+
   useEffect(() => {
     fetchTutors();
+    fetchStacks();
+    fetchClasses();
   }, [token, currentPage]);
 
   const handleCreate = async (data: any) => {
@@ -148,9 +200,24 @@ const ManageTutors: React.FC = () => {
       render: (item) => <span className="uppercase">{item.bug_id}</span>,
     },
     {
+      title: "Class",
+      key: "class",
+      render: (item) => {
+        const cls = classes.find((c) => c.id === item.class || c.id === item.class_id);
+        return (
+          <span className="capitalize">
+            {cls?.name || cls?.title || item.tutor_class?.name || item.class?.name || item.tutor_class_name || item.class_name || "N/A"}
+          </span>
+        );
+      },
+    },
+    {
       title: "Stack",
       key: "stack",
-      render: (item) => <span className="capitalize">{item.stack}</span>,
+      render: (item) => {
+        const stack = stacks.find((s) => s.id === item.stack || s.title === item.stack);
+        return <span className="capitalize">{stack?.title || item.stack || "N/A"}</span>;
+      },
     },
     {
       title: "Department",
@@ -207,27 +274,17 @@ const ManageTutors: React.FC = () => {
                   setOpenActionId(null);
                 }}
               >
-                Edit Tutor Info
+                Update Tutor
               </button>
               <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm"
                 onClick={() => {
                   setSelectedTutor(item);
-                  setModalType("edit");
+                  setModalType("delete");
                   setOpenActionId(null);
                 }}
               >
-                Upgrade Stack/Dept
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedTutor(item);
-                  setModalType("delete"); // Reusing edit for "Upgrade"
-                  setOpenActionId(null);
-                }}
-              >
-                Delete user
+                Delete Tutor
               </button>
             </div>
           </FloatingPortal>
@@ -297,7 +354,7 @@ const ManageTutors: React.FC = () => {
       <ConfirmDialog
         isOpen={modalType === "delete" && selectedTutor !== null}
         title="Confirm Delete"
-        message={`Are you sure you want to delete student "${selectedTutor?.fullname || selectedTutor?.bug_id}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete tutor "${selectedTutor?.fullname || selectedTutor?.bug_id}"? This action cannot be undone.`}
         onConfirm={() => handleDelete(selectedTutor)}
         onCancel={() => {
           setModalType(null);
