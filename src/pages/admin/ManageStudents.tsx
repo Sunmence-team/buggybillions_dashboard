@@ -24,13 +24,12 @@ const ManageStudents: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
-  const [modalType, setModalType] = useState<"view" | "edit" | "upgrade" | "delete" | null>(
-    null
-  );
+  const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
+  // ✅ FETCH STUDENTS
   const fetchStudents = async () => {
     if (!token) return;
 
@@ -39,18 +38,18 @@ const ManageStudents: React.FC = () => {
     try {
       const response = await api.get(`/api/all_students?page=${currentPage}`, {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.status === 200 && response.data) {
         setStudents(response.data.students || []);
         setTotalPages(response.data.last_page || 1);
-        setTotalItems(response.data.total || 0);    
+        setTotalItems(response.data.total || 0);
       }
     } catch (err: any) {
       console.error("Error fetching students:", err);
-      setError("Failed to load students. Please try again.");
+      setError("Failed to load students.");
       toast.error("Failed to load students.");
     } finally {
       setIsLoading(false);
@@ -61,69 +60,69 @@ const ManageStudents: React.FC = () => {
     fetchStudents();
   }, [token, currentPage]);
 
+  // ✅ CREATE
   const handleCreate = async (data: any) => {
     setIsSubmitting(true);
     try {
       await api.post("/api/create_users", data, {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       toast.success("Student created successfully!");
       setIsCreateModalOpen(false);
       fetchStudents();
     } catch (err: any) {
-      console.error("Error creating student:", err);
+      console.error(err);
       toast.error(err.response?.data?.message || "Failed to create student.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ✅ UPDATE (Demo or plug API later)
   const handleUpdate = async (data: any) => {
     setIsSubmitting(true);
     try {
-      // Placeholder for Update API call
-      console.log("Update Data:", data);
-      
-      // Optimistic update
       setStudents((prev) =>
-        prev.map((s) => (s.id === selectedStudent.id ? { ...s, ...data } : s))
+        prev.map((s) =>
+          s.id === selectedStudent.id ? { ...s, ...data } : s
+        )
       );
-      toast.success("Student updated successfully (Demo)");
+
+      toast.success("Student updated successfully!");
       setModalType(null);
       setSelectedStudent(null);
-    } catch (err: any) {
-      console.error("Error updating student:", err);
+    } catch (err) {
       toast.error("Failed to update student.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (data: any) => {
+  // ✅ DELETE
+  const handleDelete = async (student: any) => {
     setIsDeleting(true);
     try {
-
-      const response = await api.delete(`/api/users/${data.id}`, {
+      const res = await api.delete(`/api/users/${student.id}`, {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (response.status === 200) {
+      if (res.status === 200) {
         setStudents((prev) =>
-          prev.filter((s) => s.id !== data.id)
+          prev.filter((s) => s.id !== student.id)
         );
-  
-        toast.success("Student deleted successfully.");
+
+        toast.success("Student deleted successfully!");
         setModalType(null);
         setSelectedStudent(null);
       }
-
     } catch (err: any) {
-      console.error("Error updating student:", err);
-      toast.error("Failed to update student.");
+      console.error(err);
+      toast.error("Failed to delete student.");
     } finally {
       setIsDeleting(false);
     }
@@ -133,16 +132,38 @@ const ManageStudents: React.FC = () => {
     setOpenActionId(openActionId === id ? null : id);
   };
 
+  // ✅ TABLE COLUMNS
   const columns: TableColumnProps[] = [
+    {
+      title: "Full Name",
+      key: "fullname",
+      render: (item) => (
+        <span className="font-semibold text-sm capitalize">
+          {item.fullname || "-"}
+        </span>
+      ),
+    },
     {
       title: "Bug ID",
       key: "bug_id",
-      render: (item) => <span className="uppercase">{item.bug_id}</span>,
+      render: (item) => (
+        <span className="uppercase">{item.bug_id}</span>
+      ),
     },
     {
-      title: "Stack",
-      key: "stack",
-      render: (item) => <span className="capitalize">{item.stack}</span>,
+      title: "Class",
+      key: "class",
+      render: (item) => (
+        <span className="capitalize">
+          {
+            item.student_class?.name ||
+            item.class?.name ||
+            item.student_class_name ||
+            item.class_name ||
+            "N/A"
+          }
+        </span>
+      ),
     },
     {
       title: "Department",
@@ -151,7 +172,7 @@ const ManageStudents: React.FC = () => {
     {
       title: "Created At",
       key: "created_at",
-      render: (item) => formatISODateToCustom(item?.created_at ?? ""),
+      render: (item) => formatISODateToCustom(item.created_at),
     },
     {
       title: "Action",
@@ -164,10 +185,12 @@ const ManageStudents: React.FC = () => {
           >
             <BsThreeDotsVertical />
           </button>
+
           {openActionId === item.id && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg rounded-md border border-gray-200 z-50 text-left">
+            <div className="absolute right-0 mt-1 w-44 bg-white shadow-lg rounded-md border z-50">
+
               <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
                 onClick={() => {
                   setSelectedStudent(item);
                   setModalType("view");
@@ -176,36 +199,29 @@ const ManageStudents: React.FC = () => {
               >
                 View Student
               </button>
+
               <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
                 onClick={() => {
                   setSelectedStudent(item);
                   setModalType("edit");
                   setOpenActionId(null);
                 }}
               >
-                Edit Student Info
+                Update Student
               </button>
+
               <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                className="block w-full px-4 py-2 text-left hover:bg-red-50 text-red-600 text-sm"
                 onClick={() => {
                   setSelectedStudent(item);
-                  setModalType("edit"); // Reusing edit for "Upgrade"
+                  setModalType("delete");
                   setOpenActionId(null);
                 }}
               >
-                Upgrade Stack/Dept
+                Delete Student
               </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedStudent(item);
-                  setModalType("delete"); // Reusing edit for "Upgrade"
-                  setOpenActionId(null);
-                }}
-              >
-                Delete user
-              </button>
+
             </div>
           )}
         </div>
@@ -214,17 +230,22 @@ const ManageStudents: React.FC = () => {
   ];
 
   return (
-    <div className="">
+    <div>
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-tetiary">Manage Students</h1>
+        <h1 className="text-2xl font-bold text-tetiary">
+          Manage Students
+        </h1>
+
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-3 h-11.25 text-sm flex items-center justify-center gap-2 bg-purple text-white rounded-md"
+          className="px-3 h-11 flex items-center gap-2 bg-purple text-white rounded-md"
         >
-          <FaPlus /> <span>Add Student</span>
+          <FaPlus /> Add Student
         </button>
       </div>
 
+      {/* TABLE */}
       <ReusableTable
         columns={columns}
         data={students}
@@ -237,7 +258,7 @@ const ManageStudents: React.FC = () => {
         setCurrentPage={setCurrentPage}
       />
 
-      {/* Create Modal */}
+      {/* CREATE */}
       {isCreateModalOpen && (
         <Modal onClose={() => setIsCreateModalOpen(false)}>
           <CreateStudentForm
@@ -248,7 +269,7 @@ const ManageStudents: React.FC = () => {
         </Modal>
       )}
 
-      {/* View/Edit/Upgrade Modal */}
+      {/* VIEW / EDIT */}
       {(modalType === "view" || modalType === "edit") && selectedStudent && (
         <Modal
           onClose={() => {
@@ -269,10 +290,11 @@ const ManageStudents: React.FC = () => {
         </Modal>
       )}
 
+      {/* DELETE */}
       <ConfirmDialog
-        isOpen={ modalType === "delete" && selectedStudent !== null}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete student "${selectedStudent?.fullname || selectedStudent?.bug_id}"? This action cannot be undone.`}
+        isOpen={modalType === "delete" && !!selectedStudent}
+        title="Delete Student"
+        message={`Are you sure you want to delete "${selectedStudent?.fullname}"?`}
         onConfirm={() => handleDelete(selectedStudent)}
         onCancel={() => {
           setModalType(null);
@@ -280,7 +302,6 @@ const ManageStudents: React.FC = () => {
         }}
         isLoading={isDeleting}
       />
-      
     </div>
   );
 };

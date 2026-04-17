@@ -28,6 +28,7 @@ import Profile from "./pages/student/StudentProfile";
 import ProfileSetUp from "./pages/auth/ProfileSetUp";
 import { useUser } from "./context/UserContext";
 import ManageStacks from "./pages/admin/ManageStacks";
+import ManageClasses from "./pages/admin/ManageClasses";
 import ManageCourses from "./pages/admin/ManageCourses";
 
 function App() {
@@ -156,7 +157,15 @@ function App() {
           element={
             <MainLayout child={<ManageStacks />} 
             heading={"Manage All Stacks"} 
-            subText="Easily manage all Stacks"/>
+            subText="Easily manage all stacks"/>
+          }
+        />
+        <Route
+          path="/admin/manageclasses"
+          element={
+            <MainLayout child={<ManageClasses />} 
+            heading={"Manage All Classes"} 
+            subText="Easily manage all classes"/>
           }
         />
         <Route

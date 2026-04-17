@@ -23,33 +23,43 @@ const AdminOverview: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchStudents = async () => {
       try {
-        const [studentsRes, tutorsRes, leaderboardRes] = await Promise.all([
-          api.get("/api/all_students"),
-          api.get("/api/all_tutors"),
-          api.get("/api/leaderboard"),
-        ]);
-
+        const studentsRes = await api.get("/api/all_students");
         const students = studentsRes.data.students || studentsRes.data || [];
-        const tutors = tutorsRes.data.tutors || tutorsRes.data || [];
-        const leaderboard = leaderboardRes.data.leaderboard || [];
-
         setTotalStudents(students.length);
-        setTotalTutors(tutors.length);
+      } catch (error) {
+        console.error("Failed to fetch students", error);
+      }
+    };
 
-        // Sort leaderboard by overall grade
+    const fetchTutors = async () => {
+      try {
+        const tutorsRes = await api.get("/api/all_tutors");
+        const tutors = tutorsRes.data.tutors || tutorsRes.data || [];
+        setTotalTutors(tutors.length);
+      } catch (error) {
+        console.error("Failed to fetch tutors", error);
+      }
+    };
+
+    const fetchLeaderboard = async () => {
+      try {
+        const leaderboardRes = await api.get("/api/leaderboard");
+        const leaderboard = leaderboardRes.data.leaderboard || [];
         const sorted = [...leaderboard].sort(
           (a: LeaderboardUser, b: LeaderboardUser) =>
             b.overall_grade - a.overall_grade
         );
-
         setLeaders(sorted);
       } catch (error) {
-        console.error("Failed to fetch admin overview", error);
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch leaderboard", error);
       }
+    };
+
+    const fetchAll = async () => {
+      await Promise.all([fetchStudents(), fetchTutors(), fetchLeaderboard()]);
+      setLoading(false);
     };
 
     fetchAll();

@@ -24,13 +24,17 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
     password: "",
     department: "",
     stack: "",
+    student_class_id: "",
   });
 
   const [stacks, setStacks] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [loadingStacks, setLoadingStacks] = useState(false);
+  const [loadingClasses, setLoadingClasses] = useState(false);
 
   useEffect(() => {
     fetchStacks();
+    fetchClasses();
   }, []);
 
   useEffect(() => {
@@ -43,6 +47,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
         password: initialData.password || "",
         department: initialData.department || "",
         stack: initialData.stack || initialData.stack_id || "",
+        student_class_id: initialData.student_class_id || initialData.student_class?.id || "",
       });
     }
   }, [initialData]);
@@ -64,6 +69,26 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
       console.error("Error fetching stacks:", error);
     } finally {
       setLoadingStacks(false);
+    }
+  };
+
+  const fetchClasses = async () => {
+    setLoadingClasses(true);
+    try {
+      const response = await api.get("/api/classes");
+      let classesData = [];
+      if (response.data?.classes && Array.isArray(response.data.classes)) {
+        classesData = response.data.classes;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        classesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        classesData = response.data;
+      }
+      setClasses(classesData);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    } finally {
+      setLoadingClasses(false);
     }
   };
 
@@ -189,6 +214,26 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
             {stacks.map((stack) => (
               <option key={stack.id} value={stack.id}>
                 {stack.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">Class (Optional)</label>
+          <select
+            name="student_class_id"
+            value={formData.student_class_id}
+            onChange={handleChange}
+            disabled={readOnly || isLoading || loadingClasses}
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
+          >
+            <option value="">
+              {loadingClasses ? "Loading classes..." : "Select Class"}
+            </option>
+            {classes.map((cls) => (
+              <option key={cls.id} value={cls.id}>
+                {cls.name || cls.title || `Class ${cls.id}`}
               </option>
             ))}
           </select>
