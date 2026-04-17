@@ -33,7 +33,7 @@ const SignUp: React.FC = () => {
             role === "admin"
               ? "/admin/overview"
               : role === "tutor"
-                ? "/tutor/curriculum"
+                ? "/tutor/weekly-lessons"
                 : "/student/overview"
           )
         }

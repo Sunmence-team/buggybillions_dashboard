@@ -1,0 +1,1571 @@
+{
+  "info": {
+    "_postman_id": "ae977b7e-2683-40c0-89d6-a94d0c817b41",
+    "name": "Student Dashboard API",
+    "description": "Comprehensive collection for the Buggy Student Dashboard Backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47092238",
+    "_collection_link": "https://go.postman.co/collection/42499026-ae977b7e-2683-40c0-89d6-a94d0c817b41?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (responseCode.code === 200) {",
+                  "    pm.test(\"Status code is 200\", function () {",
+                  "        pm.environment.set(\"token\", pm.response.json().token);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"bug_id\": \"BUG-ADMIN001\",\n    \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{hosted_url}}/login",
+              "host": [
+                "{{hosted_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Auth User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create User (Student/Tutor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullname\": \"John Student\",\n    \"username\": \"jstudent\",\n    \"email\": \"john@example.com\",\n    \"mobile\": \"08012345678\",\n    \"password\": \"password\",\n    \"department\": \"Software\",\n    \"stack\": \"{{stack_id}}\",\n    \"role\": \"student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/create_users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "create_users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Node.js Batch A\",\n    \"course_id\": \"a12a11a2-905c-46fe-9fba-c291117a7dd7\",\n    // \"stack_id\": \"uuid-here\",\n    \"tutor_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/classes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "classes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Student to Class",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"student_id\": 2,\n    \"student_class_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/classes/assign-student",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "classes",
+                "assign-student"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Class Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/leaderboard/class/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "leaderboard",
+                "class",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tutor",
+      "item": [
+        {
+          "name": "Create Weekly Lessons",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"course_id\": \"uuid-here\",\n    \"lessons\": [\n        {\"day\": \"Day 1\", \"topic\": \"Intro\", \"introduction\": \"Welcome\", \"resources\": \"Link\"},\n        {\"day\": \"Day 2\", \"topic\": \"Basics\", \"introduction\": \"Get started\", \"resources\": \"Link\"},\n        {\"day\": \"Day 3\", \"topic\": \"Advanced\", \"introduction\": \"Deep dive\", \"resources\": \"Link\"},\n        {\"day\": \"Day 4\", \"topic\": \"Project\", \"introduction\": \"Build it\", \"resources\": \"Link\"},\n        {\"day\": \"Day 5\", \"topic\": \"Summary\", \"introduction\": \"Done\", \"resources\": \"Link\"}\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/weekly-lessons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "weekly-lessons"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Class Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"assignment_name\": \"Final Project\",\n    \"assignment_description\": \"Build a dashboard\",\n    \"weekly_lesson_id\": 1,\n    \"course_id\": \"uuid-here\",\n    \"student_class_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tutor/assignments/class",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutor",
+                "assignments",
+                "class"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Class Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"lesson_id\": 1,\n    \"student_class_id\": 1,\n    \"absent_students\": [5, 12]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/mark-class",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "mark-class"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Grade Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"grade\": 85\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/assignments/1/grade",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "assignments",
+                "1",
+                "grade"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Submit Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "assignment_name",
+                  "value": "My Submission",
+                  "type": "text"
+                },
+                {
+                  "key": "assignment_description",
+                  "value": "Zip attached",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                },
+                {
+                  "key": "weekly_lesson_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "course_id",
+                  "value": "uuid-here",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assignments/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "assignments",
+                "submit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Classmates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/my-classmates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my-classmates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Attendance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance/my",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stacks",
+      "item": [
+        {
+          "name": "List Stacks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stacks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stacks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Stack",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Full Stack Development",
+                  "type": "text"
+                },
+                {
+                  "key": "courses[0]",
+                  "value": "{{course_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "postman-cloud:///1f076afa-ee1e-46c0-8f20-e724e031a547"
+                },
+                {
+                  "key": "description",
+                  "value": "lorem",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/stacks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stacks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Stack",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/stacks/{{stack_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stacks",
+                "{{stack_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Stack",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admintoken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Full Stack Development\",\n     \"courses\": [\n        \"a0f3b686-4291-439f-ba2d-10e4bd83ca06\",\n        \"a0f3b5ee-ddc8-44f6-939b-3a2bd00b228c\"\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/stacks/{{stack_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stacks",
+                "{{stack_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Stack",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/stacks/{{stack_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stacks",
+                "{{stack_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Users Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{hosted_url}}/user/courses",
+              "host": [
+                "{{hosted_url}}"
+              ],
+              "path": [
+                "user",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Introduction to PHP",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "5000",
+                  "type": "text"
+                },
+                {
+                  "key": "language",
+                  "value": "English",
+                  "type": "text",
+                  "uuid": "27b92b22-fb45-41c5-a902-ddbcd647c0b1"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "aa71a5f2-c7a4-4de8-9810-50e88832e3ed",
+                  "src": "postman-cloud:///1f076afa-ee1e-46c0-8f20-e724e031a547"
+                },
+                {
+                  "key": "description",
+                  "value": "A comprehensive guide to React.js including hooks, router and redux.",
+                  "type": "text",
+                  "uuid": "fb609f52-27ce-4410-a2ea-28f42d22779f"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Create Course",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "Introduction to PHP",
+                      "type": "text"
+                    },
+                    {
+                      "key": "price",
+                      "value": "5000",
+                      "type": "text"
+                    },
+                    {
+                      "key": "language",
+                      "value": "English",
+                      "type": "text",
+                      "uuid": "27b92b22-fb45-41c5-a902-ddbcd647c0b1"
+                    },
+                    {
+                      "key": "cover_image",
+                      "type": "file",
+                      "uuid": "aa71a5f2-c7a4-4de8-9810-50e88832e3ed",
+                      "src": "postman-cloud:///1f076afa-ee1e-46c0-8f20-e724e031a547"
+                    },
+                    {
+                      "key": "long_description",
+                      "value": "A comprehensive guide to React.js including hooks, router and redux.",
+                      "type": "text",
+                      "uuid": "fb609f52-27ce-4410-a2ea-28f42d22779f"
+                    },
+                    {
+                      "key": "short_description",
+                      "value": "Learn React from scratch",
+                      "type": "text",
+                      "uuid": "836a24a0-e055-40ed-b37b-f21ed1bcb779"
+                    },
+                    {
+                      "key": "what_you_learn[0]",
+                      "value": "loem",
+                      "type": "text",
+                      "uuid": "78c21834-754b-4a40-b5fe-6dc13163ee04"
+                    },
+                    {
+                      "key": "stats[students]",
+                      "value": "lorem",
+                      "type": "text",
+                      "uuid": "0a013b0e-ed0a-4198-bae3-39748c4a459a"
+                    },
+                    {
+                      "key": "urls[0][creator]",
+                      "value": "John Doe",
+                      "type": "text",
+                      "uuid": "6fc77d9e-a75b-4fc8-bc17-4e6735867410"
+                    },
+                    {
+                      "key": "urls[0][deadline]",
+                      "value": "2026-12-31",
+                      "type": "text",
+                      "uuid": "2642bbd7-a497-409f-831d-353b32fb54a9"
+                    },
+                    {
+                      "key": "urls[0][duration]",
+                      "value": "10:00",
+                      "type": "text",
+                      "uuid": "88912134-52b2-4e04-ab74-f92a023539f4"
+                    },
+                    {
+                      "key": "urls[0][label]",
+                      "value": "Intro",
+                      "type": "text",
+                      "uuid": "5e45fdde-cf9f-4c59-be99-3463f16d9096"
+                    },
+                    {
+                      "key": "urls[0][note]",
+                      "value": "Watch carefully",
+                      "type": "text",
+                      "uuid": "e0d3d7f3-4a3c-4bfd-8979-44d34232204c"
+                    },
+                    {
+                      "key": "urls[0][platform]",
+                      "value": "Youtube",
+                      "type": "text",
+                      "uuid": "ac5de26e-4587-4b08-8285-155f8ffc9bec"
+                    },
+                    {
+                      "key": "urls[0][url]",
+                      "value": "http://example.com/video1",
+                      "type": "text",
+                      "uuid": "0493cc97-e8e3-40c4-a591-cf333c46dc13"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/courses",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "courses"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Connection",
+                  "value": "Keep-Alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5, max=100"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.4.14"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-RateLimit-Limit",
+                  "value": "60"
+                },
+                {
+                  "key": "X-RateLimit-Remaining",
+                  "value": "58"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "560"
+                },
+                {
+                  "key": "Content-Encoding",
+                  "value": "br"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Accept-Encoding"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 03 Feb 2026 15:04:44 GMT"
+                },
+                {
+                  "key": "Server",
+                  "value": "LiteSpeed"
+                },
+                {
+                  "key": "platform",
+                  "value": "hostinger"
+                },
+                {
+                  "key": "Strict-Transport-Security",
+                  "value": "max-age=31536000; includeSubDomains; preload"
+                },
+                {
+                  "key": "X-XSS-Protection",
+                  "value": "1; mode=block"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "alt-svc",
+                  "value": "h3=\":443\"; ma=2592000, h3-29=\":443\"; ma=2592000, h3-Q050=\":443\"; ma=2592000, h3-Q046=\":443\"; ma=2592000, h3-Q043=\":443\"; ma=2592000, quic=\":443\"; ma=2592000; v=\"43,46\""
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Course created successfully\",\n    \"data\": {\n        \"title\": \"Introduction to PHP\",\n        \"language\": \"English\",\n        \"price\": \"5000\",\n        \"cover_image\": \"courses/cV79Un08U732y7ZfpGyqAEGhBG9V9AUeUj4PGGyw.jpg\",\n        \"short_description\": \"Learn React from scratch\",\n        \"long_description\": \"A comprehensive guide to React.js including hooks, router and redux.\",\n        \"stats\": {\n            \"students\": \"lorem\"\n        },\n        \"what_you_learn\": [\n            \"loem\"\n        ],\n        \"urls\": [\n            {\n                \"url\": \"http://example.com/video1\",\n                \"label\": \"Intro\",\n                \"platform\": \"Youtube\",\n                \"creator\": \"John Doe\",\n                \"duration\": \"10:00\",\n                \"deadline\": \"2026-12-31\",\n                \"video_id\": \"b5988a9b-9658-4e2b-a7f0-04162c32207d\",\n                \"note\": \"Watch carefully\"\n            }\n        ],\n        \"id\": \"a0fe1372-6370-4a6d-b467-6eacf3008f5e\",\n        \"updated_at\": \"2026-02-03T15:04:44.000000Z\",\n        \"created_at\": \"2026-02-03T15:04:44.000000Z\",\n        \"cover_image_url\": \"https://api.buggyacademy.com.ng/storage/courses/cV79Un08U732y7ZfpGyqAEGhBG9V9AUeUj4PGGyw.jpg\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Purchase Course (Split)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "course_id",
+                  "value": "a0f6862a-c5d3-4d42-a7f5-1819eef10a9d",
+                  "type": "text"
+                },
+                {
+                  "key": "payment_method",
+                  "value": "split",
+                  "type": "text",
+                  "description": "split/bug/paystack"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/courses/purchase",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses",
+                "purchase"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/courses/{{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses",
+                "{{course_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "_method",
+                  "value": "PUT",
+                  "type": "text",
+                  "description": "Method spoofing for file upload support in Laravel"
+                },
+                {
+                  "key": "title",
+                  "value": "Intro to React v2",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "59.99",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/courses/{{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses",
+                "{{course_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/courses/{{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "courses",
+                "{{course_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Announcement",
+      "item": [
+        {
+          "name": "Create announcement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "43|z6uyAvYZ4srGlOi8uHWybYiaJ2YUv5nzAIKLtV5af901a535",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"announcement_header\": \"resumption update\",\r\n  \"announcement_body\": \"The system will be down for maintenance.\",\r\n  \"date_from\": \"2026-01-10\",\r\n  \"date_to\": \"2026-01-12\",\r\n  \"priority\": \"medium\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{localurl}}/api/announcements",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "announcements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all announcement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "43|z6uyAvYZ4srGlOi8uHWybYiaJ2YUv5nzAIKLtV5af901a535",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{localurl}}/api/announcements",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "announcements"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get each assignment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "43|z6uyAvYZ4srGlOi8uHWybYiaJ2YUv5nzAIKLtV5af901a535",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{localurl}}/api/announcements/2",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "announcements",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update each announcement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "43|z6uyAvYZ4srGlOi8uHWybYiaJ2YUv5nzAIKLtV5af901a535",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"announcement_header\": \"holiday\",\r\n  \"announcement_body\": \"The system will be down for maintenance.\",\r\n  \"date_from\": \"2026-01-10\",\r\n  \"date_to\": \"2026-01-12\",\r\n  \"priority\": \"high\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{localurl}}/api/announcements/2",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "announcements",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete each announcement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "45|a69GAxvzWTWWvzow82RAddkb75fKUBTbFEAsrH1uc55a9529",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{localurl}}/api/announcements/2",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "announcements",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "item": [
+        {
+          "name": "Tutor leader board",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "227|Hf5NiEu9X5H7RAVwURtOcDvGBfyaPKaXasaICoZ76edac295",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{localurl}}/api/tutor/8/top-student",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "tutor",
+                "8",
+                "top-student"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin leaderboard",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "228|8yLevPPAMXUWIzfPOYjP7V4hifwEVZcbooe6BXSk70898c4a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{localurl}}/api/leaderboard",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "leaderboard"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "mark attendance",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "16|DzdtEgwOUppFuX8QxfwWPIGUN05JTTAPMUg0Pw5W3a2270fa",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"lesson_id\": 3\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{localurl}}/api/attendance/mark",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "attendance",
+                "mark"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get each student attendance history",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "17|koiwdWZCIy1EMvUAb9bCBlGLRnyZ0IIuldvztQLAb1283a12",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{localurl}}/api/attendance/my",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "attendance",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get each lesson attendance",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "17|koiwdWZCIy1EMvUAb9bCBlGLRnyZ0IIuldvztQLAb1283a12",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{localurl}}/api/attendance/lesson/2",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "attendance",
+                "lesson",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tutor getting student attendance",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "18|wyNGSUSs8pDOgsG4N1Xz6pEjdH3SIGavVHbHV9Vi3691e321",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{localurl}}/api/yourstudent_attendance",
+              "host": [
+                "{{localurl}}"
+              ],
+              "path": [
+                "api",
+                "yourstudent_attendance"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

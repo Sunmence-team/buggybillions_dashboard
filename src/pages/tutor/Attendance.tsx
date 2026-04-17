@@ -1,322 +1,369 @@
-import React, { useEffect, useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { HiUserGroup } from "react-icons/hi2";
-import { useUser } from "../../context/UserContext";
+import { useEffect, useState } from "react";
 import api from "../../helpers/api";
+import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
 
-/* ================= TYPES ================= */
-type Lesson = {
-  id: number;
-  day: string;
-  topic: string;
-  introduction: string;
-  resources: string | null;
-};
+interface WeeklyLesson {
+  id?: number;
+  day?: string;
+  topic?: string;
+  course_id?: string;
+  course?: { title: string; stack?: { title: string } };
+}
 
-type Student = {
+interface StudentClass {
+  id: number;
+  name: string;
+  course?: { title: string };
+}
+
+interface Student {
   id: number;
   fullname: string;
-  bug_id: string;
   username: string;
-};
+  email: string;
+}
 
-/* ================= COMPONENT ================= */
-const Attendance: React.FC = () => {
-  const { user, token } = useUser();
-  const tutorId = user?.id;
+interface AttendanceRecord {
+  id: number;
+  user_id: number;
+  lesson_id: number;
+  date: string;
+  time_in: string | null;
+  status: string;
+  created_at: string;
+  student: {
+    id: number;
+    fullname: string;
+    username: string;
+    email: string;
+  };
+}
 
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [expandedLesson, setExpandedLesson] = useState<number | null>(null);
-  const [attendance, setAttendance] = useState<Record<number, number[]>>({}); // lessonId -> array of present student IDs
-  
+interface AttendanceDay {
+  date: string;
+  total_students: number;
+  total_present: number;
+  total_absent: number;
+  records: AttendanceRecord[];
+}
+
+interface AttendanceHistory {
+  tutor_id: number;
+  attendance: AttendanceDay[];
+}
+
+const Attendance = () => {
+  const { token, user } = useUser();
+  const [weeklyLessons, setWeeklyLessons] = useState<WeeklyLesson[]>([]);
   const [loadingLessons, setLoadingLessons] = useState(false);
+  const [studentClasses, setStudentClasses] = useState<StudentClass[]>([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
-  const [savingStudent, setSavingStudent] = useState<number | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [selectedLessonId, setSelectedLessonId] = useState("");
+  const [absentStudents, setAbsentStudents] = useState<number[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceHistory | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
-  /* ================= FETCH LESSONS ================= */
-  const fetchLessons = async () => {
-    if (!token || !tutorId) return;
-    setLoadingLessons(true);
-
-    try {
-      const response = await api.get(`/api/tutors/${tutorId}/weekly-lessons`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        const lessonsData = response.data.lessons;
-        
-        if (!lessonsData || typeof lessonsData !== 'object') {
-          setLessons([]);
-          return;
-        }
-
-        const flattenedLessons = Object.keys(lessonsData).flatMap(
-          date => lessonsData[date]
-        );
-
-        const sortedLessons = flattenedLessons.sort((a, b) => {
-          const dayA = parseInt(a.day) || 0;
-          const dayB = parseInt(b.day) || 0;
-          return dayA - dayB;
-        });
-
-        setLessons(sortedLessons);
-      }
-    } catch (error: any) {
-      console.error("Failed to fetch lessons", error);
-      toast.error("Failed to load lessons");
-    } finally {
-      setLoadingLessons(false);
-    }
-  };
-
-  /* ================= FETCH STUDENTS ================= */
-  const fetchStudents = async () => {
-    if (!token || !tutorId) return;
-    setLoadingStudents(true);
-
-    try {
-      const res = await api.get(`/api/tutors/${tutorId}/students`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setStudents(res.data?.students || []);
-    } catch (error: any) {
-      console.error("Failed to fetch students", error);
-      toast.error("Failed to load students");
-    } finally {
-      setLoadingStudents(false);
-    }
-  };
-
-  /* ================= FETCH ATTENDANCE FOR LESSON ================= */
-  const fetchAttendanceForLesson = async (lessonId: number) => {
-    try {
-      const res = await api.get(`/api/attendance/lesson/${lessonId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.data?.attendance && Array.isArray(res.data.attendance)) {
-        // Extract IDs of students who are present
-        const presentStudentIds = res.data.attendance
-          .filter((item: any) => item.status === "present")
-          .map((item: any) => item.student.id);
-
-        setAttendance(prev => ({
-          ...prev,
-          [lessonId]: presentStudentIds
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to fetch attendance", error);
-      // Don't show error toast, just initialize empty
-      setAttendance(prev => ({
-        ...prev,
-        [lessonId]: []
-      }));
-    }
-  };
-
-  /* ================= INITIAL FETCH ================= */
   useEffect(() => {
-    if (tutorId && token) {
-      fetchLessons();
-      fetchStudents();
+    if (token && user?.id) {
+      setLoadingLessons(true);
+      api.get(`/api/tutors/${user.id}/weekly-lessons`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => {
+          console.log("Weekly lessons response:", res.data);
+          const lessonsData = res.data?.lessons || {};
+          const flatLessons: WeeklyLesson[] = [];
+          
+          Object.values(lessonsData).forEach((dateLessons: any) => {
+            if (Array.isArray(dateLessons)) {
+              flatLessons.push(...dateLessons);
+            }
+          });
+          
+          setWeeklyLessons(flatLessons);
+        })
+        .catch((err) => console.error("Failed to fetch lessons", err))
+        .finally(() => setLoadingLessons(false));
     }
-  }, [tutorId, token]);
+  }, [token, user?.id]);
 
-  /* ================= TOGGLE ACCORDION ================= */
-  const toggleAccordion = (lessonId: number) => {
-    if (expandedLesson === lessonId) {
-      setExpandedLesson(null);
-    } else {
-      setExpandedLesson(lessonId);
-      if (!attendance[lessonId]) {
-        fetchAttendanceForLesson(lessonId);
-      }
+  useEffect(() => {
+    if (token) {
+      setLoadingClasses(true);
+      api.get("/api/classes", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => {
+          console.log("Classes response:", res.data);
+          setStudentClasses(res.data || []);
+        })
+        .catch((err) => console.error("Failed to fetch classes", err))
+        .finally(() => setLoadingClasses(false));
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token && selectedClassId) {
+      setLoadingStudents(true);
+      setStudents([]);
+      setAbsentStudents([]);
+      api.get(`/api/classes/${selectedClassId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => {
+          console.log("Class details response:", res.data);
+          setStudents(res.data?.students || []);
+        })
+        .catch((err) => console.error("Failed to fetch students", err))
+        .finally(() => setLoadingStudents(false));
+    }
+  }, [token, selectedClassId]);
+
+  useEffect(() => {
+    if (token) {
+      fetchAttendanceHistory();
+    }
+  }, [token]);
+
+  const fetchAttendanceHistory = async () => {
+    if (!token) return;
+    setLoadingHistory(true);
+    try {
+      const res = await api.get("/api/yourstudent_attendance", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAttendanceHistory(res.data);
+    } catch (err) {
+      console.error("Failed to fetch attendance history", err);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
-  /* ================= TOGGLE STUDENT ATTENDANCE - SAVES IMMEDIATELY ================= */
-  const toggleStudentAttendance = async (lessonId: number, studentId: number) => {
-    setSavingStudent(studentId);
-    
+  const getCourseName = (courseId?: string) => {
+    if (!courseId) return "-";
+    return courseId;
+  };
+
+  const getLessonDisplay = (lesson: WeeklyLesson) => {
+    const courseName = getCourseName(lesson.course_id);
+    return `${lesson.day} - ${lesson.topic}`;
+  };
+
+  const getLessonName = (lessonId: number) => {
+    const lesson = weeklyLessons.find(l => l.id === lessonId);
+    return lesson ? getLessonDisplay(lesson) : `Lesson ${lessonId}`;
+  };
+
+  const getClassName = (classId: number) => {
+    const cls = studentClasses.find(c => c.id === classId);
+    return cls?.name || `Class ${classId}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "present": return "bg-green-100 text-green-700";
+      case "absent": return "bg-red-100 text-red-700";
+      default: return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const toggleAbsent = (studentId: number) => {
+    setAbsentStudents((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!token) return;
+    if (!selectedLessonId) {
+      toast.error("Please select a lesson");
+      return;
+    }
+    if (!selectedClassId) {
+      toast.error("Please select a class");
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      // Call backend immediately - exactly as backend expects
-      await api.post("/api/attendance/mark", {
-        lesson_id: lessonId,
-        student_id: studentId
+      await api.post("/api/attendance/mark-class", {
+        lesson_id: parseInt(selectedLessonId),
+        student_class_id: parseInt(selectedClassId),
+        absent_students: absentStudents,
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      // Update local state after successful save
-      setAttendance(prev => {
-        const currentPresent = prev[lessonId] || [];
-        const isPresent = currentPresent.includes(studentId);
-        
-        const updatedPresent = isPresent
-          ? currentPresent.filter(id => id !== studentId) // Remove if present
-          : [...currentPresent, studentId]; // Add if absent
-        
-        return {
-          ...prev,
-          [lessonId]: updatedPresent
-        };
-      });
-
-      toast.success("Attendance marked!");
+      toast.success("Attendance marked successfully!");
+      setAbsentStudents([]);
+      setSelectedLessonId("");
+      setSelectedClassId("");
+      setStudents([]);
+      fetchAttendanceHistory();
     } catch (error: any) {
-      console.error("Failed to mark attendance", error);
       toast.error(error.response?.data?.message || "Failed to mark attendance");
     } finally {
-      setSavingStudent(null);
+      setSubmitting(false);
     }
   };
 
-  /* ================= CHECK IF STUDENT IS PRESENT ================= */
-  const isStudentPresent = (lessonId: number, studentId: number): boolean => {
-    const presentIds = attendance[lessonId] || [];
-    return presentIds.includes(studentId);
-  };
-
-  /* ================= STATS FOR LESSON ================= */
-  const getLessonStats = (lessonId: number) => {
-    const presentCount = (attendance[lessonId] || []).length;
-    const absentCount = students.length - presentCount;
-    return { present: presentCount, absent: absentCount };
-  };
-
-  if (!tutorId) {
-    return (
-      <p className="text-center py-10 text-red-500">
-        Tutor not authenticated
-      </p>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* ================= HEADER ================= */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-purple">Mark Attendance</h1>
-        <p className="text-sm text-gray-500">
-          Total Lessons: {lessons.length} | Total Students: {students.length}
-        </p>
+    <div className="w-full space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-tetiary">Mark Attendance</h1>
+        <p className="text-gray-500">Mark student attendance for your class</p>
       </div>
 
-      {/* ================= LOADING ================= */}
-      {(loadingLessons || loadingStudents) && (
-        <div className="text-center py-10">
-          <p className="text-gray-500">Loading data...</p>
-        </div>
-      )}
-
-      {/* ================= NO DATA ================= */}
-      {!loadingLessons && !loadingStudents && lessons.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-gray-500">No lessons found</p>
-        </div>
-      )}
-
-      {/* ================= ACCORDION LESSONS ================= */}
-      <div className="space-y-4">
-        {lessons.map((lesson) => {
-          const isExpanded = expandedLesson === lesson.id;
-          const stats = getLessonStats(lesson.id);
-
-          return (
-            <div
-              key={lesson.id}
-              className="bg-white shadow-md rounded-lg border border-gray-200 overflow-hidden"
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Student Class</label>
+            <select
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
             >
-              {/* ACCORDION HEADER */}
-              <button
-                onClick={() => toggleAccordion(lesson.id)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition"
-              >
-                <div className={`text-left ${isExpanded ? "w-3/4" : ""}`}>
-                  <div className="flex flex-col-reverse items-start gap-1">
-                    <h3 className="font-semibold text-lg text-gray-800">
-                      {lesson.topic}
-                    </h3>
-                    <div className="bg-purple text-white rounded-md flex items-center px-3 text-sm py-1 justify-center font-bold">
-                    {lesson.day}
-                  </div>
-                  </div>
-                  <p className="text-sm text-gray-500">{lesson.introduction}</p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {isExpanded && (
-                    <div className="flex gap-3 text-sm">
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                        Present: {stats.present}
-                      </span>
-                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full">
-                        Absent: {stats.absent}
-                      </span>
-                    </div>
-                  )}
-                  {isExpanded ? (
-                    <FaChevronUp className="text-gray-400" />
-                  ) : (
-                    <FaChevronDown className="text-gray-400" />
-                  )}
-                </div>
-              </button>
-
-              {/* ACCORDION CONTENT */}
-              {isExpanded && (
-                <div className="px-6 py-4 bg-gray-50">
-                  {students.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No students found</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {students.map((student) => {
-                        const isPresent = isStudentPresent(lesson.id, student.id);
-                        const isSaving = savingStudent === student.id;
-
-                        return (
-                          <div
-                            key={student.id}
-                            className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple hover:shadow-sm transition"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                <HiUserGroup className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-800">{student.fullname}</p>
-                                <p className="text-sm text-gray-500">{student.bug_id}</p>
-                              </div>
-                            </div>
-
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={isPresent}
-                                onChange={() => toggleStudentAttendance(lesson.id, student.id)}
-                                disabled={isSaving}
-                                className="w-5 h-5 text-purple rounded focus:ring-purple disabled:opacity-50"
-                              />
-                              <span className={`text-sm font-medium ${isPresent ? "text-green-600" : "text-gray-400"}`}>
-                                {isSaving ? "Saving..." : isPresent ? "Present" : "Absent"}
-                              </span>
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+              <option value="">Select a class</option>
+              {loadingClasses ? (
+                <option value="">Loading classes...</option>
+              ) : (
+                studentClasses.map((cls) => (
+                  <option key={cls.id} value={cls.id}>
+                    {cls.name} {cls.course && `(${cls.course.title})`}
+                  </option>
+                ))
               )}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lesson</label>
+            <select
+              value={selectedLessonId}
+              onChange={(e) => setSelectedLessonId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            >
+              <option value="">Select a lesson</option>
+              {loadingLessons ? (
+                <option value="">Loading lessons...</option>
+              ) : (
+                weeklyLessons.map((lesson, index) => (
+                  <option key={lesson.id || index} value={lesson.id}>
+                    {getLessonDisplay(lesson)}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+        </div>
+
+        {loadingStudents && (
+          <p className="text-gray-500 text-center py-4">Loading students...</p>
+        )}
+
+        {!loadingStudents && students.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Absent Students ({absentStudents.length} selected)
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {students.map((student) => (
+                <label
+                  key={student.id}
+                  className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition ${
+                    absentStudents.includes(student.id)
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={absentStudents.includes(student.id)}
+                    onChange={() => toggleAbsent(student.id)}
+                    className="w-4 h-4 accent-purple"
+                  />
+                  <span className="text-sm font-medium">{student.username || student.fullname}</span>
+                </label>
+              ))}
             </div>
-          );
-        })}
+          </div>
+        )}
+
+        {!loadingStudents && selectedClassId && students.length === 0 && (
+          <p className="text-gray-500 text-center py-4">No students in this class</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-purple text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition disabled:opacity-50"
+        >
+          {submitting ? "Marking..." : "Mark Attendance"}
+        </button>
+      </form>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold mb-4 text-gray-800">Attendance History</h2>
+        
+        {loadingHistory ? (
+          <p className="text-gray-500 text-center py-4">Loading...</p>
+        ) : !attendanceHistory?.attendance || attendanceHistory.attendance.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">No attendance records yet</p>
+        ) : (
+          <div className="space-y-6">
+            {attendanceHistory.attendance.map((day, dayIndex) => (
+              <div key={dayIndex}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-purple">{day.date}</h3>
+                  <div className="flex gap-3 text-sm">
+                    <span className="text-green-600">Present: {day.total_present}</span>
+                    <span className="text-red-600">Absent: {day.total_absent}</span>
+                    <span className="text-gray-500">Total: {day.total_students}</span>
+                  </div>
+                </div>
+                <div className="overflow-x-auto no-scrollbar">
+                  <table className="w-full min-w-[700px]">
+                    <thead>
+                      <tr className="bg-[#ECFFFC] rounded-xl">
+                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-l-xl">Student</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Email</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Lesson</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Time In</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-r-xl">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {day.records.map((record, recordIndex) => (
+                        <tr key={record.id || recordIndex} className="h-12 border-b border-black/10 hover:bg-gray-50 transition">
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            <div className="font-medium">{record.student?.fullname || record.student?.username || "-"}</div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{record.student?.email || "-"}</td>
+                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{getLessonName(record.lesson_id)}</td>
+                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{record.time_in || "-"}</td>
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
+                              {record.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

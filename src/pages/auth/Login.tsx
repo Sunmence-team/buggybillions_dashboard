@@ -32,7 +32,7 @@ const Login: React.FC = () => {
             role === "admin"
               ? "/admin/overview"
               : role === "tutor"
-                ? "/tutor/dashboard"
+                ? "/tutor/weekly-lessons"
                 : "/student/overview"
           )
         }

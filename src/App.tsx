@@ -11,19 +11,15 @@ import Timetable from "./pages/student/Timetable";
 import StudentCurriculm from "./pages/student/StudentCurriculm";
 import StudentAssignments from "./pages/student/StudentAssignments";
 
-import Dashboard from "./pages/tutor/Dashboard";
-import Curriculum from "./pages/tutor/Curriculum";
-
-import Student from "./pages/tutor/Student";
+import WeeklyLessons from "./pages/tutor/WeeklyLessons";
 import Assignment from "./pages/tutor/Assignment";
-import TutorAnnouncement from "./pages/tutor/TutorAnnouncement";
+import Attendance from "./pages/tutor/Attendance";
+import GradeAssignment from "./pages/tutor/GradeAssignment";
+import TutorProfile from "./pages/tutor/TutorProfile";
 
 import AdminOverview from "./pages/admin/Overview";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ManageTutors from "./pages/admin/ManageTutors";
-import CreateLessonForm from "./components/forms/CreateLessonForm";
-import Attendance from "./pages/tutor/Attendance";
-import TutorProfile from "./pages/tutor/TutorProfile";
 import Profile from "./pages/student/StudentProfile";
 import ProfileSetUp from "./pages/auth/ProfileSetUp";
 import { useUser } from "./context/UserContext";
@@ -69,10 +65,10 @@ function App() {
             <MainLayout child={<StudentAssignments />} heading={"My Assignments"} />
           }
         />
-        {/* <Route
+        <Route
           path="/student/timetable"
           element={<MainLayout child={<Timetable />} heading={"Heading"} />}
-        /> */}
+        />
         <Route
           path="/student/studentprofile"
           element={
@@ -82,51 +78,52 @@ function App() {
 
         {/* Tutor */}
         <Route
-          path="/tutor/dashboard"
+          path="/tutor/weekly-lessons"
           element={
             <MainLayout
-              child={<Dashboard />}
-              heading={"Tutor's Dashboard"}
-              subText={"Manage your course and student progress"}
+              child={<WeeklyLessons />}
+              heading={"Create Weekly Lessons"}
             />
           }
         />
         <Route
-          path="/tutor/curriculum"
-          element={<MainLayout child={<Curriculum />} heading={"My Curriculum"} />}
-        />
-        <Route
-          path="/tutor/curriculum/lessonForm"
+          path="/tutor/assignment"
           element={
-            <MainLayout child={<CreateLessonForm />} heading={"CreateLesson"} />
+            <MainLayout
+              child={<Assignment />}
+              heading={"Create Assignment"}
+            />
           }
         />
         <Route
           path="/tutor/attendance"
-          element={<MainLayout child={<Attendance />} heading={"My student's Attendance"} />}
-        />
-        
-        <Route
-          path="/tutor/tutorprofile"
           element={
-            <MainLayout child={<TutorProfile />} heading={"Tutor's Profile"} />
+            <MainLayout
+              child={<Attendance />}
+              heading={"Mark Attendance"}
+            />
           }
         />
         <Route
-          path="/tutor/student"
-          element={<MainLayout child={<Student />} heading={"My Students"} />}
-        />
-        <Route
-          path="/tutor/tutorannouncement"
+          path="/tutor/grade"
           element={
-            <MainLayout child={<TutorAnnouncement />} heading={"Announcemwnt"} />
+            <MainLayout
+              child={<GradeAssignment />}
+              heading={"Grade Assignment"}
+            />
           }
         />
         <Route
-          path="/tutor/assignment"
-          element={<MainLayout child={<Assignment />} heading={"Student's Assignment"} />}
+          path="/tutor/profile"
+          element={
+            <MainLayout
+              child={<TutorProfile />}
+              heading={"Tutor Profile"}
+            />
+          }
         />
 
+        {/* Admin */}
         <Route
           path="/admin/overview"
           element={
@@ -148,28 +145,24 @@ function App() {
           element={
             <MainLayout child={<ManageTutors />} 
             heading={"Manage All Tutors"} 
-            subText="Easily manage all Tutors"/>
+            subText="Easily manage all Tutors"
+            />
           }
         />
         <Route
           path="/admin/managestacks"
           element={
-            <MainLayout child={<ManageStacks />} 
-            heading={"Manage All Stacks"} 
-            subText="Easily manage all Stacks"/>
+            <MainLayout child={<ManageStacks />} heading={"Manage All Stacks"} />
           }
         />
         <Route
-          path="/admin/managecourse"
+          path="/admin/managecourses"
           element={
-            <MainLayout child={<ManageCourses />} 
-            heading={"Manage All Courses"} 
-            subText="Easily manage all Courses"/>
+            <MainLayout child={<ManageCourses />} heading={"Manage All Courses"} />
           }
         />
-      
       </Routes>
-    </>
+      </>
   );
 }
 
