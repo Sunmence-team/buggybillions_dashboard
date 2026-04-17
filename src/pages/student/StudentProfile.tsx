@@ -59,12 +59,13 @@ const StudentProfile: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ReadOnlyInput label="Full Name" value={user.fullname} />
+            <ReadOnlyInput label="Bug ID" value={user.bug_id} />
             <ReadOnlyInput label="Email" value={user.email} />
             <ReadOnlyInput label="Phone Number" value={user.mobile} />
             <ReadOnlyInput label="Username" value={user.username} />
             <ReadOnlyInput label="Stack" value={user.stack} />
             <ReadOnlyInput label="Department" value={user.department} />
-            <ReadOnlyInput label="Bug ID" value={user.bug_id} />
+            
           </div>
         </div>
       </div>

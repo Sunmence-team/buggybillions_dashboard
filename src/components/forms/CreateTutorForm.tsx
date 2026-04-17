@@ -24,13 +24,17 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
     password: "",
     department: "",
     stack: "",
+    class: "",
   });
 
   const [stacks, setStacks] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [loadingStacks, setLoadingStacks] = useState(false);
+  const [loadingClasses, setLoadingClasses] = useState(false);
 
   useEffect(() => {
     fetchStacks();
+    fetchClasses();
   }, []);
 
   useEffect(() => {
@@ -43,6 +47,7 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
         password: initialData.password || "",
         department: initialData.department || "",
         stack: initialData.stack || initialData.stack_id || "",
+        class: initialData.class || initialData.class_id || "",
       });
     }
   }, [initialData]);
@@ -67,6 +72,26 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
     }
   };
 
+  const fetchClasses = async () => {
+    setLoadingClasses(true);
+    try {
+      const response = await api.get("/api/classes");
+      let classesData = [];
+      if (response.data?.classes && Array.isArray(response.data.classes)) {
+        classesData = response.data.classes;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        classesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        classesData = response.data;
+      }
+      setClasses(classesData);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    } finally {
+      setLoadingClasses(false);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -83,6 +108,7 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
     const submitData = {
       ...formData,
       stack: formData.stack, // This will be the stack_id
+      class: formData.class || undefined, // Optional class_id
       role: "tutor"
     };
     onSubmit(submitData);
@@ -189,6 +215,26 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
             {stacks.map((stack) => (
               <option key={stack.id} value={stack.id}>
                 {stack.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">Class</label>
+          <select
+            name="class"
+            value={formData.class}
+            onChange={handleChange}
+            disabled={readOnly || isLoading || loadingClasses}
+            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
+          >
+            <option value="">
+              {loadingClasses ? "Loading classes..." : "Select Class (Optional)"}
+            </option>
+            {classes.map((cls) => (
+              <option key={cls.id} value={cls.id}>
+                {cls.name || cls.title || `Class ${cls.id}`}
               </option>
             ))}
           </select>
