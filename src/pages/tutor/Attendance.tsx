@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../../helpers/api";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
+import { Skeleton, TableSkeleton, FormSkeleton } from "../../components/ui/Skeleton";
 
 interface WeeklyLesson {
   id?: number;
@@ -75,16 +77,13 @@ const Attendance = () => {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => {
-          console.log("Weekly lessons response:", res.data);
           const lessonsData = res.data?.lessons || {};
           const flatLessons: WeeklyLesson[] = [];
-          
           Object.values(lessonsData).forEach((dateLessons: any) => {
             if (Array.isArray(dateLessons)) {
               flatLessons.push(...dateLessons);
             }
           });
-          
           setWeeklyLessons(flatLessons);
         })
         .catch((err) => console.error("Failed to fetch lessons", err))
@@ -99,7 +98,6 @@ const Attendance = () => {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => {
-          console.log("Classes response:", res.data);
           setStudentClasses(res.data || []);
         })
         .catch((err) => console.error("Failed to fetch classes", err))
@@ -116,7 +114,6 @@ const Attendance = () => {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => {
-          console.log("Class details response:", res.data);
           setStudents(res.data?.students || []);
         })
         .catch((err) => console.error("Failed to fetch students", err))
@@ -215,156 +212,230 @@ const Attendance = () => {
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-tetiary">Mark Attendance</h1>
-        <p className="text-gray-500">Mark student attendance for your class</p>
-      </div>
+    <div className="w-full space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold text-tetiary">Mark Attendance</h1>
+        <p className="text-gray-500 mt-1">Track and manage student attendance records</p>
+      </motion.div>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Student Class</label>
-            <select
-              value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select a class</option>
-              {loadingClasses ? (
-                <option value="">Loading classes...</option>
-              ) : (
-                studentClasses.map((cls) => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.name} {cls.course && `(${cls.course.title})`}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Mark New Attendance</h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Lesson</label>
-            <select
-              value={selectedLessonId}
-              onChange={(e) => setSelectedLessonId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select a lesson</option>
-              {loadingLessons ? (
-                <option value="">Loading lessons...</option>
-              ) : (
-                weeklyLessons.map((lesson, index) => (
-                  <option key={lesson.id || index} value={lesson.id}>
-                    {getLessonDisplay(lesson)}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-        </div>
+          {loadingClasses && loadingLessons ? (
+            <FormSkeleton />
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Student Class</label>
+                  <select
+                    value={selectedClassId}
+                    onChange={(e) => setSelectedClassId(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent transition-all duration-200"
+                    required
+                  >
+                    <option value="">Select a class</option>
+                    {studentClasses.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name} {cls.course && `(${cls.course.title})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-        {loadingStudents && (
-          <p className="text-gray-500 text-center py-4">Loading students...</p>
-        )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Lesson</label>
+                  <select
+                    value={selectedLessonId}
+                    onChange={(e) => setSelectedLessonId(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent transition-all duration-200"
+                    required
+                  >
+                    <option value="">Select a lesson</option>
+                    {weeklyLessons.map((lesson, index) => (
+                      <option key={lesson.id || index} value={lesson.id}>
+                        {getLessonDisplay(lesson)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-        {!loadingStudents && students.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Absent Students ({absentStudents.length} selected)
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {students.map((student) => (
-                <label
-                  key={student.id}
-                  className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition ${
-                    absentStudents.includes(student.id)
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-200 hover:bg-gray-50"
-                  }`}
+              <AnimatePresence>
+                {loadingStudents && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    <Skeleton className="h-4 w-48" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[1, 2, 3, 4].map((i) => (
+                        <Skeleton key={i} className="h-14 rounded-xl" />
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!loadingStudents && students.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <input
-                    type="checkbox"
-                    checked={absentStudents.includes(student.id)}
-                    onChange={() => toggleAbsent(student.id)}
-                    className="w-4 h-4 accent-purple"
-                  />
-                  <span className="text-sm font-medium">{student.username || student.fullname}</span>
-                </label>
-              ))}
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Select Absent Students ({absentStudents.length} selected)
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {students.map((student) => (
+                      <motion.label
+                        key={student.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
+                          absentStudents.includes(student.id)
+                            ? "border-red-300 bg-red-50"
+                            : "border-gray-200 bg-gray-50 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={absentStudents.includes(student.id)}
+                          onChange={() => toggleAbsent(student.id)}
+                          className="w-5 h-5 rounded border-gray-300 text-purple focus:ring-purple"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          {student.username || student.fullname}
+                        </span>
+                      </motion.label>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {!loadingStudents && selectedClassId && students.length === 0 && (
+                <p className="text-gray-500 text-center py-8">No students in this class</p>
+              )}
+
+              <motion.button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                whileHover={{ scale: submitting ? 1 : 1.02 }}
+                whileTap={{ scale: submitting ? 1 : 0.98 }}
+                className="w-full py-4 bg-purple text-white font-semibold rounded-xl shadow-lg shadow-purple/25 hover:shadow-purple/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Marking...
+                  </span>
+                ) : (
+                  "Mark Attendance"
+                )}
+              </motion.button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      </motion.div>
 
-        {!loadingStudents && selectedClassId && students.length === 0 && (
-          <p className="text-gray-500 text-center py-4">No students in this class</p>
-        )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8"
+      >
+        <h2 className="text-lg font-semibold text-gray-900 mb-6">Attendance History</h2>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-purple text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition disabled:opacity-50"
-        >
-          {submitting ? "Marking..." : "Mark Attendance"}
-        </button>
-      </form>
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">Attendance History</h2>
-        
         {loadingHistory ? (
-          <p className="text-gray-500 text-center py-4">Loading...</p>
+          <TableSkeleton rows={3} cols={5} />
         ) : !attendanceHistory?.attendance || attendanceHistory.attendance.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No attendance records yet</p>
+          <div className="text-center py-12">
+            <p className="text-gray-500">No attendance records yet</p>
+          </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {attendanceHistory.attendance.map((day, dayIndex) => (
-              <div key={dayIndex}>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-purple">{day.date}</h3>
-                  <div className="flex gap-3 text-sm">
-                    <span className="text-green-600">Present: {day.total_present}</span>
-                    <span className="text-red-600">Absent: {day.total_absent}</span>
-                    <span className="text-gray-500">Total: {day.total_students}</span>
+              <motion.div
+                key={day.date}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: dayIndex * 0.1 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-purple text-lg">{day.date}</h3>
+                  <div className="flex gap-4 text-sm">
+                    <span className="text-green-600 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      Present: {day.total_present}
+                    </span>
+                    <span className="text-red-600 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                      Absent: {day.total_absent}
+                    </span>
+                    <span className="text-gray-500">
+                      Total: {day.total_students}
+                    </span>
                   </div>
                 </div>
-                <div className="overflow-x-auto no-scrollbar">
-                  <table className="w-full min-w-[700px]">
+
+                <div className="overflow-x-auto rounded-xl border border-gray-100">
+                  <table className="w-full">
                     <thead>
-                      <tr className="bg-[#ECFFFC] rounded-xl">
-                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-l-xl">Student</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Email</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Lesson</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Time In</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-r-xl">Status</th>
+                      <tr className="bg-[#ECFFFC]">
+                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-l-xl">Student</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lesson</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Time In</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-r-xl">Status</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-gray-100">
                       {day.records.map((record, recordIndex) => (
-                        <tr key={record.id || recordIndex} className="h-12 border-b border-black/10 hover:bg-gray-50 transition">
-                          <td className="px-4 py-3 text-sm whitespace-nowrap">
-                            <div className="font-medium">{record.student?.fullname || record.student?.username || "-"}</div>
+                        <motion.tr
+                          key={record.id || recordIndex}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2, delay: recordIndex * 0.05 }}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-5 py-4">
+                            <span className="font-medium text-gray-900">
+                              {record.student?.fullname || record.student?.username || "-"}
+                            </span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{record.student?.email || "-"}</td>
-                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{getLessonName(record.lesson_id)}</td>
-                          <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{record.time_in || "-"}</td>
-                          <td className="px-4 py-3 text-sm whitespace-nowrap">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
+                          <td className="px-5 py-4 text-gray-500">{record.student?.email || "-"}</td>
+                          <td className="px-5 py-4 text-gray-500">{getLessonName(record.lesson_id)}</td>
+                          <td className="px-5 py-4 text-gray-500">{record.time_in || "-"}</td>
+                          <td className="px-5 py-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
                               {record.status}
                             </span>
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

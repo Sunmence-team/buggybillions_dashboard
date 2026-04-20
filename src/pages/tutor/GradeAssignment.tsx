@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../../helpers/api";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
+import { Skeleton, TableSkeleton, CardSkeleton } from "../../components/ui/Skeleton";
 
 interface AssignmentDetail {
   id: number;
@@ -104,151 +106,193 @@ const GradeAssignment = () => {
     }
   };
 
-  return (
-    <div className="w-full space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-tetiary">Grade Assignment</h1>
-        <p className="text-gray-500">View and grade student submissions</p>
-      </div>
+  const isGraded = selectedAssignment?.grade !== null && selectedAssignment?.grade !== undefined;
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">All Assignments ({assignments.length})</h2>
+  return (
+    <div className="w-full space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold text-tetiary">Grade Assignment</h1>
+        <p className="text-gray-500 mt-1">Review and grade student submissions</p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8"
+      >
+        <h2 className="text-lg font-semibold text-gray-900 mb-6">
+          All Assignments ({assignments.length})
+        </h2>
+
         {loading ? (
-          <p className="text-gray-500 text-center py-4">Loading...</p>
+          <TableSkeleton rows={5} cols={7} />
         ) : assignments.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No assignments found</p>
+          <div className="text-center py-12">
+            <p className="text-gray-500">No assignments found</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto no-scrollbar">
+          <div className="overflow-x-auto rounded-xl border border-gray-100">
             <table className="w-full min-w-[1000px]">
               <thead>
-                <tr className="bg-[#ECFFFC] rounded-xl">
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-l-xl">Assignment</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Student</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Course</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Lesson</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Class</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap">Grade</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-black/60 whitespace-nowrap rounded-r-xl">Action</th>
+                <tr className="bg-[#ECFFFC]">
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-l-xl">Assignment</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Course</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lesson</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Class</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Grade</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-r-xl">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {assignments.map((assignment, index) => (
-                  <tr 
-                    key={assignment.id || index} 
-                    className={`h-12 border-b border-black/10 hover:bg-gray-50 transition ${selectedAssignment?.id === assignment.id ? 'bg-purple/5' : ''}`}
+                  <motion.tr
+                    key={assignment.id || index}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                    className={`hover:bg-gray-50 transition-colors ${selectedAssignment?.id === assignment.id ? 'bg-purple/5' : ''}`}
                   >
-                    <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    <td className="px-5 py-4">
                       <div className="font-semibold text-purple">{assignment.assignment_name}</div>
-                      <div className="text-gray-500 text-xs max-w-xs truncate">{assignment.assignment_description}</div>
+                      <div className="text-gray-500 text-xs max-w-xs truncate mt-1">{assignment.assignment_description}</div>
                     </td>
-                    <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      <div className="font-medium">{assignment.user?.fullname || assignment.user?.username}</div>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-gray-900">{assignment.user?.fullname || assignment.user?.username}</div>
                       <div className="text-gray-500 text-xs">{assignment.user?.email}</div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{assignment.course?.title || "-"}</td>
-                    <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">
+                    <td className="px-5 py-4 text-gray-500">{assignment.course?.title || "-"}</td>
+                    <td className="px-5 py-4 text-gray-500">
                       {assignment.weekly_lesson?.day} - {assignment.weekly_lesson?.topic}
                     </td>
-                    <td className="px-4 py-3 text-sm text-black/70 whitespace-nowrap">{assignment.student_class?.name || "-"}</td>
-                    <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(assignment.status)}`}>
+                    <td className="px-5 py-4 text-gray-500">{assignment.student_class?.name || "-"}</td>
+                    <td className="px-5 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(assignment.status)}`}>
                         {assignment.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    <td className="px-5 py-4">
                       {assignment.grade !== null ? (
                         <span className="font-semibold text-purple">{assignment.grade}</span>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm whitespace-nowrap">
-                      <button
+                    <td className="px-5 py-4">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => selectAssignment(assignment)}
-                        className="px-3 py-1.5 bg-purple/10 text-purple rounded-lg text-xs font-medium hover:bg-purple/20 transition"
+                        className="px-4 py-2 bg-purple/10 text-purple rounded-lg text-xs font-semibold hover:bg-purple/20 transition-colors"
                       >
                         View
-                      </button>
+                      </motion.button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {selectedAssignment && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-tetiary">Grade Selected Assignment</h2>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedAssignment.status)}`}>
-              {selectedAssignment.status}
-            </span>
-          </div>
+      <AnimatePresence>
+        {selectedAssignment && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Assignment Details</h2>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedAssignment.status)}`}>
+                {selectedAssignment.status}
+              </span>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Assignment Name</p>
-              <p className="font-semibold text-purple">{selectedAssignment.assignment_name}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Assignment Name</p>
+                <p className="font-semibold text-purple text-lg">{selectedAssignment.assignment_name}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Description</p>
+                <p className="text-gray-700">{selectedAssignment.assignment_description || "-"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Student</p>
+                <p className="font-medium text-gray-900">{selectedAssignment.user?.fullname || selectedAssignment.user?.username}</p>
+                <p className="text-sm text-gray-500">{selectedAssignment.user?.email}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Course</p>
+                <p className="font-medium text-gray-900">{selectedAssignment.course?.title}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Lesson</p>
+                <p className="font-medium text-gray-900">{selectedAssignment.weekly_lesson?.day} - {selectedAssignment.weekly_lesson?.topic}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Class</p>
+                <p className="font-medium text-gray-900">{selectedAssignment.student_class?.name}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Created</p>
+                <p className="text-gray-700">{new Date(selectedAssignment.created_at).toLocaleDateString()}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Current Grade</p>
+                <p className="font-semibold text-lg">{selectedAssignment.grade ?? "Not graded"}</p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Description</p>
-              <p className="text-gray-700">{selectedAssignment.assignment_description || "-"}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Student</p>
-              <p className="font-medium">{selectedAssignment.user?.fullname || selectedAssignment.user?.username}</p>
-              <p className="text-sm text-gray-500">{selectedAssignment.user?.email}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Course</p>
-              <p className="font-medium">{selectedAssignment.course?.title}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Lesson</p>
-              <p className="font-medium">{selectedAssignment.weekly_lesson?.day} - {selectedAssignment.weekly_lesson?.topic}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Class</p>
-              <p className="font-medium">{selectedAssignment.student_class?.name}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Created</p>
-              <p className="text-gray-700">{new Date(selectedAssignment.created_at).toLocaleDateString()}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">Current Grade</p>
-              <p className="font-semibold">{selectedAssignment.grade ?? "Not graded"}</p>
-            </div>
-          </div>
 
-          <div className="border-t border-gray-200 pt-5 mt-5">
-            <h3 className="font-semibold mb-3 text-gray-800">Submit Grade</h3>
-            <div className="flex gap-3 max-w-md">
-              <input
-                type="number"
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                min="0"
-                max="100"
-                disabled={selectedAssignment?.grade !== null && selectedAssignment?.grade !== undefined}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                placeholder="Enter grade (0-100)"
-              />
-              <button
-                type="button"
-                onClick={handleSubmitGrade}
-                disabled={submitting || (selectedAssignment?.grade !== null && selectedAssignment?.grade !== undefined)}
-                className="px-6 py-2.5 bg-purple text-white rounded-lg font-medium hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? "Submitting..." : selectedAssignment?.grade !== null && selectedAssignment?.grade !== undefined ? "Graded" : "Submit Grade"}
-              </button>
+            <div className="border-t border-gray-100 pt-6">
+              <h3 className="font-semibold mb-4 text-gray-900">Submit Grade</h3>
+              <div className="flex gap-4 max-w-md">
+                <input
+                  type="number"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  min="0"
+                  max="100"
+                  disabled={isGraded}
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="Enter grade (0-100)"
+                />
+                <motion.button
+                  whileHover={{ scale: isGraded || submitting ? 1 : 1.02 }}
+                  whileTap={{ scale: isGraded || submitting ? 1 : 0.98 }}
+                  onClick={handleSubmitGrade}
+                  disabled={submitting || isGraded}
+                  className="px-8 py-3.5 bg-purple text-white font-semibold rounded-xl shadow-lg shadow-purple/25 hover:shadow-purple/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </span>
+                  ) : isGraded ? (
+                    "Graded"
+                  ) : (
+                    "Submit Grade"
+                  )}
+                </motion.button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,5 +1,7 @@
-import React from 'react';
-import { useUser } from '../../context/UserContext';
+import React from "react";
+import { motion } from "framer-motion";
+import { useUser } from "../../context/UserContext";
+import { FaBell, FaSearch } from "react-icons/fa";
 
 interface TopNavProps {
   heading: string;
@@ -9,31 +11,60 @@ interface TopNavProps {
 const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
   const { user, loading } = useUser();
 
-  // Prevent crash while user is loading
   if (loading) {
-    return null; // or return a loader component
+    return null;
   }
 
-  // Safely generate initials
   const initials =
     user?.fullname
       ?.split(" ")
-      .map(name => name.charAt(0))
-      .join("") || "";
+      .map((name) => name.charAt(0))
+      .join("") || user?.username?.charAt(0).toUpperCase() || "U";
 
   return (
-    <header className="bg-white lg:px-0 flex items-center justify-between w-full">
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between"
+    >
       <div>
-        <h4 className="md:text-lg font-semibold leading-6">{heading}</h4>
-        {subText && <p className="text-sm">{subText}</p>}
+        <h4 className="text-xl font-semibold text-gray-900">{heading}</h4>
+        {subText && <p className="text-sm text-gray-500 mt-0.5">{subText}</p>}
       </div>
 
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black">
-        <p className="text-white text-sm lg:text-lg text-center font-medium uppercase">
-          {initials}
-        </p>
+      <div className="flex items-center gap-4">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <FaSearch className="text-gray-500" />
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative"
+        >
+          <FaBell className="text-gray-500" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+        </motion.div>
+
+        <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm font-medium text-gray-900">
+              {user?.fullname || user?.username || "User"}
+            </p>
+            <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+          </div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="w-10 h-10 rounded-xl bg-purple text-white flex items-center justify-center font-semibold"
+          >
+            {initials}
+          </motion.div>
+        </div>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

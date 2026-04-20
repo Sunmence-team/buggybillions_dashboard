@@ -52,8 +52,11 @@ const AdminOverview: React.FC = () => {
             b.overall_grade - a.overall_grade
         );
         setLeaders(sorted);
-      } catch (error) {
-        console.error("Failed to fetch leaderboard", error);
+      } catch (error: any) {
+        if (error.response?.status !== 404) {
+          console.error("Failed to fetch leaderboard", error);
+        }
+        setLeaders([]);
       }
     };
 

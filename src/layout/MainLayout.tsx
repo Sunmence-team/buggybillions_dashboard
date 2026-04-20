@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import LeftNav from "../components/navs/LeftNav";
-import TopNav from "../components/navs/TopNav"
+import TopNav from "../components/navs/TopNav";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaBars } from "react-icons/fa";
 
@@ -13,57 +13,36 @@ interface MainLayOutProps {
 const MainLayout: React.FC<MainLayOutProps> = ({ child, heading, subText }) => {
   const mainContentRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const pageVariants = {
-    initial: {
-      opacity: 0,
-      x: -20,
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
-    },
-    exit: {
-      opacity: 0,
-      x: 20,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
-    },
-  };
 
   return (
-    <div
-      className={`w-screen h-screen overflow-hidden flex items-start bg-white`}
-    >
+    <div className="w-screen h-screen overflow-hidden flex bg-gray-50">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`lg:w-1/5 h-full w-full lg:static absolute ${
+        className={`w-72 h-full lg:static absolute z-50 ${
           isExpanded ? "top-0 left-0" : "-left-full"
-        } z-50 bg-black/70`}
+        } transition-transform duration-300`}
       >
         <LeftNav setIsExpanded={setIsExpanded} />
       </div>
-      <div className="flex-1 flex flex-col h-full w-full">
-        <div className="flex gap-2 items-center w-full overflow-hidden md:px-6 px-4 py-4 border-b border-gray-200">
+
+      <div className="flex-1 flex flex-col h-full min-w-0">
+        <div className="flex items-center gap-4 lg:pl-0 pl-4 pr-4 py-4 lg:py-0">
           <button
             type="button"
-            className="lg:hidden p-2"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            <FaBars />
+            <FaBars className="text-gray-600" />
           </button>
-          <TopNav heading={heading} subText={subText} />
+          <div className="flex-1">
+            <TopNav heading={heading} subText={subText || ""} />
+          </div>
         </div>
+
         <main
           ref={mainContentRef}
-          className={`transition-all duration-500 h-full overflow-y-auto md:px-6 px-4 no-scrollbar py-6 w-full`}
+          className="flex-1 overflow-y-auto no-scrollbar px-6 py-6"
           style={{
-            minHeight: "0",
             WebkitOverflowScrolling: "touch",
             overscrollBehaviorY: "contain",
           }}
@@ -71,15 +50,10 @@ const MainLayout: React.FC<MainLayOutProps> = ({ child, heading, subText }) => {
         >
           <AnimatePresence mode="wait">
             <motion.div
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={pageVariants as any}
-              style={{
-                minHeight: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
               {child}
             </motion.div>
