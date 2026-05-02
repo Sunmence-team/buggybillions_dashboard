@@ -3,20 +3,23 @@ import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateStudentForm from "../../components/forms/CreateStudentForm";
 import type { TableColumnProps } from "../../lib/interfaces";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
 import { formatISODateToCustom } from "../../helpers/formatterUtility";
+import ActionCell from "../../utility/ActionCell";
+
 
 const ManageStudents: React.FC = () => {
   const { token } = useUser();
+
   const [students, setStudents] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -25,16 +28,18 @@ const ManageStudents: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
-  const [openActionId, setOpenActionId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
-  // ✅ FETCH STUDENTS
+  /* =======================
+     FETCH STUDENTS
+  ======================= */
   const fetchStudents = async () => {
     if (!token) return;
 
     setIsLoading(true);
     setError(null);
+
     try {
       const response = await api.get(`/api/all_students?page=${currentPage}`, {
         headers: {
@@ -60,7 +65,9 @@ const ManageStudents: React.FC = () => {
     fetchStudents();
   }, [token, currentPage]);
 
-  // ✅ CREATE
+  /* =======================
+     CREATE
+  ======================= */
   const handleCreate = async (data: any) => {
     setIsSubmitting(true);
     try {
@@ -81,7 +88,9 @@ const ManageStudents: React.FC = () => {
     }
   };
 
-  // ✅ UPDATE (Demo or plug API later)
+  /* =======================
+     UPDATE
+  ======================= */
   const handleUpdate = async (data: any) => {
     setIsSubmitting(true);
     try {
@@ -101,7 +110,9 @@ const ManageStudents: React.FC = () => {
     }
   };
 
-  // ✅ DELETE
+  /* =======================
+     DELETE
+  ======================= */
   const handleDelete = async (student: any) => {
     setIsDeleting(true);
     try {
@@ -128,11 +139,9 @@ const ManageStudents: React.FC = () => {
     }
   };
 
-  const toggleActionMenu = (id: string) => {
-    setOpenActionId(openActionId === id ? null : id);
-  };
-
-  // ✅ TABLE COLUMNS
+  /* =======================
+     TABLE COLUMNS
+  ======================= */
   const columns: TableColumnProps[] = [
     {
       title: "Full Name",
@@ -154,6 +163,7 @@ const ManageStudents: React.FC = () => {
       title: "Class",
       key: "class",
       render: (item) => (
+        
         <span className="capitalize">
           {
             item.student_class?.name ||
@@ -174,57 +184,30 @@ const ManageStudents: React.FC = () => {
       key: "created_at",
       render: (item) => formatISODateToCustom(item.created_at),
     },
+
+    /* ✅ FIXED ACTION COLUMN */
     {
       title: "Action",
       key: "action",
       render: (item) => (
-        <div className="relative">
-          <button
-            onClick={() => toggleActionMenu(item.id)}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <BsThreeDotsVertical />
-          </button>
+        <ActionCell
+          rowId={item.id}
 
-          {openActionId === item.id && (
-            <div className="absolute right-0 mt-1 w-44 bg-white shadow-lg rounded-md border z-50">
+          onView={() => {
+            setSelectedStudent(item);
+            setModalType("view");
+          }}
 
-              <button
-                className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedStudent(item);
-                  setModalType("view");
-                  setOpenActionId(null);
-                }}
-              >
-                View Student
-              </button>
+          onEdit={() => {
+            setSelectedStudent(item);
+            setModalType("edit");
+          }}
 
-              <button
-                className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedStudent(item);
-                  setModalType("edit");
-                  setOpenActionId(null);
-                }}
-              >
-                Update Student
-              </button>
-
-              <button
-                className="block w-full px-4 py-2 text-left hover:bg-red-50 text-red-600 text-sm"
-                onClick={() => {
-                  setSelectedStudent(item);
-                  setModalType("delete");
-                  setOpenActionId(null);
-                }}
-              >
-                Delete Student
-              </button>
-
-            </div>
-          )}
-        </div>
+          onDelete={() => {
+            setSelectedStudent(item);
+            setModalType("delete");
+          }}
+        />
       ),
     },
   ];

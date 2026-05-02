@@ -1,5 +1,5 @@
 import React from "react";
-import { useUser } from "../../context/UserContext"; // make sure the path is correct
+import { useUser } from "../../context/UserContext";
 
 /* =======================
    Read-Only Input Component
@@ -19,12 +19,8 @@ const ReadOnlyInput: React.FC<ReadOnlyInputProps> = ({ label, value }) => (
 );
 
 const StudentProfile: React.FC = () => {
-  const { user } = useUser(); // Get user from context
-  const splitedFirstName = user?.fullname.split(" ")?.[0]
-  const splitedLastName = user?.fullname.split(" ")?.[1]
+  const { user } = useUser();
 
-  const splitedFirstLetterOfFirstName = splitedFirstName?.trim()[0]
-  const splitedFirstLetterOfLastName = splitedLastName?.trim()[0]
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -33,29 +29,48 @@ const StudentProfile: React.FC = () => {
     );
   }
 
+  /* =======================
+     Name initials
+  ======================= */
+  const nameParts = user?.fullname?.split(" ") || [];
+  const firstInitial = nameParts?.[0]?.[0] || "";
+  const lastInitial = nameParts?.[1]?.[0] || "";
+
+  /* =======================
+     STACK TITLE (FIXED)
+  ======================= */
+  const stackTitle = user?.stack_relation?.title || "—";
 
   return (
-    <div className=" bg-white flex justify-center px-4 py-6">
+    <div className="bg-white flex justify-center px-4 py-6">
       <div className="w-full max-w-3xl">
+
         {/* Header */}
         <h1 className="text-2xl font-semibold text-center mb-8">
           Your Profile
         </h1>
 
-        {/* Profile Pic + Name + Stack */}
+        {/* Profile */}
         <div className="flex flex-col items-center mb-10">
           <div className="w-28 h-28 rounded-full bg-purple flex items-center justify-center text-white text-3xl font-semibold">
-             {`${splitedFirstLetterOfFirstName}${splitedFirstLetterOfLastName ? splitedFirstLetterOfLastName : ""}`}
+            {`${firstInitial}${lastInitial}`}
           </div>
 
-          <h2 className="mt-4 text-[20px] font-bold text-purple/90">{user.fullname || "—"}</h2>
+          <h2 className="mt-4 text-[20px] font-bold text-purple/90">
+            {user.fullname || "—"}
+          </h2>
 
-          <p className="text-[16px] text-black capitalize">{user.stack || "—"}</p>
+          {/* ✅ STACK TITLE */}
+          <p className="text-[16px] text-black capitalize">
+            {stackTitle}
+          </p>
         </div>
 
-        {/* Personal Information */}
+        {/* Personal Info */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            Personal Information
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ReadOnlyInput label="Full Name" value={user.fullname} />
@@ -63,11 +78,14 @@ const StudentProfile: React.FC = () => {
             <ReadOnlyInput label="Email" value={user.email} />
             <ReadOnlyInput label="Phone Number" value={user.mobile} />
             <ReadOnlyInput label="Username" value={user.username} />
-            <ReadOnlyInput label="Stack" value={user.stack} />
+
+            {/* ✅ FIXED HERE */}
+            <ReadOnlyInput label="Stack" value={stackTitle} />
+
             <ReadOnlyInput label="Department" value={user.department} />
-            
           </div>
         </div>
+
       </div>
     </div>
   );
