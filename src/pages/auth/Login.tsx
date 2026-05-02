@@ -8,6 +8,7 @@ import api from "../../helpers/api";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { assests } from "../../assets/assest";
 
 const Login: React.FC = () => {
   const { login } = useUser();
@@ -34,12 +35,14 @@ const Login: React.FC = () => {
               ? "/admin/overview"
               : role === "tutor"
                 ? "/tutor/weekly-lessons"
-                : "/student/overview"
+                : "/student/overview",
           );
         }
       } catch (error: any) {
         if (error.status === 400) {
-          toast.error("Your account is not setup yet. Please complete your account setup.");
+          toast.error(
+            "Your account is not setup yet. Please complete your account setup.",
+          );
           navigate("/auth/profilesetup");
           return;
         }
@@ -47,7 +50,7 @@ const Login: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }
+    },
   });
 
   return (
@@ -56,11 +59,12 @@ const Login: React.FC = () => {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #7971EB 0%, #6B5DD3 50%, #5750BE 100%)",
-        }}
+        className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative overflow-hidden bg-[#796FAB]"
       >
+        <div className="absolute top-6 left-6 z-10">
+          <img src={assests.logo} alt="BuggyBillions logo" className="h-5" />
+        </div>
+
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
@@ -72,8 +76,10 @@ const Login: React.FC = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="relative z-10 text-center"
         >
-          <h1 className="text-6xl font-bold text-white mb-4">BuggyBillions</h1>
-          <p className="text-white/80 text-xl max-w-md">
+          <h1 className="text-[30px] font-bold text-white mb-1">
+            BuggyBillions
+          </h1>
+          <p className="text-white/80 text-[15px]">
             Sign in to continue your learning journey
           </p>
         </motion.div>
@@ -93,14 +99,25 @@ const Login: React.FC = () => {
         className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-gray-50"
       >
         <div className="w-full max-w-md">
+          <div className="mb-10 lg:hidden flex justify-center">
+            <img
+              src={assests.goodlogo}
+              alt="BuggyBillions logo"
+              className="h-5"
+            />
+          </div>
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-center mb-10"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-            <p className="text-gray-500">Enter your credentials to access your account</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome Back
+            </h2>
+            <p className="text-gray-500">
+              Enter your credentials to access your account
+            </p>
           </motion.div>
 
           <motion.form
@@ -130,7 +147,9 @@ const Login: React.FC = () => {
                 />
               </div>
               {formik.touched.bug_id && formik.errors.bug_id && (
-                <p className="mt-2 text-sm text-red-500">{formik.errors.bug_id}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {formik.errors.bug_id}
+                </p>
               )}
             </div>
 
@@ -165,7 +184,9 @@ const Login: React.FC = () => {
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p className="mt-2 text-sm text-red-500">{formik.errors.password}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {formik.errors.password}
+                </p>
               )}
             </div>
 
@@ -177,7 +198,10 @@ const Login: React.FC = () => {
                 />
                 Remember me
               </label>
-              <Link to="/" className="text-sm text-purple hover:text-purple/80 font-medium">
+              <Link
+                to="/"
+                className="text-sm text-purple hover:text-purple/80 font-medium"
+              >
                 Forgot Password?
               </Link>
             </div>
@@ -191,9 +215,25 @@ const Login: React.FC = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Signing in...
                 </span>
@@ -211,7 +251,9 @@ const Login: React.FC = () => {
           >
             <p className="text-sm text-gray-500">
               Need help? Contact{" "}
-              <span className="text-purple font-medium">support@buggybillions.com</span>
+              <span className="text-purple font-medium">
+                support@buggybillions.com
+              </span>
             </p>
           </motion.div>
         </div>

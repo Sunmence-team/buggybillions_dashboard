@@ -3,85 +3,87 @@ import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateStackForm from "../../components/forms/CreateStackForm";
 import type { TableColumnProps } from "../../lib/interfaces";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa6";
 import api from "../../helpers/api";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
+import ActionCell from "../../utility/ActionCell";
 
 const ManageStacks: React.FC = () => {
   const { token } = useUser();
+
   const [stacks, setStacks] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]); // 👈 important
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStack, setSelectedStack] = useState<any | null>(null);
   const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
-  const [openActionId, setOpenActionId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
+  // ================= FETCH STACKS =================
   const fetchStacks = async () => {
     if (!token) return;
+
     setIsLoading(true);
     setError(null);
+
     try {
-      const response = await api.get(`/api/stacks?page=${currentPage}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await api.get(`/api/stacks?page=${currentPage}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      let stacksData = [];
-      if (response.data?.stacks && Array.isArray(response.data.stacks)) {
-        stacksData = response.data.stacks;
-      } else if (response.data?.data && Array.isArray(response.data.data)) {
-        stacksData = response.data.data;
-      } else if (Array.isArray(response.data)) {
-        stacksData = response.data;
+      let data = [];
+      if (res.data?.stacks && Array.isArray(res.data.stacks)) {
+        data = res.data.stacks;
+      } else if (Array.isArray(res.data)) {
+        data = res.data;
+      } else {
+        data = res.data?.data || [];
       }
 
-      setStacks(stacksData);
-      setTotalPages(response.data.last_page || 1);
-      setTotalItems(response.data.total || stacksData.length);
-    } catch (err: any) {
-      console.error("Error fetching stacks:", err);
-      setError("Failed to load stacks. Please try again.");
+      setStacks(data);
+      setTotalPages(res.data.last_page || 1);
+      setTotalItems(res.data.total || data.length);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load stacks.");
       toast.error("Failed to load stacks.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Only needed for dropdown in CreateStackForm
+  // ================= FETCH COURSES (same style as ManageCourses) =================
   const fetchCourses = async () => {
     if (!token) return;
+
     try {
-      const response = await api.get("/api/courses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await api.get("/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      let coursesData = [];
-      if (response.data?.courses && Array.isArray(response.data.courses)) {
-        coursesData = response.data.courses;
-      } else if (response.data?.data && Array.isArray(response.data.data)) {
-        coursesData = response.data.data;
-      } else if (Array.isArray(response.data)) {
-        coursesData = response.data;
+      let data = [];
+      if (res.data?.courses && Array.isArray(res.data.courses)) {
+        data = res.data.courses;
+      } else if (Array.isArray(res.data)) {
+        data = res.data;
+      } else {
+        data = res.data?.data || [];
       }
 
-      setCourses(coursesData);
+      setCourses(data);
     } catch (err) {
-      console.warn("Unable to load course options", err);
+      console.warn("Failed to load courses", err);
     }
   };
 
@@ -90,17 +92,18 @@ const ManageStacks: React.FC = () => {
     fetchCourses();
   }, [token, currentPage]);
 
+  // ================= CREATE =================
   const handleCreate = async (data: any) => {
     if (!token) return;
+
     setIsSubmitting(true);
+
     try {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("course_id", data.courseId);
       formData.append("description", data.description);
-      if (data.image) {
-        formData.append("image", data.image);
-      }
+      if (data.image) formData.append("image", data.image);
 
       await api.post("/api/stacks", formData, {
         headers: {
@@ -113,164 +116,183 @@ const ManageStacks: React.FC = () => {
       setIsCreateModalOpen(false);
       fetchStacks();
     } catch (err: any) {
-      console.error("Error creating stack:", err);
       toast.error(err.response?.data?.message || "Failed to create stack.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ================= UPDATE =================
   const handleUpdate = async (data: any) => {
+    if (!token || !selectedStack?.id) return;
+
     setIsSubmitting(true);
+
     try {
-      setStacks((prev) =>
-        prev.map((stack) =>
-          stack.id === selectedStack.id ? { ...stack, ...data } : stack
-        )
-      );
-      toast.success("Stack updated successfully (Demo)");
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("course_id", data.courseId);
+      formData.append("description", data.description);
+      if (data.image) formData.append("image", data.image);
+
+      formData.append("_method", "PUT");
+
+      await api.post(`/api/stacks/${selectedStack.id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Stack updated successfully!");
+
       setModalType(null);
       setSelectedStack(null);
+      fetchStacks();
     } catch (err: any) {
-      console.error("Error updating stack:", err);
-      toast.error("Failed to update stack.");
+      toast.error(err.response?.data?.message || "Failed to update stack.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ================= DELETE =================
   const handleDelete = async (stack: any) => {
-    if (!stack?.id) return;
+    if (!token || !stack?.id) return;
+
     setIsDeleting(true);
+
     try {
       await api.delete(`/api/stacks/${stack.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      setStacks((prev) => prev.filter((s) => s.id !== stack.id));
+
       toast.success("Stack deleted successfully.");
+
       setModalType(null);
       setSelectedStack(null);
+
       fetchStacks();
-    } catch (err: any) {
-      console.error("Error deleting stack:", err);
-      toast.error(err.response?.data?.message || "Failed to delete stack.");
+    } catch {
+      try {
+        await api.post(
+          `/api/stacks/${stack.id}`,
+          { _method: "DELETE" },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setStacks((prev) => prev.filter((s) => s.id !== stack.id));
+
+        toast.success("Stack deleted successfully.");
+
+        setModalType(null);
+        setSelectedStack(null);
+
+        fetchStacks();
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || "Delete failed.");
+      }
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const toggleActionMenu = (id: string) => {
-    setOpenActionId(openActionId === id ? null : id);
+  // ================= ACTION HANDLERS =================
+  const handleView = (id: number) => {
+    const stack = stacks.find((s) => s.id === id);
+    if (!stack) return;
+    setSelectedStack(stack);
+    setModalType("view");
   };
 
+  const handleEdit = (id: number) => {
+    const stack = stacks.find((s) => s.id === id);
+    if (!stack) return;
+    setSelectedStack(stack);
+    setModalType("edit");
+  };
+
+  const handleDeleteClick = (id: number) => {
+    const stack = stacks.find((s) => s.id === id);
+    if (!stack) return;
+    setSelectedStack(stack);
+    setModalType("delete");
+  };
+
+  // ================= TABLE =================
   const columns: TableColumnProps[] = [
-    {
-      title: "Stack Title",
-      key: "title",
-    },
+    { title: "Stack Title", key: "title" },
+
     {
       title: "Courses",
       key: "courses",
       render: (item) => {
-        if (!item.courses || item.courses.length === 0) return "-";
+        // ✅ multiple courses
+        if (Array.isArray(item.courses)) {
+          return item.courses.map((c: any) => c.title).join(", ");
+        }
 
-        return (
-          <div className="flex flex-wrap gap-1">
-            {item.courses.map((course: any) => (
-              <span
-                key={course.id}
-                className="max-w-xs block truncate text-left"
-              >
-                {course.title}
-              </span>
-            ))}
-          </div>
-        );
+        // ✅ single relation
+        if (item.course) {
+          return item.course.title;
+        }
+
+        // ✅ fallback using course_id (THIS FIXES YOUR ISSUE)
+        if (item.course_id) {
+          const found = courses.find((c) => c.id === item.course_id);
+          return found?.title || "-";
+        }
+
+        return "-";
       },
     },
+
     {
       title: "Description",
       key: "description",
-      className: "p-3 text-sm text-black font-medium",
       render: (item) => (
-        <span
-          title={item.description}
-          className="max-w-xs block truncate text-left"
-        >
+        <span className="truncate block max-w-xs" title={item.description}>
           {item.description || "—"}
         </span>
       ),
     },
+
     {
       title: "Created At",
       key: "created_at",
-      render: (item) => {
-        if (!item.created_at) return "-";
-        return new Date(item.created_at).toLocaleDateString();
-      },
+      render: (item) =>
+        item.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "-",
     },
+
     {
       title: "Action",
       key: "action",
       render: (item) => (
-        <div className="relative">
-          <button
-            onClick={() => toggleActionMenu(item.id)}
-            className="p-2 hover:bg-gray-100 rounded-full"
-          >
-            <BsThreeDotsVertical />
-          </button>
-          {openActionId === item.id && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg rounded-md border border-gray-200 z-50 text-left">
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedStack(item);
-                  setModalType("view");
-                  setOpenActionId(null);
-                }}
-              >
-                View Stack
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                onClick={() => {
-                  setSelectedStack(item);
-                  setModalType("edit");
-                  setOpenActionId(null);
-                }}
-              >
-                Update Stack
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm"
-                onClick={() => {
-                  setSelectedStack(item);
-                  setModalType("delete");
-                  setOpenActionId(null);
-                }}
-              >
-                Delete Stack
-              </button>
-            </div>
-          )}
-        </div>
+        <ActionCell
+          rowId={item.id}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          canView={true}
+        />
       ),
     },
   ];
 
   return (
-    <div className="">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-tetiary">
-          Manage Stacks
-        </h1>
+        <h1 className="text-2xl font-bold text-tetiary">Manage Stacks</h1>
+
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-3 h-11.25 text-sm flex items-center justify-center gap-2 bg-purple text-white rounded-md"
+          className="px-3 h-11.25 flex items-center gap-2 bg-purple text-white rounded-md"
         >
-          <FaPlus /> <span>Add Stack</span>
+          <FaPlus /> Add Stack
         </button>
       </div>
 
@@ -286,13 +308,11 @@ const ManageStacks: React.FC = () => {
         setCurrentPage={setCurrentPage}
       />
 
+      {/* CREATE */}
       {isCreateModalOpen && (
         <Modal onClose={() => setIsCreateModalOpen(false)}>
           <CreateStackForm
-            courses={courses.map((course) => ({
-              id: course.id,
-              title: course.title,
-            }))}
+            courses={courses.map((c) => ({ id: c.id, title: c.title }))}
             onSubmit={handleCreate}
             onCancel={() => setIsCreateModalOpen(false)}
             isLoading={isSubmitting}
@@ -300,7 +320,8 @@ const ManageStacks: React.FC = () => {
         </Modal>
       )}
 
-      {modalType && selectedStack && modalType !== "delete" && (
+      {/* VIEW / EDIT */}
+      {(modalType === "view" || modalType === "edit") && selectedStack && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -309,10 +330,7 @@ const ManageStacks: React.FC = () => {
         >
           <CreateStackForm
             initialData={selectedStack}
-            courses={courses.map((course) => ({
-              id: course.id,
-              title: course.title,
-            }))}
+            courses={courses.map((c) => ({ id: c.id, title: c.title }))}
             onSubmit={handleUpdate}
             onCancel={() => {
               setModalType(null);
@@ -324,10 +342,11 @@ const ManageStacks: React.FC = () => {
         </Modal>
       )}
 
+      {/* DELETE */}
       <ConfirmDialog
         isOpen={modalType === "delete" && selectedStack !== null}
         title="Confirm Delete"
-        message={`Are you sure you want to delete stack "${selectedStack?.title || selectedStack?.id}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete stack "${selectedStack?.title}"?`}
         onConfirm={() => handleDelete(selectedStack)}
         onCancel={() => {
           setModalType(null);

@@ -9,6 +9,7 @@ import { useUser } from "../../context/UserContext";
 import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
 import { FaRegUser, FaGraduationCap } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { assests } from "../../assets/assest";
 
 interface LeftNavProps {
   setIsExpanded: (value: boolean) => void;
@@ -29,6 +30,7 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
       path: "/student/studentcurriculum",
       icon: <BsFileEarmarkMedicalFill />,
       role: "student",
+      hidden: true,
     },
     {
       name: "Assignments",
@@ -110,7 +112,9 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
     },
   ];
 
-  const filteredLinks = navLinks.filter((navlink) => navlink.role === user?.role);
+  const filteredLinks = navLinks.filter(
+    (navlink) => navlink.role === user?.role && !navlink.hidden
+  );
 
   return (
     <motion.div
@@ -119,15 +123,15 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="h-full flex flex-col bg-purple"
     >
-      <div className="p-6 border-b border-white/20">
+      <div className="p-2 border-b border-white/20">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="flex items-center gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <FaGraduationCap className="text-2xl text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+            <img src={assests.smalllogo} alt="" />
           </div>
           <div>
             <h1 className="text-white font-bold text-lg">BuggyBillions</h1>
@@ -136,7 +140,7 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
         </motion.div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-1 mt-3">
         {filteredLinks.map((navlink, index) => (
           <motion.div
             key={navlink.path}

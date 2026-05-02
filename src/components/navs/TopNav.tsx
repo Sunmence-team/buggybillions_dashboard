@@ -26,7 +26,7 @@ const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between"
+      className="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between"
     >
       <div>
         <h4 className="text-xl font-semibold text-gray-900">{heading}</h4>
@@ -34,7 +34,7 @@ const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        <motion.div
+        {/* <motion.div
           whileHover={{ scale: 1.05 }}
           className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
         >
@@ -47,7 +47,7 @@ const TopNav: React.FC<TopNavProps> = ({ heading, subText }) => {
         >
           <FaBell className="text-gray-500" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-        </motion.div>
+        </motion.div> */}
 
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
           <div className="text-right hidden sm:block">
