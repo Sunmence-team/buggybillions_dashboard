@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateClassForm from "../../components/forms/CreateClassForm";
+import ViewClass from "../../components/ViewClass";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { FaPlus } from "react-icons/fa6";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
@@ -273,8 +274,26 @@ const ManageClasses: React.FC = () => {
         </Modal>
       )}
 
-      {/* VIEW / EDIT */}
-      {(modalType === "view" || modalType === "edit") && selectedClass && (
+      {/* VIEW */}
+      {modalType === "view" && selectedClass && (
+        <Modal
+          onClose={() => {
+            setModalType(null);
+            setSelectedClass(null);
+          }}
+        >
+          <ViewClass
+            classData={selectedClass}
+            onClose={() => {
+              setModalType(null);
+              setSelectedClass(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* EDIT */}
+      {modalType === "edit" && selectedClass && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -290,7 +309,6 @@ const ManageClasses: React.FC = () => {
               setModalType(null);
               setSelectedClass(null);
             }}
-            readOnly={modalType === "view"}
             isLoading={isSubmitting}
           />
         </Modal>

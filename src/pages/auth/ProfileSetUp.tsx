@@ -4,7 +4,7 @@ import { MdEmail } from "react-icons/md";
 import { FiPhone } from "react-icons/fi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { assests } from "../../assets/assest";

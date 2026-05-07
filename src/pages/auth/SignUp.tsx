@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { LoginValidationSchema } from "../../lib/validationschemas";
 import { assests } from "../../assets/assest";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
 import { IoMdMail } from "react-icons/io";

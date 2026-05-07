@@ -3,7 +3,7 @@ import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { FaTrophy } from "react-icons/fa";
 import { formatterUtility } from "../../helpers/formatterUtility";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 
 /* ================= TYPES ================= */
 interface LeaderboardUser {

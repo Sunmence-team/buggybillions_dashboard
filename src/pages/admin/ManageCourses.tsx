@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateCourseForm from "../../components/forms/CreateCourseForm";
+import ViewCourse from "../../components/ViewCourse";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { FaPlus } from "react-icons/fa6";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
@@ -74,10 +75,9 @@ const ManageCourses: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("price", data.price?.toString() || "");
-      formData.append("language", data.language);
       formData.append("description", data.description);
-      if (data.image) formData.append("image", data.image);
+      // Append empty image to satisfy backend requirement
+      formData.append("image", "");
 
       await api.post("/api/courses", formData, {
         headers: {
@@ -104,10 +104,9 @@ const ManageCourses: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("price", data.price?.toString() || "");
-      formData.append("language", data.language);
       formData.append("description", data.description);
-      if (data.image) formData.append("image", data.image);
+      // Append empty image to satisfy backend requirement
+      formData.append("image", "");
 
       await api.put(`/api/courses/${selectedCourse.id}`, formData, {
         headers: {
@@ -173,12 +172,12 @@ const ManageCourses: React.FC = () => {
   // ================= TABLE =================
   const columns: TableColumnProps[] = [
     { title: "Course Title", key: "title" },
-    {
-      title: "Price",
-      key: "price",
-      render: (item) => (item.price ? `¥${item.price}` : "-"),
-    },
-    { title: "Language", key: "language" },
+    // {
+    //   title: "Price",
+    //   key: "price",
+    //   render: (item) => (item.price ? `¥${item.price}` : "-"),
+    // },
+    // { title: "Language", key: "language" },
     {
       title: "Description",
       key: "description",
@@ -251,8 +250,26 @@ const ManageCourses: React.FC = () => {
         </Modal>
       )}
 
-      {/* VIEW / EDIT */}
-      {(modalType === "view" || modalType === "edit") && selectedCourse && (
+      {/* VIEW */}
+      {modalType === "view" && selectedCourse && (
+        <Modal
+          onClose={() => {
+            setModalType(null);
+            setSelectedCourse(null);
+          }}
+        >
+          <ViewCourse
+            course={selectedCourse}
+            onClose={() => {
+              setModalType(null);
+              setSelectedCourse(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* EDIT */}
+      {modalType === "edit" && selectedCourse && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -266,7 +283,6 @@ const ManageCourses: React.FC = () => {
               setModalType(null);
               setSelectedCourse(null);
             }}
-            readOnly={modalType === "view"}
             isLoading={isSubmitting}
           />
         </Modal>

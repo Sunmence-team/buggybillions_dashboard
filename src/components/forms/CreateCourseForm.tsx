@@ -8,8 +8,6 @@ interface CreateCourseFormProps {
   isLoading?: boolean;
 }
 
-const LANGUAGES = ["English", "Spanish", "French", "German", "Portuguese", "Chinese"];
-
 const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
   initialData,
   onSubmit,
@@ -19,25 +17,15 @@ const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    price: "",
-    language: "",
     description: "",
-    image: null as File | null,
   });
-  const [preview, setPreview] = useState<string>("");
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title || "",
-        price: initialData.price?.toString() || "",
-        language: initialData.language || "",
         description: initialData.description || "",
-        image: null,
       });
-      if (initialData.image) {
-        setPreview(initialData.image);
-      }
     }
   }, [initialData]);
 
@@ -49,13 +37,6 @@ const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (!file) return;
-    setFormData((prev) => ({ ...prev, image: file }));
-    setPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -74,11 +55,11 @@ const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
             : "Add New Course"}
         </h2>
         <p className="text-sm text-gray-500">
-          Provide the course information and upload a cover image.
+          Provide the course information and description.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Course Title</label>
           <input
@@ -91,59 +72,6 @@ const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
             placeholder="Enter course title"
           />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            disabled={readOnly || isLoading}
-            required
-            min="0"
-            step="0.01"
-            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-            placeholder="Enter price"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Language</label>
-          <select
-            name="language"
-            value={formData.language}
-            onChange={handleChange}
-            disabled={readOnly || isLoading}
-            required
-            className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-          >
-            <option value="">Select language</option>
-            {LANGUAGES.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Course Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={readOnly || isLoading}
-            className="text-sm text-gray-600"
-          />
-          {preview && (
-            <img
-              src={preview}
-              alt="Course preview"
-              className="max-h-40 w-full object-cover rounded-lg border border-black/10"
-            />
-          )}
         </div>
       </div>
 

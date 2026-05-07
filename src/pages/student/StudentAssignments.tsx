@@ -108,9 +108,7 @@ function StudentAssignments() {
               <p className="bg-purple rounded-full p-1"> <CgSandClock /></p>
              
             </span>
-            <span className="text-xs bg-yellow px-2 py-1 rounded">
-              High Priority
-            </span>
+           
           </div>
           <h2 className="text-black font-bold text-3xl mt-4">
             {loading ? "..." : pendingCount}
@@ -132,9 +130,7 @@ function StudentAssignments() {
                 <GrFormCheckmark />
               </p>
             </span>
-            <p className="text-purple bg-[#796fab56] px-2 py-1 rounded text-xs">
-              Progress
-            </p>
+            
           </div>
           <p className="text-black font-bold text-3xl mt-4">
             {loading ? "..." : submittedCount}
@@ -148,9 +144,7 @@ function StudentAssignments() {
             <span className="bg-[#796fab56] p-2 text-purple rounded-2xl">
               <FaStar />
             </span>
-            <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-              Top performer
-            </span>
+            
           </div>
           <h2 className="text-3xl font-bold mt-4">
             {loading ? "..." : `${gradedCount}%`}

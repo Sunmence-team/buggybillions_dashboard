@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateStackForm from "../../components/forms/CreateStackForm";
+import ViewStack from "../../components/ViewStack";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { FaPlus } from "react-icons/fa6";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
@@ -99,16 +100,15 @@ const ManageStacks: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("course_id", data.courseId);
-      formData.append("description", data.description);
-      if (data.image) formData.append("image", data.image);
+      const payload = {
+        title: data.title,
+        course_id: data.courseId,
+        description: data.description,
+      };
 
-      await api.post("/api/stacks", formData, {
+      await api.post("/api/stacks", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -129,18 +129,15 @@ const ManageStacks: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("course_id", data.courseId);
-      formData.append("description", data.description);
-      if (data.image) formData.append("image", data.image);
+      const payload = {
+        title: data.title,
+        course_id: data.courseId,
+        description: data.description,
+      };
 
-      formData.append("_method", "PUT");
-
-      await api.post(`/api/stacks/${selectedStack.id}`, formData, {
+      await api.put(`/api/stacks/${selectedStack.id}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -320,8 +317,26 @@ const ManageStacks: React.FC = () => {
         </Modal>
       )}
 
-      {/* VIEW / EDIT */}
-      {(modalType === "view" || modalType === "edit") && selectedStack && (
+      {/* VIEW */}
+      {modalType === "view" && selectedStack && (
+        <Modal
+          onClose={() => {
+            setModalType(null);
+            setSelectedStack(null);
+          }}
+        >
+          <ViewStack
+            stack={selectedStack}
+            onClose={() => {
+              setModalType(null);
+              setSelectedStack(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* EDIT */}
+      {modalType === "edit" && selectedStack && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -336,7 +351,6 @@ const ManageStacks: React.FC = () => {
               setModalType(null);
               setSelectedStack(null);
             }}
-            readOnly={modalType === "view"}
             isLoading={isSubmitting}
           />
         </Modal>
