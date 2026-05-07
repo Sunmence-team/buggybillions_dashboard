@@ -130,7 +130,7 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
           transition={{ delay: 0.2 }}
           className="flex items-center gap-3"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+          <div className="w-8 rounded-xl flex items-center justify-center ms-5">
             <img src={assests.smalllogo} alt="" />
           </div>
           <div>

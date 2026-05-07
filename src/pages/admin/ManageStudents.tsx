@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateStudentForm from "../../components/forms/CreateStudentForm";
+import ViewStudent from "../../components/ViewStudent";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { FaPlus } from "react-icons/fa6";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
@@ -26,6 +27,7 @@ const ManageStudents: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createKey, setCreateKey] = useState(0); // 👈 NEW: forces form remount
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
 
@@ -64,6 +66,15 @@ const ManageStudents: React.FC = () => {
   useEffect(() => {
     fetchStudents();
   }, [token, currentPage]);
+
+  /* =======================
+     OPEN CREATE MODAL
+  ======================= */
+  const handleOpenCreate = () => {
+    setSelectedStudent(null);        // 👈 clear any previous student
+    setCreateKey((prev) => prev + 1); // 👈 increment key to force form remount
+    setIsCreateModalOpen(true);
+  };
 
   /* =======================
      CREATE
@@ -163,7 +174,6 @@ const ManageStudents: React.FC = () => {
       title: "Class",
       key: "class",
       render: (item) => (
-        
         <span className="capitalize">
           {
             item.student_class?.name ||
@@ -184,25 +194,20 @@ const ManageStudents: React.FC = () => {
       key: "created_at",
       render: (item) => formatISODateToCustom(item.created_at),
     },
-
-    /* ✅ FIXED ACTION COLUMN */
     {
       title: "Action",
       key: "action",
       render: (item) => (
         <ActionCell
           rowId={item.id}
-
           onView={() => {
             setSelectedStudent(item);
             setModalType("view");
           }}
-
           onEdit={() => {
             setSelectedStudent(item);
             setModalType("edit");
           }}
-
           onDelete={() => {
             setSelectedStudent(item);
             setModalType("delete");
@@ -220,8 +225,9 @@ const ManageStudents: React.FC = () => {
           Manage Students
         </h1>
 
+        {/* 👇 FIXED: now calls handleOpenCreate */}
         <button
-          onClick={() => setIsCreateModalOpen(true)}
+          onClick={handleOpenCreate}
           className="px-3 h-11 flex items-center gap-2 bg-purple text-white rounded-md"
         >
           <FaPlus /> Add Student
@@ -245,6 +251,7 @@ const ManageStudents: React.FC = () => {
       {isCreateModalOpen && (
         <Modal onClose={() => setIsCreateModalOpen(false)}>
           <CreateStudentForm
+            key={createKey} // 👈 FIXED: forces full remount every time modal opens
             onSubmit={handleCreate}
             onCancel={() => setIsCreateModalOpen(false)}
             isLoading={isSubmitting}
@@ -252,8 +259,26 @@ const ManageStudents: React.FC = () => {
         </Modal>
       )}
 
-      {/* VIEW / EDIT */}
-      {(modalType === "view" || modalType === "edit") && selectedStudent && (
+      {/* VIEW */}
+      {modalType === "view" && selectedStudent && (
+        <Modal
+          onClose={() => {
+            setModalType(null);
+            setSelectedStudent(null);
+          }}
+        >
+          <ViewStudent
+            student={selectedStudent}
+            onClose={() => {
+              setModalType(null);
+              setSelectedStudent(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* EDIT */}
+      {modalType === "edit" && selectedStudent && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -261,13 +286,13 @@ const ManageStudents: React.FC = () => {
           }}
         >
           <CreateStudentForm
+            key={selectedStudent.id} // 👈 FIXED: unique key per student being edited
             initialData={selectedStudent}
             onSubmit={handleUpdate}
             onCancel={() => {
               setModalType(null);
               setSelectedStudent(null);
             }}
-            readOnly={modalType === "view"}
             isLoading={isSubmitting}
           />
         </Modal>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { motion, AnimatePresence } from "framer-motion";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
 import { Skeleton, TableSkeleton, FormSkeleton } from "../../components/ui/Skeleton";

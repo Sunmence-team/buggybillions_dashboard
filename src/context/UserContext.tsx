@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
-import api, { setupInterceptors } from "../helpers/api";
+import api, { setupInterceptors } from "../helpers/api.tsx";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -13,6 +13,9 @@ export interface UserProps {
   fullname: string;
   email: string;
   role: string;
+  stack_relation?: {
+    title: string;
+  };
 }
 
 interface UserContextType {

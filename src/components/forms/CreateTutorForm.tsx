@@ -49,6 +49,17 @@ const CreateTutorForm: React.FC<CreateTutorFormProps> = ({
         stack: initialData.stack || initialData.stack_id || "",
         class: initialData.class || initialData.class_id || "",
       });
+    } else {
+      setFormData({
+        fullname: "",
+        username: "",
+        email: "",
+        mobile: "",
+        password: "",
+        department: "",
+        stack: "",
+        class: "",
+      });
     }
   }, [initialData]);
 

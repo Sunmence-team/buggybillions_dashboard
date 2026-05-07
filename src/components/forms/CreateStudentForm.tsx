@@ -9,6 +9,17 @@ interface CreateStudentFormProps {
   isLoading?: boolean;
 }
 
+const defaultFormState = {
+  fullname: "",
+  username: "",
+  email: "",
+  mobile: "",
+  password: "",
+  department: "",
+  stack: "",
+  student_class_id: "",
+};
+
 const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
   initialData,
   onSubmit,
@@ -16,17 +27,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
   readOnly = false,
   isLoading = false,
 }) => {
-  const [formData, setFormData] = useState({
-    fullname: "",
-    username: "",
-    email: "",
-    mobile: "",
-    password: "",
-    department: "",
-    stack: "",
-    student_class_id: "",
-  });
-
+  const [formData, setFormData] = useState({ ...defaultFormState });
   const [stacks, setStacks] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [loadingStacks, setLoadingStacks] = useState(false);
@@ -44,11 +45,16 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
         username: initialData.username || "",
         email: initialData.email || "",
         mobile: initialData.mobile || "",
-        password: initialData.password || "",
+        password: "",
         department: initialData.department || "",
         stack: initialData.stack || initialData.stack_id || "",
-        student_class_id: initialData.student_class_id || initialData.student_class?.id || "",
+        student_class_id:
+          initialData.student_class_id ||
+          initialData.student_class?.id ||
+          "",
       });
+    } else {
+      setFormData({ ...defaultFormState });
     }
   }, [initialData]);
 
@@ -56,6 +62,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
     setLoadingStacks(true);
     try {
       const response = await api.get("/api/stacks");
+
       let stacksData = [];
       if (response.data?.stacks && Array.isArray(response.data.stacks)) {
         stacksData = response.data.stacks;
@@ -64,6 +71,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
       } else if (Array.isArray(response.data)) {
         stacksData = response.data;
       }
+
       setStacks(stacksData);
     } catch (error) {
       console.error("Error fetching stacks:", error);
@@ -76,6 +84,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
     setLoadingClasses(true);
     try {
       const response = await api.get("/api/classes");
+
       let classesData = [];
       if (response.data?.classes && Array.isArray(response.data.classes)) {
         classesData = response.data.classes;
@@ -84,6 +93,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
       } else if (Array.isArray(response.data)) {
         classesData = response.data;
       }
+
       setClasses(classesData);
     } catch (error) {
       console.error("Error fetching classes:", error);
@@ -104,12 +114,13 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Transform data to match backend expectations
+
     const submitData = {
       ...formData,
-      stack: formData.stack, // This will be the stack_id
-      role: "student"
+      stack: formData.stack,
+      role: "student",
     };
+
     onSubmit(submitData);
   };
 
@@ -126,6 +137,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Full Name */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Full Name</label>
           <input
@@ -140,6 +152,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           />
         </div>
 
+        {/* Username */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Username</label>
           <input
@@ -154,6 +167,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           />
         </div>
 
+        {/* Email */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Email</label>
           <input
@@ -168,6 +182,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           />
         </div>
 
+        {/* Mobile */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Mobile</label>
           <input
@@ -182,22 +197,28 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           />
         </div>
 
+        {/* Password */}
         {!readOnly && (
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">Password</label>
+            <label className="text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              disabled={readOnly || isLoading}
+              disabled={isLoading}
               required={!initialData}
               className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-              placeholder={initialData ? "Leave blank to keep current" : "Enter Password"}
+              placeholder={
+                initialData ? "Leave blank to keep current" : "Enter Password"
+              }
             />
           </div>
         )}
 
+        {/* Stack */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Stack</label>
           <select
@@ -219,8 +240,11 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           </select>
         </div>
 
+        {/* Class */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Class (Optional)</label>
+          <label className="text-sm font-medium text-gray-700">
+            Class (Optional)
+          </label>
           <select
             name="student_class_id"
             value={formData.student_class_id}
@@ -239,8 +263,11 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
           </select>
         </div>
 
+        {/* Department */}
         <div className="flex flex-col gap-2 md:col-span-2">
-          <label className="text-sm font-medium text-gray-700">Department</label>
+          <label className="text-sm font-medium text-gray-700">
+            Department
+          </label>
           <input
             type="text"
             name="department"
@@ -249,11 +276,12 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
             disabled={readOnly || isLoading}
             required
             className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
-            placeholder="Enter Department (e.g., Software, Design, etc.)"
+            placeholder="Enter Department"
           />
         </div>
       </div>
 
+      {/* Buttons */}
       <div className="flex justify-end gap-3 mt-6">
         <button
           type="button"
@@ -263,13 +291,18 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
         >
           Cancel
         </button>
+
         {!readOnly && (
           <button
             type="submit"
             disabled={isLoading}
             className="px-4 py-2 text-sm font-medium text-white bg-purple rounded-md hover:bg-purple/90 disabled:opacity-50"
           >
-            {isLoading ? "Creating..." : initialData ? "Update Student" : "Create Student"}
+            {isLoading
+              ? "Loading..."
+              : initialData
+              ? "Update Student"
+              : "Create Student"}
           </button>
         )}
       </div>

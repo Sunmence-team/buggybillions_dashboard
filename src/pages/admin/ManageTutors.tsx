@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import ReusableTable from "../../utility/ReusableTable";
 import Modal from "../../components/modal/Modal";
 import CreateTutorForm from "../../components/forms/CreateTutorForm";
+import ViewTutor from "../../components/ViewTutor";
 import type { TableColumnProps } from "../../lib/interfaces";
 import { FaPlus } from "react-icons/fa6";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { toast } from "sonner";
 import { useUser } from "../../context/UserContext";
 import ConfirmDialog from "../../components/modal/ConfirmDialog";
@@ -280,8 +281,26 @@ const ManageTutors: React.FC = () => {
         </Modal>
       )}
 
-      {/* VIEW / EDIT */}
-      {(modalType === "edit" || modalType === "view") && selectedTutor && (
+      {/* VIEW */}
+      {modalType === "view" && selectedTutor && (
+        <Modal
+          onClose={() => {
+            setModalType(null);
+            setSelectedTutor(null);
+          }}
+        >
+          <ViewTutor
+            tutor={selectedTutor}
+            onClose={() => {
+              setModalType(null);
+              setSelectedTutor(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* EDIT */}
+      {modalType === "edit" && selectedTutor && (
         <Modal
           onClose={() => {
             setModalType(null);
@@ -295,7 +314,6 @@ const ManageTutors: React.FC = () => {
               setModalType(null);
               setSelectedTutor(null);
             }}
-            readOnly={modalType === "view"}
             isLoading={isSubmitting}
           />
         </Modal>

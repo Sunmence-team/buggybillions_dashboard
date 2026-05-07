@@ -21,9 +21,7 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
     title: "",
     courseId: "",
     description: "",
-    image: null as File | null,
   });
-  const [preview, setPreview] = useState<string>("");
 
   useEffect(() => {
     if (initialData) {
@@ -31,11 +29,7 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
         title: initialData.title || "",
         courseId: initialData.course_id || initialData.courseId || "",
         description: initialData.description || "",
-        image: null,
       });
-      if (initialData.image) {
-        setPreview(initialData.image);
-      }
     }
   }, [initialData]);
 
@@ -47,13 +41,6 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (!file) return;
-    setFormData((prev) => ({ ...prev, image: file }));
-    setPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,7 +59,7 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
             : "Add New Stack"}
         </h2>
         <p className="text-sm text-gray-500">
-          Create a stack with a related course ID, image, and description.
+          Create a stack with a related course and description.
         </p>
       </div>
 
@@ -123,23 +110,6 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Stack Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={readOnly || isLoading}
-            className="text-sm text-gray-600"
-          />
-          {preview && (
-            <img
-              src={preview}
-              alt="Stack preview"
-              className="max-h-40 w-full object-cover rounded-lg border border-black/10"
-            />
-          )}
-        </div>
       </div>
 
       <div className="flex flex-col gap-2">

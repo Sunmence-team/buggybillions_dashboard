@@ -3,7 +3,7 @@ import { useUser } from "../../context/UserContext";
 import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { PiBookOpenUserFill, PiArrowFatLineUp } from "react-icons/pi";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 
 interface Activity {
   title: string;
@@ -107,15 +107,16 @@ const StudentOverview: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Student ID Display */}
+      <div className="flex items-center gap-3 text-gray-700">
+        <HiOutlineIdentification size="20px" className="text-gray-500" />
+        <span className="text-sm">
+          <span className="font-medium">Student ID:</span> {user?.bug_id?.toString() || "N/A"}
+        </span>
+      </div>
+
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <OverviewCards
-          icon={<HiOutlineIdentification size="30px" />}
-          label="Student ID"
-          value={user?.bug_id?.toString() || "N/A"}
-          iconBg="bg-gray-100"
-          iconColor="text-gray-500"
-        />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <OverviewCards
           icon={<PiBookOpenUserFill size="30px" />}
           label="Course Enrolled"

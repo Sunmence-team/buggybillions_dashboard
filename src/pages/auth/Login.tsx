@@ -4,7 +4,7 @@ import { MdLock } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { LoginValidationSchema } from "../../lib/validationschemas";
-import api from "../../helpers/api";
+import api from "../../helpers/api.tsx";
 import { useUser } from "../../context/UserContext";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
