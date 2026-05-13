@@ -12,28 +12,48 @@ const ViewTutor: React.FC<ViewTutorProps> = ({ tutor, onClose }) => {
   const [className, setClassName] = useState<string>("");
 
   useEffect(() => {
-    if (tutor.stack_id) {
-      fetchStackName(tutor.stack_id);
+    // Use resolved names if provided by the parent
+    if (tutor.resolvedStackName) {
+      setStackName(tutor.resolvedStackName);
+    } else {
+      const stackVal = tutor.stack_id || tutor.stack;
+      if (stackVal) {
+        if (typeof stackVal === "string" && isNaN(Number(stackVal))) {
+          setStackName(stackVal);
+        } else {
+          fetchStackName(stackVal);
+        }
+      }
     }
-    if (tutor.class_id) {
-      fetchClassName(tutor.class_id);
+
+    if (tutor.resolvedClassName) {
+      setClassName(tutor.resolvedClassName);
+    } else {
+      const classVal = tutor.class_id || tutor.class;
+      if (classVal) {
+        if (typeof classVal === "string" && isNaN(Number(classVal))) {
+          setClassName(classVal);
+        } else {
+          fetchClassName(classVal);
+        }
+      }
     }
   }, [tutor]);
 
-  const fetchStackName = async (stackId: number) => {
+  const fetchStackName = async (stackId: number | string) => {
     try {
       const response = await api.get(`/api/stacks/${stackId}`);
-      setStackName(response.data?.stack?.name || response.data?.name || "Unknown");
+      setStackName(response.data?.stack?.name || response.data?.stack?.title || response.data?.name || response.data?.title || "Unknown");
     } catch (error) {
       console.error("Error fetching stack:", error);
       setStackName("Unknown");
     }
   };
 
-  const fetchClassName = async (classId: number) => {
+  const fetchClassName = async (classId: number | string) => {
     try {
       const response = await api.get(`/api/classes/${classId}`);
-      setClassName(response.data?.class?.name || response.data?.name || "Unknown");
+      setClassName(response.data?.class?.name || response.data?.class?.title || response.data?.name || response.data?.title || "Unknown");
     } catch (error) {
       console.error("Error fetching class:", error);
       setClassName("Unknown");

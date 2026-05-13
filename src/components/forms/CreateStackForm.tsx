@@ -19,7 +19,7 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    courseId: "",
+    courses: [] as string[],
     description: "",
   });
 
@@ -27,7 +27,7 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
     if (initialData) {
       setFormData({
         title: initialData.title || "",
-        courseId: initialData.course_id || initialData.courseId || "",
+        courses: initialData.courses ? initialData.courses.map((c: any) => typeof c === 'object' ? String(c.id) : String(c)) : (initialData.course_id ? [String(initialData.course_id)] : []),
         description: initialData.description || "",
       });
     }
@@ -79,12 +79,18 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Course ID</label>
+          <label className="text-sm font-medium text-gray-700">Course</label>
           {courses.length > 0 ? (
             <select
-              name="courseId"
-              value={formData.courseId}
-              onChange={handleChange}
+              name="courses"
+              value={formData.courses.length > 0 ? formData.courses[0] : ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData((prev) => ({
+                  ...prev,
+                  courses: value ? [value] : [],
+                }));
+              }}
               disabled={readOnly || isLoading}
               required
               className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"
@@ -99,9 +105,12 @@ const CreateStackForm: React.FC<CreateStackFormProps> = ({
           ) : (
             <input
               type="text"
-              name="courseId"
-              value={formData.courseId}
-              onChange={handleChange}
+              name="courses"
+              value={formData.courses.join(", ")}
+              onChange={(e) => {
+                const values = e.target.value.split(",").map((v) => v.trim()).filter((v) => v);
+                setFormData((prev) => ({ ...prev, courses: values }));
+              }}
               disabled={readOnly || isLoading}
               required
               className="h-11.25 indent-2 border border-black/15 rounded-lg outline-0 disabled:bg-gray-100"

@@ -11,12 +11,21 @@ const ViewStack: React.FC<ViewStackProps> = ({ stack, onClose }) => {
   const [courseName, setCourseName] = useState<string>("");
 
   useEffect(() => {
-    if (stack.course_id) {
-      fetchCourseName(stack.course_id);
+    if (stack.resolvedCourseName) {
+      setCourseName(stack.resolvedCourseName);
+    } else {
+      const courseVal = stack.course_id || stack.course;
+      if (courseVal) {
+        if (typeof courseVal === 'string' && isNaN(Number(courseVal))) {
+          setCourseName(courseVal);
+        } else {
+          fetchCourseName(courseVal);
+        }
+      }
     }
   }, [stack]);
 
-  const fetchCourseName = async (courseId: number) => {
+  const fetchCourseName = async (courseId: number | string) => {
     try {
       const response = await api.get(`/api/courses/${courseId}`);
       setCourseName(response.data?.course?.title || response.data?.title || "Unknown");

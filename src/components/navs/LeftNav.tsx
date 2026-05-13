@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BsFileEarmarkMedicalFill } from "react-icons/bs";
 import { RiUserAddFill } from "react-icons/ri";
-import { MdAssignmentAdd, MdLibraryBooks, MdLayers, MdSentimentVerySatisfied, MdLogout, MdSchool } from "react-icons/md";
+import { MdAssignmentAdd, MdLibraryBooks, MdLayers, MdSentimentVerySatisfied, MdLogout, MdSchool, MdCampaign } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { useUser } from "../../context/UserContext";
 import { PiStudent, PiChalkboardTeacherFill } from "react-icons/pi";
@@ -108,6 +108,12 @@ const LeftNav: React.FC<LeftNavProps> = ({ setIsExpanded }) => {
       name: "Classes",
       path: "/admin/manageclasses",
       icon: <MdSchool />,
+      role: "admin",
+    },
+    {
+      name: "Announcements",
+      path: "/admin/manageannouncements",
+      icon: <MdCampaign />,
       role: "admin",
     },
   ];

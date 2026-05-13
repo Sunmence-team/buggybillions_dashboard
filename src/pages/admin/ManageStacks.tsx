@@ -102,7 +102,7 @@ const ManageStacks: React.FC = () => {
     try {
       const payload = {
         title: data.title,
-        course_id: data.courseId,
+        courses: data.courses,
         description: data.description,
       };
 
@@ -131,7 +131,7 @@ const ManageStacks: React.FC = () => {
     try {
       const payload = {
         title: data.title,
-        course_id: data.courseId,
+        courses: data.courses,
         description: data.description,
       };
 
@@ -200,7 +200,34 @@ const ManageStacks: React.FC = () => {
   const handleView = (id: number) => {
     const stack = stacks.find((s) => s.id === id);
     if (!stack) return;
-    setSelectedStack(stack);
+
+    let courseName = "";
+    if (Array.isArray(stack.courses)) {
+      courseName = stack.courses.map((c: any) => {
+        if (typeof c === 'object') return c.title || c.name;
+        const found = courses.find((course) => String(course.id) === String(c));
+        return found ? found.title || found.name : c;
+      }).filter(Boolean).join(", ");
+    } else if (stack.course && typeof stack.course === 'object') {
+      courseName = stack.course.title || stack.course.name;
+    } else {
+      const courseVal = stack.course_id || stack.course;
+      if (courseVal) {
+        const found = courses.find((c) => String(c.id) === String(courseVal));
+        if (found) {
+          courseName = found.title || found.name;
+        } else if (typeof courseVal === 'string' && isNaN(Number(courseVal))) {
+          courseName = courseVal;
+        } else {
+          courseName = courseVal;
+        }
+      }
+    }
+
+    setSelectedStack({
+      ...stack,
+      resolvedCourseName: courseName || undefined
+    });
     setModalType("view");
   };
 
@@ -228,18 +255,29 @@ const ManageStacks: React.FC = () => {
       render: (item) => {
         // ✅ multiple courses
         if (Array.isArray(item.courses)) {
-          return item.courses.map((c: any) => c.title).join(", ");
+          return item.courses.map((c: any) => {
+            if (typeof c === 'object') return c.title || c.name;
+            const found = courses.find((course) => String(course.id) === String(c));
+            return found ? found.title || found.name : c;
+          }).filter(Boolean).join(", ") || "-";
         }
 
-        // ✅ single relation
-        if (item.course) {
-          return item.course.title;
+        // ✅ single relation object
+        if (item.course && typeof item.course === 'object') {
+          return item.course.title || item.course.name || "-";
         }
 
-        // ✅ fallback using course_id (THIS FIXES YOUR ISSUE)
-        if (item.course_id) {
-          const found = courses.find((c) => c.id === item.course_id);
-          return found?.title || "-";
+        // ✅ fallback using course_id or course (if it's an ID/String)
+        const courseVal = item.course_id || item.course;
+        if (courseVal) {
+          const found = courses.find((c) => String(c.id) === String(courseVal));
+          if (found) {
+            return found.title || found.name;
+          }
+          if (typeof courseVal === 'string' && isNaN(Number(courseVal))) {
+            return courseVal;
+          }
+          return courseVal;
         }
 
         return "-";

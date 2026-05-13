@@ -26,6 +26,7 @@ import { useUser } from "./context/UserContext";
 import ManageStacks from "./pages/admin/ManageStacks";
 import ManageClasses from "./pages/admin/ManageClasses";
 import ManageCourses from "./pages/admin/ManageCourses";
+import ManageAnnouncements from "./pages/admin/ManageAnnouncements";
 
 function App() {
   const { user } = useUser();
@@ -170,6 +171,16 @@ function App() {
           path="/admin/managecourses"
           element={
             <MainLayout child={<ManageCourses />} heading={"Manage All Courses"} />
+          }
+        />
+        <Route
+          path="/admin/manageannouncements"
+          element={
+            <MainLayout
+              child={<ManageAnnouncements />}
+              heading={"Manage Announcements"}
+              subText="Create and manage global or class announcements"
+            />
           }
         />
       </Routes>

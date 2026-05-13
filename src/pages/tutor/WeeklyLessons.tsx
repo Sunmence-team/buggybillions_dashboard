@@ -91,7 +91,7 @@ const WeeklyLessons = () => {
     }
     setSubmitting(true);
     try {
-      await api.post("/api/weekly-lessons", {
+      await api.post("/api/weekly-lessons/batch", {
         course_id: selectedCourseId,
         lessons
       }, {

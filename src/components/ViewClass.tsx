@@ -12,15 +12,28 @@ const ViewClass: React.FC<ViewClassProps> = ({ classData, onClose }) => {
   const [tutorName, setTutorName] = useState<string>("");
 
   useEffect(() => {
-    if (classData.course_id) {
-      fetchCourseName(classData.course_id);
+    if (classData.resolvedCourseName) {
+      setCourseName(classData.resolvedCourseName);
+    } else if (classData.course_id) {
+      if (typeof classData.course_id === 'string' && isNaN(Number(classData.course_id))) {
+        setCourseName(classData.course_id);
+      } else {
+        fetchCourseName(classData.course_id);
+      }
     }
-    if (classData.tutor_id) {
-      fetchTutorName(classData.tutor_id);
+
+    if (classData.resolvedTutorName) {
+      setTutorName(classData.resolvedTutorName);
+    } else if (classData.tutor_id) {
+      if (typeof classData.tutor_id === 'string' && isNaN(Number(classData.tutor_id))) {
+        setTutorName(classData.tutor_id);
+      } else {
+        fetchTutorName(classData.tutor_id);
+      }
     }
   }, [classData]);
 
-  const fetchCourseName = async (courseId: number) => {
+  const fetchCourseName = async (courseId: number | string) => {
     try {
       const response = await api.get(`/api/courses/${courseId}`);
       setCourseName(response.data?.course?.title || response.data?.title || "Unknown");
@@ -30,7 +43,7 @@ const ViewClass: React.FC<ViewClassProps> = ({ classData, onClose }) => {
     }
   };
 
-  const fetchTutorName = async (tutorId: number) => {
+  const fetchTutorName = async (tutorId: number | string) => {
     try {
       const response = await api.get(`/api/tutors/${tutorId}`);
       setTutorName(response.data?.tutor?.fullname || response.data?.fullname || "Unknown");

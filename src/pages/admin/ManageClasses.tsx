@@ -174,7 +174,32 @@ const ManageClasses: React.FC = () => {
   const handleView = (id: number) => {
     const item = classes.find((c) => c.id === id);
     if (!item) return;
-    setSelectedClass(item);
+
+    let courseName = item.course?.title || item.course?.name;
+    if (!courseName && item.course_id) {
+      const matchedCourse = courses.find((c: any) => c.id == item.course_id);
+      if (matchedCourse) {
+        courseName = matchedCourse.title || matchedCourse.name;
+      } else if (typeof item.course_id === 'string' && isNaN(Number(item.course_id))) {
+        courseName = item.course_id;
+      }
+    }
+
+    let tutorName = item.tutor?.fullname || item.tutor?.name;
+    if (!tutorName && item.tutor_id) {
+      const matchedTutor = tutors.find((t: any) => t.id == item.tutor_id);
+      if (matchedTutor) {
+        tutorName = matchedTutor.fullname || matchedTutor.name;
+      } else if (typeof item.tutor_id === 'string' && isNaN(Number(item.tutor_id))) {
+        tutorName = item.tutor_id;
+      }
+    }
+
+    setSelectedClass({
+      ...item,
+      resolvedCourseName: courseName || item.course_id || undefined,
+      resolvedTutorName: tutorName || item.tutor_id || undefined
+    });
     setModalType("view");
   };
 
@@ -198,16 +223,26 @@ const ManageClasses: React.FC = () => {
     {
       title: "Course",
       key: "course",
-      render: (item) => item.course?.title || item.course_id || "-",
+      render: (item) => {
+        let name = item.course?.title || item.course?.name;
+        if (!name && item.course_id) {
+          const matched = courses.find((c: any) => c.id == item.course_id);
+          name = matched?.title || matched?.name || (typeof item.course_id === 'string' && isNaN(Number(item.course_id)) ? item.course_id : item.course_id);
+        }
+        return name || "-";
+      },
     },
     {
       title: "Tutor",
       key: "tutor",
-      render: (item) =>
-        item.tutor?.fullname ||
-        item.tutor?.name ||
-        item.tutor_id ||
-        "-",
+      render: (item) => {
+        let name = item.tutor?.fullname || item.tutor?.name;
+        if (!name && item.tutor_id) {
+          const matched = tutors.find((t: any) => t.id == item.tutor_id);
+          name = matched?.fullname || matched?.name || (typeof item.tutor_id === 'string' && isNaN(Number(item.tutor_id)) ? item.tutor_id : item.tutor_id);
+        }
+        return name || "-";
+      },
     },
     {
       title: "Created At",
