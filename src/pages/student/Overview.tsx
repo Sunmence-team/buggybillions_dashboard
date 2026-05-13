@@ -4,6 +4,7 @@ import OverviewCards from "../../components/cards/OverviewCards";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { PiBookOpenUserFill, PiArrowFatLineUp } from "react-icons/pi";
 import api from "../../helpers/api.tsx";
+import axios from "axios";
 
 interface Activity {
   title: string;
@@ -24,6 +25,8 @@ const StudentOverview: React.FC = () => {
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [gradedCount, setGradedCount] = useState<number>(0);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -78,7 +81,49 @@ const StudentOverview: React.FC = () => {
       }
     };
 
+    const fetchAnnouncements = async () => {
+      try {
+        setAnnouncementsLoading(true);
+        // Using direct axios call instead of 'api' to prevent the global interceptor from logging the user out 
+        // if this endpoint returns a 401 Unauthorized error (since this endpoint might not be fully configured yet).
+        const API_URL = import.meta.env.VITE_API_BASE_URL;
+        const res = await axios.get(`${API_URL}/api/announcements`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        
+        let announcementsArray = [];
+        if (Array.isArray(res.data)) {
+          announcementsArray = res.data;
+        } else if (res.data?.announcements && Array.isArray(res.data.announcements)) {
+          announcementsArray = res.data.announcements;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          announcementsArray = res.data.data;
+        } else if (typeof res.data === "object" && res.data !== null) {
+          // Fallback: find the first array in the response object
+          const firstArray = Object.values(res.data).find(Array.isArray);
+          if (firstArray) announcementsArray = firstArray as any[];
+        }
+        
+        const formattedAnnouncements = announcementsArray.map((ann: any) => ({
+          date: ann.created_at ? new Date(ann.created_at).toLocaleDateString() : "Today",
+          type: ann.type || "Important",
+          title: ann.title || "Announcement",
+          description: ann.content || ann.description || "",
+          color: ann.color || "yellow"
+        }));
+        
+        setAnnouncements(formattedAnnouncements);
+      } catch (error) {
+        console.error("Failed to fetch announcements", error);
+      } finally {
+        setAnnouncementsLoading(false);
+      }
+    };
+
     fetchActivities();
+    fetchAnnouncements();
   }, [user?.id]);
 
   if (loading) return <p>Loading user data...</p>;
@@ -94,16 +139,7 @@ const StudentOverview: React.FC = () => {
           },
         ];
 
-  const announcements: Announcement[] = user?.announcements || [
-    {
-      date: "Today",
-      type: "Important",
-      title: "Project Submission Reminder",
-      description:
-        "This is to remind you all to submit your project on or before 12am on Friday",
-      color: "yellow",
-    },
-  ];
+  const announcementsToRender: Announcement[] = announcements;
 
   return (
     <div className="space-y-6">
@@ -163,22 +199,28 @@ const StudentOverview: React.FC = () => {
         <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
           <h3 className="mb-4 text-lg font-semibold">Announcements</h3>
           <div className="space-y-4 max-h-[200px] pe-2 styled-scrollbar overflow-y-scroll">
-            {announcements.map((ann, index) => (
-              <div
-                key={index}
-                className={`rounded-lg border-l-4 ${
-                  ann.color === "yellow"
-                    ? "border-yellow-500 bg-yellow-50"
-                    : "border-gray-300 bg-gray-50"
-                } p-4`}
-              >
-                <small className="text-xs">
-                  {ann.date} • {ann.type}
-                </small>
-                <h4 className="mt-1 font-medium">{ann.title}</h4>
-                <p className="text-sm text-gray-600">{ann.description}</p>
-              </div>
-            ))}
+            {announcementsLoading ? (
+              <p className="text-gray-500">Loading announcements...</p>
+            ) : announcementsToRender.length > 0 ? (
+              announcementsToRender.map((ann, index) => (
+                <div
+                  key={index}
+                  className={`rounded-lg border-l-4 ${
+                    ann.color === "yellow"
+                      ? "border-yellow-500 bg-yellow-50"
+                      : "border-gray-300 bg-gray-50"
+                  } p-4`}
+                >
+                  <small className="text-xs">
+                    {ann.date} • {ann.type}
+                  </small>
+                  <h4 className="mt-1 font-medium">{ann.title}</h4>
+                  <p className="text-sm text-gray-600">{ann.description}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No announcements at the moment.</p>
+            )}
           </div>
         </div>
       </div>

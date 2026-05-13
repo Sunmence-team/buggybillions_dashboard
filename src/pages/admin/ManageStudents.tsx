@@ -17,6 +17,8 @@ const ManageStudents: React.FC = () => {
   const { token } = useUser();
 
   const [students, setStudents] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [stacks, setStacks] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -63,8 +65,46 @@ const ManageStudents: React.FC = () => {
     }
   };
 
+  const fetchClasses = async () => {
+    if (!token) return;
+    try {
+      const res = await api.get("/api/classes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      let data = [];
+      if (res.data?.classes && Array.isArray(res.data.classes)) {
+        data = res.data.classes;
+      } else {
+        data = res.data?.data || res.data || [];
+      }
+      setClasses(data);
+    } catch (err) {
+      console.warn("Failed to load classes for lookup");
+    }
+  };
+
+  const fetchStacks = async () => {
+    if (!token) return;
+    try {
+      const res = await api.get("/api/stacks", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      let data = [];
+      if (res.data?.stacks && Array.isArray(res.data.stacks)) {
+        data = res.data.stacks;
+      } else {
+        data = res.data?.data || res.data || [];
+      }
+      setStacks(data);
+    } catch (err) {
+      console.warn("Failed to load stacks for lookup");
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
+    fetchClasses();
+    fetchStacks();
   }, [token, currentPage]);
 
   /* =======================
@@ -82,11 +122,29 @@ const ManageStudents: React.FC = () => {
   const handleCreate = async (data: any) => {
     setIsSubmitting(true);
     try {
-      await api.post("/api/create_users", data, {
+      const response = await api.post("/api/create_users", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // Extract newly created user ID
+      const newUserId = response.data?.user?.id || response.data?.student?.id || response.data?.id || response.data?.data?.id;
+
+      // If a class was selected, assign the student to it
+      if (newUserId && data.student_class_id) {
+        try {
+          await api.post("/api/classes/assign-student", {
+            student_id: newUserId,
+            student_class_id: data.student_class_id
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } catch (assignErr) {
+          console.error("Failed to assign to class:", assignErr);
+          toast.warning("Student was created, but assigning to class failed.");
+        }
+      }
 
       toast.success("Student created successfully!");
       setIsCreateModalOpen(false);
@@ -105,17 +163,37 @@ const ManageStudents: React.FC = () => {
   const handleUpdate = async (data: any) => {
     setIsSubmitting(true);
     try {
+      await api.put(`/api/users/${selectedStudent.id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update the local state
       setStudents((prev) =>
         prev.map((s) =>
           s.id === selectedStudent.id ? { ...s, ...data } : s
         )
       );
 
+      // Re-assign class if class changed during edit
+      if (data.student_class_id) {
+        try {
+          await api.post("/api/classes/assign-student", {
+            student_id: selectedStudent.id,
+            student_class_id: data.student_class_id
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } catch (assignErr) {
+          console.warn("Class reassignment might have failed", assignErr);
+        }
+      }
+
       toast.success("Student updated successfully!");
       setModalType(null);
       setSelectedStudent(null);
-    } catch (err) {
-      toast.error("Failed to update student.");
+      fetchStudents(); // Refresh from server
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update student.");
     } finally {
       setIsSubmitting(false);
     }
@@ -127,24 +205,33 @@ const ManageStudents: React.FC = () => {
   const handleDelete = async (student: any) => {
     setIsDeleting(true);
     try {
-      const res = await api.delete(`/api/users/${student.id}`, {
+      await api.delete(`/api/users/${student.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (res.status === 200) {
-        setStudents((prev) =>
-          prev.filter((s) => s.id !== student.id)
-        );
-
+      setStudents((prev) => prev.filter((s) => s.id !== student.id));
+      toast.success("Student deleted successfully!");
+      setModalType(null);
+      setSelectedStudent(null);
+      fetchStudents();
+    } catch (err: any) {
+      try {
+        // Fallback for CORS/method issues
+        await api.post(`/api/users/${student.id}`, { _method: "DELETE" }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        setStudents((prev) => prev.filter((s) => s.id !== student.id));
         toast.success("Student deleted successfully!");
         setModalType(null);
         setSelectedStudent(null);
+        fetchStudents();
+      } catch (fallbackErr: any) {
+        console.error(fallbackErr);
+        toast.error(fallbackErr.response?.data?.message || "Failed to delete student.");
       }
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to delete student.");
     } finally {
       setIsDeleting(false);
     }
@@ -173,17 +260,27 @@ const ManageStudents: React.FC = () => {
     {
       title: "Class",
       key: "class",
-      render: (item) => (
-        <span className="capitalize">
-          {
-            item.student_class?.name ||
-            item.class?.name ||
-            item.student_class_name ||
-            item.class_name ||
-            "N/A"
+      render: (item) => {
+        // Try direct nested objects first
+        let className = item.student_class?.name || item.class?.name || item.student_class_name || item.class_name;
+        
+        // If not found, lookup by ID from the classes array
+        if (!className) {
+          const classId = item.student_class_id || item.class_id;
+          if (classId) {
+            const matchedClass = classes.find((c: any) => c.id == classId);
+            if (matchedClass) {
+              className = matchedClass.name || matchedClass.title || `Class ${classId}`;
+            }
           }
-        </span>
-      ),
+        }
+
+        return (
+          <span className="capitalize">
+            {className || "N/A"}
+          </span>
+        );
+      },
     },
     {
       title: "Department",
@@ -201,7 +298,35 @@ const ManageStudents: React.FC = () => {
         <ActionCell
           rowId={item.id}
           onView={() => {
-            setSelectedStudent(item);
+            let className = item.student_class?.name || item.class?.name || item.student_class_name || item.class_name;
+            if (!className) {
+              const classId = item.student_class_id || item.class_id;
+              if (classId) {
+                const matchedClass = classes.find((c: any) => c.id == classId);
+                if (matchedClass) {
+                  className = matchedClass.name || matchedClass.title || `Class ${classId}`;
+                }
+              }
+            }
+
+            let stackName = item.stack?.name || item.stack?.title;
+            if (!stackName) {
+              const stackId = item.stack_id || item.stack;
+              if (stackId) {
+                const matchedStack = stacks.find((s: any) => s.id == stackId);
+                if (matchedStack) {
+                  stackName = matchedStack.name || matchedStack.title;
+                } else if (typeof stackId === 'string' && isNaN(Number(stackId))) {
+                  stackName = stackId;
+                }
+              }
+            }
+
+            setSelectedStudent({
+              ...item,
+              resolvedClassName: className || undefined,
+              resolvedStackName: stackName || undefined
+            });
             setModalType("view");
           }}
           onEdit={() => {

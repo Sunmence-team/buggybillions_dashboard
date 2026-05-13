@@ -114,17 +114,23 @@ const ManageTutors: React.FC = () => {
   const handleUpdate = async (data: any) => {
     setIsSubmitting(true);
     try {
+      await api.put(`/api/users/${selectedTutor.id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update the local state to reflect the changes immediately
       setTutors((prev) =>
         prev.map((t) =>
           t.id === selectedTutor.id ? { ...t, ...data } : t
         )
       );
 
-      toast.success("Tutor updated (demo)");
+      toast.success("Tutor updated successfully!");
       setModalType(null);
       setSelectedTutor(null);
-    } catch {
-      toast.error("Update failed.");
+      fetchTutors(); // Refresh the list from the server to be completely sure
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update tutor.");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,18 +139,29 @@ const ManageTutors: React.FC = () => {
   const handleDelete = async (data: any) => {
     setIsDeleting(true);
     try {
-      const res = await api.delete(`/api/users/${data.id}`, {
+      await api.delete(`/api/users/${data.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 200) {
+      setTutors((prev) => prev.filter((t) => t.id !== data.id));
+      toast.success("Tutor deleted successfully");
+      setModalType(null);
+      setSelectedTutor(null);
+      fetchTutors();
+    } catch (err: any) {
+      try {
+        await api.post(`/api/users/${data.id}`, { _method: "DELETE" }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         setTutors((prev) => prev.filter((t) => t.id !== data.id));
         toast.success("Tutor deleted successfully");
         setModalType(null);
         setSelectedTutor(null);
+        fetchTutors();
+      } catch (fallbackErr: any) {
+        toast.error(fallbackErr.response?.data?.message || "Delete failed.");
       }
-    } catch {
-      toast.error("Delete failed.");
     } finally {
       setIsDeleting(false);
     }
@@ -154,7 +171,20 @@ const ManageTutors: React.FC = () => {
   const handleView = (id: number) => {
     const tutor = tutors.find((t) => t.id === id);
     if (!tutor) return;
-    setSelectedTutor(tutor);
+
+    // Resolve stack and class names synchronously using the pre-fetched arrays
+    const stack = stacks.find(
+      (s) => s.id === tutor.stack || s.title === tutor.stack
+    );
+    const cls = classes.find(
+      (c) => c.id === tutor.class || c.id === tutor.class_id
+    );
+
+    setSelectedTutor({
+      ...tutor,
+      resolvedStackName: stack?.title || tutor.stack,
+      resolvedClassName: cls?.name || cls?.title || tutor.class,
+    });
     setModalType("view");
   };
 

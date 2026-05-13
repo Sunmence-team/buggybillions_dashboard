@@ -117,6 +117,7 @@ const CreateStudentForm: React.FC<CreateStudentFormProps> = ({
 
     const submitData = {
       ...formData,
+      class_id: formData.student_class_id, // Added this in case the backend expects class_id instead of student_class_id
       stack: formData.stack,
       role: "student",
     };

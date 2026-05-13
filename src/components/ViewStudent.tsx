@@ -12,28 +12,48 @@ const ViewStudent: React.FC<ViewStudentProps> = ({ student, onClose }) => {
   const [className, setClassName] = useState<string>("");
 
   useEffect(() => {
-    if (student.stack_id) {
-      fetchStackName(student.stack_id);
+    // Use resolved names if provided by the parent
+    if (student.resolvedStackName) {
+      setStackName(student.resolvedStackName);
+    } else {
+      const stackVal = student.stack_id || student.stack;
+      if (stackVal) {
+        if (typeof stackVal === "string" && isNaN(Number(stackVal))) {
+          setStackName(stackVal);
+        } else {
+          fetchStackName(stackVal);
+        }
+      }
     }
-    if (student.student_class_id) {
-      fetchClassName(student.student_class_id);
+
+    if (student.resolvedClassName) {
+      setClassName(student.resolvedClassName);
+    } else {
+      const classVal = student.student_class_id || student.class_id || student.class || student.student_class_name || student.class_name;
+      if (classVal) {
+        if (typeof classVal === "string" && isNaN(Number(classVal))) {
+          setClassName(classVal);
+        } else {
+          fetchClassName(classVal);
+        }
+      }
     }
   }, [student]);
 
-  const fetchStackName = async (stackId: number) => {
+  const fetchStackName = async (stackId: number | string) => {
     try {
       const response = await api.get(`/api/stacks/${stackId}`);
-      setStackName(response.data?.stack?.name || response.data?.name || "Unknown");
+      setStackName(response.data?.stack?.name || response.data?.stack?.title || response.data?.name || response.data?.title || "Unknown");
     } catch (error) {
       console.error("Error fetching stack:", error);
       setStackName("Unknown");
     }
   };
 
-  const fetchClassName = async (classId: number) => {
+  const fetchClassName = async (classId: number | string) => {
     try {
       const response = await api.get(`/api/classes/${classId}`);
-      setClassName(response.data?.class?.name || response.data?.name || "Unknown");
+      setClassName(response.data?.class?.name || response.data?.class?.title || response.data?.name || response.data?.title || "Unknown");
     } catch (error) {
       console.error("Error fetching class:", error);
       setClassName("Unknown");

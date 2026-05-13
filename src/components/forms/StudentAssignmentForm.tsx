@@ -14,7 +14,30 @@ export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAss
 
     const [loading, setLoading] = React.useState(false)
     const { user } = useUser();
-    // const [postAssignment, setPostAssignment] = React.useState<any[]>([])
+    const [courses, setCourses] = React.useState<any[]>([]);
+    const [lessons, setLessons] = React.useState<any[]>([]);
+
+    React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            api.get("/api/courses", { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setCourses(res.data?.data || res.data || []))
+                .catch(err => console.error(err));
+
+            api.get("/api/student/weekly-lessons", { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    const lessonsData = res.data?.data?.lessons || res.data?.lessons || {};
+                    const flatLessons: any[] = [];
+                    Object.values(lessonsData).forEach((dateLessons: any) => {
+                        if (Array.isArray(dateLessons)) {
+                            flatLessons.push(...dateLessons);
+                        }
+                    });
+                    setLessons(flatLessons);
+                })
+                .catch(err => console.error(err));
+        }
+    }, []);
 
     const assignmentSchema = yup.object({
         assignment_name: yup.string().required('Title is required'),
@@ -129,31 +152,41 @@ export default function StudentAssignmentForm({ onClose, onSuccess }: StudentAss
                 )}
 
                 {/* Weekly Lesson */}
-                <label className="font-medium">Weekly Lesson ID</label>
-                <input
-                    type="text"
+                <label className="font-medium">Weekly Lesson</label>
+                <select
                     name="weekly_lesson_id"
-                    placeholder="Enter weekly lesson id"
                     value={formik.values.weekly_lesson_id}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className="p-3 rounded-lg bg-gray-300 text-black focus:outline-none"
-                />
+                >
+                    <option value="">Select a weekly lesson</option>
+                    {lessons.map(lesson => (
+                        <option key={lesson.id} value={lesson.id}>
+                            {lesson.day} - {lesson.topic}
+                        </option>
+                    ))}
+                </select>
                 {formik.touched.weekly_lesson_id && formik.errors.weekly_lesson_id && (
                     <p className="text-red-500 text-sm">{formik.errors.weekly_lesson_id}</p>
                 )}
 
                 {/* Course */}
-                <label className="font-medium">Course ID</label>
-                <input
-                    type="text"
+                <label className="font-medium">Course</label>
+                <select
                     name="course_id"
-                    placeholder="Enter course id"
                     value={formik.values.course_id}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className="p-3 rounded-lg bg-gray-300 text-black focus:outline-none"
-                />
+                >
+                    <option value="">Select a course</option>
+                    {courses.map(course => (
+                        <option key={course.id} value={course.id}>
+                            {course.title || course.name}
+                        </option>
+                    ))}
+                </select>
                 {formik.touched.course_id && formik.errors.course_id && (
                     <p className="text-red-500 text-sm">{formik.errors.course_id}</p>
                 )}

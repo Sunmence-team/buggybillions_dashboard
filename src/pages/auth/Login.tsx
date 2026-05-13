@@ -39,14 +39,35 @@ const Login: React.FC = () => {
           );
         }
       } catch (error: any) {
-        if (error.status === 400) {
+        // Explicitly handle network/CORS errors
+        if (error.code === "ERR_NETWORK") {
+          toast.error("Network Error: Unable to connect to the server. Please check your internet connection.");
+          return;
+        }
+
+        const status = error.response?.status || error.status;
+        const backendMessage = error.response?.data?.message || error.response?.data?.error;
+
+        // If the backend specifically indicates the account needs setup
+        if (status === 400 && (!backendMessage || backendMessage.toLowerCase().includes("setup"))) {
           toast.error(
             "Your account is not setup yet. Please complete your account setup.",
           );
           navigate("/auth/profilesetup");
           return;
         }
-        toast.error(error.data?.response?.message || error?.message);
+
+        // Display a descriptive error message from the backend, or a fallback based on status
+        let displayMessage = backendMessage;
+        if (!displayMessage) {
+           if (status >= 500) {
+              displayMessage = "Server error. Please try again later.";
+           } else {
+              displayMessage = "Invalid Bug ID or Password. Please check your credentials and try again.";
+           }
+        }
+        
+        toast.error(displayMessage);
       } finally {
         setLoading(false);
       }

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaUser, FaEnvelope, FaBriefcase, FaIdBadge, FaBook, FaCode } from "react-icons/fa";
 import { useUser } from "../../context/UserContext";
+import SetupPasswordModal from "../../components/modal/SetupPasswordModal";
 
 interface InfoTileProps {
   label: string;
@@ -21,6 +22,7 @@ const InfoTile: React.FC<InfoTileProps> = ({ label, value, icon: Icon }) => (
 
 const TutorProfile: React.FC = () => {
   const { user } = useUser();
+  const [isSetupPasswordOpen, setIsSetupPasswordOpen] = useState(false);
 
   if (!user) {
     return (
@@ -99,17 +101,38 @@ const TutorProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-slate-50/80 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Details</h3>
-              <div className="space-y-4">
-                <InfoTile label="Full Name" value={user?.fullname} icon={FaUser} />
-                <InfoTile label="Role" value={roleLabel} icon={FaBriefcase} />
-                <InfoTile label="Stack" value={stackTitle} icon={FaCode} />
+            <div className="rounded-lg border border-gray-200 bg-slate-50/80 p-6 shadow-sm flex flex-col gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Details</h3>
+                <div className="space-y-4">
+                  <InfoTile label="Full Name" value={user?.fullname} icon={FaUser} />
+                  <InfoTile label="Role" value={roleLabel} icon={FaBriefcase} />
+                  <InfoTile label="Stack" value={stackTitle} icon={FaCode} />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Security</h3>
+                <div className="rounded-lg border border-gray-200 bg-white p-4">
+                  <p className="text-sm text-gray-600 mb-4">
+                    Update your password to keep your account secure. If this is your first time logging in, please set up your new password.
+                  </p>
+                  <button
+                    onClick={() => setIsSetupPasswordOpen(true)}
+                    className="px-4 py-2 bg-purple text-white text-sm font-medium rounded-lg hover:bg-purple/90 transition-colors w-full sm:w-auto"
+                  >
+                    Set Up / Change Password
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <SetupPasswordModal 
+        isOpen={isSetupPasswordOpen} 
+        onClose={() => setIsSetupPasswordOpen(false)} 
+      />
     </div>
   );
 };
